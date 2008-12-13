@@ -1,0 +1,32 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:entry title="Database" help="/plugin/synergy/database.html">
+		<f:textbox name="synergy.database" value="${scm.database}" />
+	</f:entry>
+	<f:entry title="Engine" help="/plugin/synergy/database.html">
+		<f:textbox name="synergy.engine" value="${scm.engine}" />
+	</f:entry>
+	<f:entry title="Username" help="/plugin/synergy/username.html">
+		<f:textbox name="synergy.username" value="${scm.username}" />
+	</f:entry>
+	<f:entry title="Password" help="/plugin/synergy/password.html">
+		<f:password name="synergy.password" value="${scm.password}" />
+	</f:entry>
+	<f:entry title="Project name" help="/plugin/synergy/project.html">
+		<f:textbox name="synergy.project" value="${scm.project}" />
+	</f:entry>
+	<f:entry title="Release" help="/plugin/synergy/release.html">
+		<f:textbox name="synergy.release" value="${scm.release}" />
+	</f:entry>
+	<f:entry title="Purpose" help="/plugin/synergy/purpose.html">
+		<f:textbox name="synergy.purpose" value="${scm.purpose}" />
+	</f:entry>
+	<f:entry title="Old project name" help="/plugin/synergy/project.html">
+		<f:textbox name="synergy.oldProject" value="${scm.oldProject}" />
+	</f:entry>
+	<f:entry title="Baseline" help="/plugin/synergy/baseline.html">
+		<f:textbox name="synergy.baseline" value="${scm.baseline}" />
+	</f:entry>
+	<f:entry title="Old baseline" help="/plugin/synergy/old_baseline.html">
+		<f:textbox name="synergy.oldBaseline" value="${scm.oldBaseline}" />
+	</f:entry>
+</j:jelly>
