@@ -2,7 +2,7 @@
 	<f:entry title="Database" help="/plugin/synergy/database.html">
 		<f:textbox name="synergy.database" value="${scm.database}" />
 	</f:entry>
-	<f:entry title="Engine" help="/plugin/synergy/database.html">
+	<f:entry title="Engine" help="/plugin/synergy/engine.html">
 		<f:textbox name="synergy.engine" value="${scm.engine}" />
 	</f:entry>
 	<f:entry title="Username" help="/plugin/synergy/username.html">
@@ -20,13 +20,13 @@
 	<f:entry title="Purpose" help="/plugin/synergy/purpose.html">
 		<f:textbox name="synergy.purpose" value="${scm.purpose}" />
 	</f:entry>
-	<f:entry title="Old project name" help="/plugin/synergy/project.html">
+	<f:entry title="Old project name" help="/plugin/synergy/old-project.html">
 		<f:textbox name="synergy.oldProject" value="${scm.oldProject}" />
 	</f:entry>
 	<f:entry title="Baseline" help="/plugin/synergy/baseline.html">
 		<f:textbox name="synergy.baseline" value="${scm.baseline}" />
 	</f:entry>
-	<f:entry title="Old baseline" help="/plugin/synergy/old_baseline.html">
+	<f:entry title="Old baseline" help="/plugin/synergy/old-baseline.html">
 		<f:textbox name="synergy.oldBaseline" value="${scm.oldBaseline}" />
 	</f:entry>
 </j:jelly>
