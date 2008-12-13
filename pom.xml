@@ -5,6 +5,7 @@
   <artifactId>synergy</artifactId>
   <packaging>hpi</packaging>
   <version>1.0-SNAPSHOT</version>
+  <url>http://hudson.gotdns.com/wiki/display/HUDSON/Synergy+Plugin</url>
   
   <dependencies>
     <!--
