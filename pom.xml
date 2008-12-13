@@ -6,6 +6,8 @@
   <packaging>hpi</packaging>
   <version>1.0-SNAPSHOT</version>
   <url>http://hudson.gotdns.com/wiki/display/HUDSON/Synergy+Plugin</url>
+  <description>This plug-in provides integration with CM/Synergy Version Manager SCM</description>
+  <name>Hudson Synergy Plugin</name>
   
   <dependencies>
     <!--
