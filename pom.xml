@@ -23,11 +23,6 @@
       <version>1.244</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.maven.scm</groupId>
-      <artifactId>maven-scm-provider-synergy</artifactId> 
-      <version>1.0</version>
-    </dependency>
   </dependencies>
   
   <build>
