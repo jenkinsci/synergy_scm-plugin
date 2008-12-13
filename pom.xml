@@ -1,4 +1,7 @@
-<project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>org.jvnet.hudson.plugins</groupId>
@@ -8,6 +11,7 @@
   <url>http://hudson.gotdns.com/wiki/display/HUDSON/Synergy+Plugin</url>
   <description>This plug-in provides integration with CM/Synergy Version Manager SCM</description>
   <name>Hudson Synergy Plugin</name>
+  <inceptionYear>2008</inceptionYear>
   
   <dependencies>
     <!--
@@ -142,4 +146,15 @@
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
+  
+  <scm>
+  	<connection>scm:svn:https://svn.dev.java.net/svn/hudson/trunk/hudson/plugins/synergy_scm</connection>
+  </scm>
+  
+  <developers>
+  	<developer>
+ 		<id>jribette</id>
+ 		<name>Jean-Noël RIBETTE</name>
+  	</developer>
+  </developers>
 </project>
