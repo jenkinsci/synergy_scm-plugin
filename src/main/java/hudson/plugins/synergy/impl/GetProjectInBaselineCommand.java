@@ -8,15 +8,18 @@ import java.util.List;
 
 public class GetProjectInBaselineCommand extends Command {
 	private String baseline;
+	private String delimiter;
 	private List<String> projects = new ArrayList<String>();
 	
-	public GetProjectInBaselineCommand(String baseline) {
+	public GetProjectInBaselineCommand(String baseline, String delimiter) {
 		this.baseline = baseline;
+		this.delimiter = delimiter;
 	}
 
 	@Override
 	public String[] buildCommand(String ccmExe) {
-		String[] commands = new String[]{ccmExe, "query", "-u", "-f", "%objectname", "is_project_in_baseline_of('" + baseline + "~1:baseline:1')"};
+		// TODO there might be several baseline with this name
+		String[] commands = new String[]{ccmExe, "query", "-u", "-f", "%objectname", "is_project_in_baseline_of('" + baseline + delimiter + "1:baseline:1')"};
 		return commands;
 	}
 

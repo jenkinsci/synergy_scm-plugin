@@ -274,8 +274,13 @@ public class SynergySCM extends SCM implements Serializable {
 	 * @throws SynergyException
 	 */
 	private void checkoutBaseline(FilePath path, File changeLogFile, String baselineName, String oldBaselineName) throws IOException, InterruptedException, SynergyException {
+		// Get delimiter.
+		GetDelimiterCommand getDelim = new GetDelimiterCommand();
+		commands.executeSynergyCommand(path, getDelim);
+		String delim = getDelim.getDelimiter();
+		
 		// Get projects.
-		GetProjectInBaselineCommand projectsCommand = new GetProjectInBaselineCommand(baselineName);
+		GetProjectInBaselineCommand projectsCommand = new GetProjectInBaselineCommand(baselineName, delim);
 		commands.executeSynergyCommand(path, projectsCommand);
 		List<String> projects = projectsCommand.getProjects();
 		
@@ -290,15 +295,9 @@ public class SynergySCM extends SCM implements Serializable {
 		
 		// Get old projects.				
 		if (oldBaselineName!=null && oldBaselineName.length()!=0) {
-			projectsCommand = new GetProjectInBaselineCommand(oldBaselineName);
+			projectsCommand = new GetProjectInBaselineCommand(oldBaselineName, delim);
 			commands.executeSynergyCommand(path, projectsCommand);
-			List<String> oldProjects = projectsCommand.getProjects();
-			
-			// Get delimiter.
-			GetDelimiterCommand getDelim = new GetDelimiterCommand();
-			commands.executeSynergyCommand(path, getDelim);
-			String delim = getDelim.getDelimiter();
-					
+			List<String> oldProjects = projectsCommand.getProjects();					
 			
 			// Map each old project to a new project.
 			// TODO this won't work if multiple project with the same name is authorized.
@@ -563,7 +562,10 @@ public class SynergySCM extends SCM implements Serializable {
 		List<String> subProjects = command.getSubProjects();
 		
 		if (subProjects!=null && subProjects.size()>0) {
-			String projetPrincipal = project.split("~")[0];
+			GetDelimiterCommand getDelim = new GetDelimiterCommand();
+			commands.executeSynergyCommand(path, getDelim);
+			String delimiter = getDelim.getDelimiter();
+			String projetPrincipal = project.split(delimiter)[0];
 			for (String subProject : subProjects) {
 				configureWorkarea(subProject, true, path, new FilePath(path, projetPrincipal));
 			}
