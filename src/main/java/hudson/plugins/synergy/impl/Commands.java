@@ -163,8 +163,16 @@ public class Commands implements Serializable {
 		
 		
 		
-		if (output!=null && output.endsWith("\r\n")) {
-			output = output.substring(0, output.length()-2);
+		if (output!=null) {
+			// TODO better way to handle this : distinguish mono an multi line result 
+			// and use a BufferedReader to read the lines.  
+			if (output.endsWith("\r\n")) {
+				// DOS endline.
+				output = output.substring(0, output.length()-2);
+			} else if (output.endsWith("\n")) {
+				// UNIX endline.
+				output = output.substring(0, output.length()-1);
+			}
 		}
 		command.parseResult(output);
 	}
