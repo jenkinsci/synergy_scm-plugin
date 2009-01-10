@@ -16,7 +16,7 @@ public class SubProjectQueryCommand extends Command {
 	
 	@Override
 	public String[] buildCommand(String ccmExe) {
-		String[] commands = new String[] { ccmExe, "query", "-u", "-f", "%displayname", "\"cvtype='project' and is_member_of('" + project +"')\""};
+		String[] commands = new String[] { ccmExe, "query", "-u", "-f", "%displayname", "cvtype='project' and is_member_of('" + project +"')"};
 		return commands;
 	}
 	@Override
