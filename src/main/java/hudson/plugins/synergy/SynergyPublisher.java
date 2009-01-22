@@ -101,6 +101,7 @@ public class SynergyPublisher extends Publisher {
 			String database = synergySCM.getDatabase();
 			String username = synergySCM.getUsername();
 			String password = synergySCM.getPassword();
+			boolean remoteClient = synergySCM.isRemoteClient();
 			String engine = synergySCM.getEngine();
 			String project = synergySCM.getProject();
 			String purpose = synergySCM.getPurpose();
@@ -118,7 +119,7 @@ public class SynergyPublisher extends Publisher {
 			
 			try {
 				// Start Synergy.
-				StartCommand startCommand = new StartCommand(database, engine, username, password);
+				StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient);
 				commands.executeSynergyCommand(path, startCommand);
 				String ccmAddr = startCommand.getCcmAddr();
 				commands.setCcmAddr(ccmAddr);

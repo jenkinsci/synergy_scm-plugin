@@ -110,7 +110,8 @@ public class SynergySCM extends SCM implements Serializable {
                     req.getParameter("synergy.engine"),
                     req.getParameter("synergy.oldProject"),
                     req.getParameter("synergy.baseline"),
-                    req.getParameter("synergy.oldBaseline")
+                    req.getParameter("synergy.oldBaseline"),
+                    "true".equals(req.getParameter("synergy.remoteClient"))
                     );
         }
 		
@@ -187,11 +188,16 @@ public class SynergySCM extends SCM implements Serializable {
 	 * The old baseline
 	 */
 	private String oldBaseline;
+	
+	/**
+	 * Remote client connection flag.
+	 */
+	private boolean remoteClient;
 		
 	private transient Commands commands;
 	
 	@DataBoundConstructor
-    public SynergySCM(String project, String database, String release, String purpose, String username, String password, String engine, String oldProject, String baseline, String oldBaseline) {				
+    public SynergySCM(String project, String database, String release, String purpose, String username, String password, String engine, String oldProject, String baseline, String oldBaseline, boolean remoteClient) {				
 
 		this.project = project;
 		this.database = database;		
@@ -203,6 +209,7 @@ public class SynergySCM extends SCM implements Serializable {
 		this.oldProject = oldProject;
 		this.baseline  = baseline;
 		this.oldBaseline = oldBaseline;
+		this.remoteClient = remoteClient;
 	}
 	
 	
@@ -220,7 +227,7 @@ public class SynergySCM extends SCM implements Serializable {
 		
 		try {
 			// Start Synergy.
-			StartCommand command = new StartCommand(database, engine, username, password);
+			StartCommand command = new StartCommand(database, engine, username, password, remoteClient);
 			commands.executeSynergyCommand(path, command);
 			String ccmAddr = command.getCcmAddr();
 			commands.setCcmAddr(ccmAddr);
@@ -786,5 +793,17 @@ public class SynergySCM extends SCM implements Serializable {
 	
 	public String getOldBaseline() {
 		return oldBaseline;
+	}
+
+
+
+	public boolean isRemoteClient() {
+		return remoteClient;
+	}
+
+
+
+	public void setRemoteClient(boolean remoteClient) {
+		this.remoteClient = remoteClient;
 	}
 }
