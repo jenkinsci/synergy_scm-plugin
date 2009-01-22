@@ -29,7 +29,7 @@ public class CompareProjectCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
-		String[] resultAsArray = result.split("\n"); 
+		String[] resultAsArray = result.split("\n"); // TODO this leaves the result with \r at the end of the String on Windows 
 		differences = new ArrayList<String>(resultAsArray.length);
 		for (String difference : resultAsArray) {
 			String trim = difference.trim();
