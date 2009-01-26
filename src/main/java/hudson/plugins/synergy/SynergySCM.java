@@ -289,7 +289,11 @@ public class SynergySCM extends SCM implements Serializable {
 		String delim = getDelim.getDelimiter();
 		
 		// Get projects.
-		GetProjectInBaselineCommand projectsCommand = new GetProjectInBaselineCommand(baselineName, delim);
+		String baselineObjectName = baselineName;
+		if (baselineObjectName.indexOf(":baseline:")==-1) {
+			baselineObjectName = baselineName + delim + "1:baseline:1";
+		}
+		GetProjectInBaselineCommand projectsCommand = new GetProjectInBaselineCommand(baselineObjectName);
 		commands.executeSynergyCommand(path, projectsCommand);
 		List<String> projects = projectsCommand.getProjects();
 		
@@ -304,7 +308,11 @@ public class SynergySCM extends SCM implements Serializable {
 		
 		// Get old projects.				
 		if (oldBaselineName!=null && oldBaselineName.length()!=0) {
-			projectsCommand = new GetProjectInBaselineCommand(oldBaselineName, delim);
+			String oldBaselineObjectName = oldBaselineName;
+			if (oldBaselineObjectName.indexOf(":baseline:")==-1) {
+				oldBaselineObjectName = oldBaselineName + delim + "1:baseline:1";
+			}
+			projectsCommand = new GetProjectInBaselineCommand(oldBaselineObjectName);
 			commands.executeSynergyCommand(path, projectsCommand);
 			List<String> oldProjects = projectsCommand.getProjects();					
 			
