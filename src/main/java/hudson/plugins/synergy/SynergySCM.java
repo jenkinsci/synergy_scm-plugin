@@ -43,8 +43,10 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 
@@ -368,7 +370,7 @@ public class SynergySCM extends SCM implements Serializable {
 			CompareProjectCommand compareCommand = new CompareProjectCommand(projectName, oldProjectName);
 			commands.executeSynergyCommand(path, compareCommand);
 			List<String> result = compareCommand.getDifferences();
-				
+			
 			Collection<LogEntry> entries = generateChangeLog(result, projectName, changeLogFile, path);
 			copyEntries(path, entries);
 			return entries;
@@ -624,16 +626,52 @@ public class SynergySCM extends SCM implements Serializable {
 		return revisions;
 	}
 	
-	private Collection<LogEntry> generateChangeLog(List<String> names, String projectName, File changeLogFile, FilePath workarea) throws IOException, InterruptedException, SynergyException {	
+	/**
+	 * Generate the changelog.
+	 * @param names				Names of the elements that have changed
+	 * @param projects			Name of the Synergy project being build and that may contain changes 
+	 * @param changeLogFile		File to write the changelog into
+	 * @param workarea			The Workarea path
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws SynergyException
+	 */
+	private Collection<LogEntry> generateChangeLog(List<String> names, String projectName, File changeLogFile, FilePath workarea) throws IOException, InterruptedException, SynergyException {
 		// Find information about the element.
 		Map<String, LogEntry> logs = new HashMap<String, LogEntry>();
 		DateFormat dateFormat = DateFormat.getDateTimeInstance();
 		
 		if (names!=null) {
+			// Compute the subproject list for the finduse project
+			// in case the given project is a top level project.
+			SubProjectQueryCommand subProjectQuery = new SubProjectQueryCommand(projectName);
+			commands.executeSynergyCommand(workarea, subProjectQuery);
+			Set<String> projects = new HashSet<String>(subProjectQuery.getSubProjects());
+			projects.add(projectName);
+			
 			// Find the delimiter.
 			GetDelimiterCommand getDelim = new GetDelimiterCommand();
 			commands.executeSynergyCommand(workarea, getDelim);
 			String delimiter = getDelim.getDelimiter();
+
+			
+			// Compute the use of the subprojects in the project.
+			Map<String, String> subProjectsUse = new HashMap<String, String>();
+			if (projects.size()>1) {
+				Set<String> set = new HashSet<String>();
+				set.add(projectName);
+				for (String project : projects) {
+					if (!project.equals(projectName)) {
+						FindUseCommand findUse = new FindUseCommand(project, set, delimiter);
+						commands.executeSynergyCommand(workarea, findUse);
+						String use = findUse.getPath();
+						if (use!=null) {
+							subProjectsUse.put(project, use);
+						}
+					}
+				}
+			}
 			
 			for (String name : names) {				
 				// Entry to use.
@@ -676,10 +714,14 @@ public class SynergySCM extends SCM implements Serializable {
 				}
 				
 				// Find use of the element in the project.
-				FindUseCommand command = new FindUseCommand(name, projectName, delimiter);
+				FindUseCommand command = new FindUseCommand(name, projects, delimiter);
 				commands.executeSynergyCommand(workarea, command);
 				String pathInProject = command.getPath();
 				if (pathInProject!=null) {
+					if (!pathInProject.startsWith(projectName)) {
+						// The element is in a subproject.
+						// TODO add the subprojet path
+					}
 					Path path = new Path();
 					path.setId(name);
 					path.setValue(pathInProject);
