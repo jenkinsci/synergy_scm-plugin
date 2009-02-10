@@ -114,7 +114,7 @@ public class SynergyPublisher extends Publisher {
 			commands.setCcmUiLog(synergySCM.getDescriptor().getCcmUiLog());
 			commands.setCcmEngLog(synergySCM.getDescriptor().getCcmEngLog());
 			
-			commands.setBuildListener(listener);
+			commands.setTaskListener(listener);
 			commands.setLauncher(launcher);
 			
 			try {

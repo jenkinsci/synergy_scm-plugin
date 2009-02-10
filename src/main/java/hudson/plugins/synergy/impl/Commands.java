@@ -4,6 +4,7 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Proc;
 import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,14 +43,14 @@ public class Commands implements Serializable {
 	/**
 	 * Build listener.
 	 */
-	private BuildListener buildListener;
+	private TaskListener buildListener;
 	
-	public BuildListener getBuildListener() {
+	public TaskListener getTaskListener() {
 		return buildListener;
 	}
 
 
-	public void setBuildListener(BuildListener buildListener) {
+	public void setTaskListener(TaskListener buildListener) {
 		this.buildListener = buildListener;
 	}
 
@@ -149,7 +150,7 @@ public class Commands implements Serializable {
 		int result = proc.join();	
 		String output = out.toString();
 		
-		if (result!=0 && result!=1) {
+		if (!command.isStatusOK(result)) {
 			buildListener.getLogger().println("ccm command failed");
 			buildListener.getLogger().println(output);
 			buildListener.getLogger().println("The environment was :");

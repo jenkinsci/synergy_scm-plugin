@@ -11,6 +11,7 @@ import hudson.plugins.synergy.SynergyChangeLogSet.Path;
 import hudson.plugins.synergy.impl.Commands;
 import hudson.plugins.synergy.impl.CompareProjectCommand;
 import hudson.plugins.synergy.impl.FindAssociatedTaskCommand;
+import hudson.plugins.synergy.impl.FindCompletedSinceDateCommand;
 import hudson.plugins.synergy.impl.FindUseCommand;
 import hudson.plugins.synergy.impl.GetDelimiterCommand;
 import hudson.plugins.synergy.impl.GetProjectAttributeCommand;
@@ -41,6 +42,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -224,7 +226,7 @@ public class SynergySCM extends SCM implements Serializable {
 		commands.setCcmUiLog(getDescriptor().getCcmUiLog());
 		commands.setCcmEngLog(getDescriptor().getCcmEngLog());
 		
-		commands.setBuildListener(listener);
+		commands.setTaskListener(listener);
 		commands.setLauncher(launcher);
 		
 		try {
@@ -792,11 +794,57 @@ public class SynergySCM extends SCM implements Serializable {
 	}
 
 	@Override
-	public boolean pollChanges(AbstractProject arg0, Launcher arg1,
-			FilePath arg2, TaskListener arg3) throws IOException,
-			InterruptedException {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean pollChanges(AbstractProject project, Launcher launcher, FilePath path, TaskListener listener) throws IOException, InterruptedException {
+		// Get last build.
+		AbstractBuild lastBuild = (AbstractBuild) project.getLastBuild();
+		
+		// Check release.
+        if (release==null) {
+        	listener.getLogger().println("The release attribute is not set. It is required for change pooling.");
+        	return false;
+        }
+		
+		// No last build, build one now.
+        if(lastBuild==null) {
+            listener.getLogger().println("No existing build. Starting a new one");
+            return true;
+        }
+        
+        // Get last build date.
+        Calendar date = lastBuild.getTimestamp();     
+        
+        // Configure commands.
+		commands = new Commands();
+		commands.setCcmExe(getDescriptor().getCcmExe());
+		commands.setCcmUiLog(getDescriptor().getCcmUiLog());
+		commands.setCcmEngLog(getDescriptor().getCcmEngLog());
+		
+		commands.setTaskListener(listener);
+		commands.setLauncher(launcher);
+		
+		try {
+			// Start Synergy.
+			StartCommand command = new StartCommand(database, engine, username, password, remoteClient);
+			commands.executeSynergyCommand(path, command);
+			String ccmAddr = command.getCcmAddr();
+			commands.setCcmAddr(ccmAddr);
+			
+			// Find completed tasks.
+			FindCompletedSinceDateCommand findCommand = new FindCompletedSinceDateCommand(date, release);
+			commands.executeSynergyCommand(path, findCommand);
+			List<String> result = findCommand.getTasks();
+			return result!=null && !result.isEmpty();
+		} catch (SynergyException e) {
+			return false;
+		} finally {
+			// Stop Synergy
+			StopCommand stopCommand = new StopCommand();
+			try {
+				commands.executeSynergyCommand(path, stopCommand);
+			} catch (SynergyException e) {
+				return false;
+			}
+		}
 	}
 	
 	
