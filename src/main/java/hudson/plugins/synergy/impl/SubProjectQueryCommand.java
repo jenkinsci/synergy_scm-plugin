@@ -26,7 +26,7 @@ public class SubProjectQueryCommand extends Command {
 			BufferedReader reader = new BufferedReader(new StringReader(result));
 			String sousProjet = reader.readLine();
 			while (sousProjet!=null) {
-				subProjects.add(sousProjet);			
+				subProjects.add(sousProjet.trim());			
 				sousProjet = reader.readLine();				
 			}
 		} catch (IOException e) {
