@@ -62,5 +62,9 @@ public class StartCommand extends Command {
 		return ccmAddr;
 	}
 	
+	@Override
+	public boolean isStatusOK(int status) {
+		return status==0;
+	}
 	
 }
