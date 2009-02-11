@@ -1,6 +1,7 @@
 package hudson.plugins.synergy.impl;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A start session command.
@@ -39,8 +40,9 @@ public class StartCommand extends Command {
 		
 		// Add "-rc" parameter if required.
 		if (remoteClient) {
-			commands = Arrays.copyOf(commands, commands.length+1);
-			commands[commands.length-1] = "-rc";
+			List<String> list = Arrays.asList(commands);
+			list.add("-rc");
+			commands = list.toArray(new String[list.size()]);
 		}
 		return commands;
 	}
