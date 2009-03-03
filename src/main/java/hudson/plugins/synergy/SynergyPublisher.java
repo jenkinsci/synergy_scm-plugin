@@ -82,10 +82,12 @@ public class SynergyPublisher extends Publisher {
 		boolean publishBaseline = false;
 		boolean buildSucess = Result.SUCCESS.equals(build.getResult());
 		
-		if ("after".equals(createBaseline)) {
+		String createBaselineAtPoint = getTime();
+		
+		if ("after".equals(createBaselineAtPoint)) {
 			// Always create baseline after build.
 			createBaseline = true;
-		} else if ("success".equals(createBaseline) && buildSucess) {
+		} else if ("success".equals(createBaselineAtPoint) && buildSucess) {
 			// Create baseline only after sucessful build.
 			createBaseline = true;
 		}
