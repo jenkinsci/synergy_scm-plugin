@@ -65,4 +65,8 @@ public class UpdateCommand extends Command {
 	public List<String> getUpdates() {
 		return names;
 	}
+	
+	public boolean isStatusOK(int status) {
+		return status==0;
+	}
 }
