@@ -1,6 +1,6 @@
 package hudson.plugins.synergy.impl;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,9 +38,12 @@ public class StartCommand extends Command {
 	public String[] buildCommand(String ccmAddr) {
 		String[] commands = new String[]{ccmAddr, "start", "-d", database, "-h", engine, "-n", login, "-nogui", "-m", "-q", "-pw", password};
 		
-		// Add "-rc" parameter if required.
+		// Add "-rc" parameter if required at the end of the array.
 		if (remoteClient) {
-			List<String> list = Arrays.asList(commands);
+			List<String> list = new ArrayList<String>(commands.length);
+			for (String command : commands) {
+				list.add(command);
+			}
 			list.add("-rc");
 			commands = list.toArray(new String[list.size()]);
 		}
