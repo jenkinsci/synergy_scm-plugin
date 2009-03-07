@@ -1,5 +1,8 @@
 package hudson.plugins.synergy.impl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -18,30 +21,31 @@ public class ProjectConflicts extends Command {
 
 	@Override
 	public String[] buildCommand(String ccmExe) {
-		return new String[]{ccmExe, "conflicts", "-t", "-r", "-noformat", project};
+		return new String[]{ccmExe, "conflicts", "-r", "-noformat", project};
 	}
 
 	@Override
-	public void parseResult(String line) {
-		line = line.trim();
-		if (line.length()==0) {
-			return;
+	public void parseResult(String result) {
+		BufferedReader reader = new BufferedReader(new StringReader(result));
+		try {
+			String line = reader.readLine();
+			while (line!=null) {
+				line = line.trim();
+				if (line.length()!=0 && !line.startsWith("Project:") && line.indexOf("No conflicts detected")==-1) {				
+					StringTokenizer tokenizer = new StringTokenizer(line, "\t");
+					String objectname = tokenizer.nextToken();
+					String task = tokenizer.nextToken();
+					String message = tokenizer.nextToken();
+					int index = message.lastIndexOf("-");
+					String type = message.substring(index+1).trim();
+					Conflict conflict = new Conflict(objectname, task, type, message);
+					conflicts.add(conflict);
+				}
+				line = reader.readLine();
+			}
+		} catch (IOException e) {
+			// Ignore with a StringReader.
 		}
-		if (line.startsWith("Project")) {
-			return;
-		}
-		if (line.indexOf("No conflicts detected")!=-1) {
-			return;
-		}
-		
-		StringTokenizer tokenizer = new StringTokenizer(line, "\t");
-		String objectname = tokenizer.nextToken();
-		String task = tokenizer.nextToken();
-		String message = tokenizer.nextToken();
-		int index = message.lastIndexOf("-");
-		String type = message.substring(index+1).trim();
-		Conflict conflict = new Conflict(objectname, task, type, message);
-		conflicts.add(conflict);
 	}
 	
 	public List<Conflict> getConflicts() {
