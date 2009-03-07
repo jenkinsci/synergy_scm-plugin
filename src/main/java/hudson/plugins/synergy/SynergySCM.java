@@ -263,7 +263,7 @@ public class SynergySCM extends SCM implements Serializable {
 				if (result!=null) {
 					writeChangeLog(changeLogFile, result.getLogs());
 					if (result.getConflicts()!=null && !result.getConflicts().isEmpty()) {
-						listener.getLogger().print("Error : conflicts detected for project " + projectName);
+						listener.getLogger().println("Error : conflicts detected for project " + projectName);
 						return false;
 					}
 				}
@@ -271,7 +271,7 @@ public class SynergySCM extends SCM implements Serializable {
 				// Work on a Synergy baseline.
 				checkoutBaseline(path, changeLogFile, baselineName, oldBaselineName);
 			} else {
-				listener.getLogger().print("Error : neither project nor baseline is specified");
+				listener.getLogger().println("Error : neither project nor baseline is specified");
 				return false;
 			}
 		} catch (SynergyException e) {
