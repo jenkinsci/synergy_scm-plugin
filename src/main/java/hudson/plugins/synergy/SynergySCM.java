@@ -8,8 +8,10 @@ import hudson.model.BuildListener;
 import hudson.model.TaskListener;
 import hudson.plugins.synergy.SynergyChangeLogSet.LogEntry;
 import hudson.plugins.synergy.SynergyChangeLogSet.Path;
+import hudson.plugins.synergy.impl.CheckoutResult;
 import hudson.plugins.synergy.impl.Commands;
 import hudson.plugins.synergy.impl.CompareProjectCommand;
+import hudson.plugins.synergy.impl.Conflict;
 import hudson.plugins.synergy.impl.FindAssociatedTaskCommand;
 import hudson.plugins.synergy.impl.FindCompletedSinceDateCommand;
 import hudson.plugins.synergy.impl.FindUseCommand;
@@ -17,6 +19,7 @@ import hudson.plugins.synergy.impl.GetDelimiterCommand;
 import hudson.plugins.synergy.impl.GetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.GetProjectInBaselineCommand;
 import hudson.plugins.synergy.impl.GetProjectStateCommand;
+import hudson.plugins.synergy.impl.ProjectConflicts;
 import hudson.plugins.synergy.impl.SetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.StartCommand;
@@ -115,7 +118,8 @@ public class SynergySCM extends SCM implements Serializable {
                     req.getParameter("synergy.oldProject"),
                     req.getParameter("synergy.baseline"),
                     req.getParameter("synergy.oldBaseline"),
-                    "true".equals(req.getParameter("synergy.remoteClient"))
+                    "true".equals(req.getParameter("synergy.remoteClient")),
+                    "true".equals(req.getParameter("synergy.detectConflict"))
                     );
         }
 		
@@ -197,11 +201,16 @@ public class SynergySCM extends SCM implements Serializable {
 	 * Remote client connection flag.
 	 */
 	private boolean remoteClient;
+	
+	/**
+	 * Detect conflict flag.
+	 */
+	private boolean detectConflict;
 		
 	private transient Commands commands;
 	
 	@DataBoundConstructor
-    public SynergySCM(String project, String database, String release, String purpose, String username, String password, String engine, String oldProject, String baseline, String oldBaseline, boolean remoteClient) {				
+    public SynergySCM(String project, String database, String release, String purpose, String username, String password, String engine, String oldProject, String baseline, String oldBaseline, boolean remoteClient, boolean detectConflict) {				
 
 		this.project = project;
 		this.database = database;		
@@ -214,6 +223,7 @@ public class SynergySCM extends SCM implements Serializable {
 		this.baseline  = baseline;
 		this.oldBaseline = oldBaseline;
 		this.remoteClient = remoteClient;
+		this.detectConflict = detectConflict;
 	}
 	
 	
@@ -249,8 +259,14 @@ public class SynergySCM extends SCM implements Serializable {
 			// Check projet state.
 			if (project!=null && project.length()!=0) {
 				// Work on a Synergy project.
-				Collection<LogEntry> logs = checkoutProject(path, changeLogFile, projectName, oldProjectName);
-				writeChangeLog(changeLogFile, logs);
+				CheckoutResult result = checkoutProject(path, changeLogFile, projectName, oldProjectName);
+				if (result!=null) {
+					writeChangeLog(changeLogFile, result.getLogs());
+					if (result.getConflicts()!=null && !result.getConflicts().isEmpty()) {
+						listener.getLogger().print("Error : conflicts detected for project " + projectName);
+						return false;
+					}
+				}
 			} else if (baseline!=null && baseline.length()!=0) {
 				// Work on a Synergy baseline.
 				checkoutBaseline(path, changeLogFile, baselineName, oldBaselineName);
@@ -350,7 +366,8 @@ public class SynergySCM extends SCM implements Serializable {
 		// TODO This could be done in a one big request.
 		Collection<LogEntry> allEntries = new ArrayList<LogEntry>();
 		for (Map.Entry<String, String> project : projectsMapping.entrySet()) {
-			Collection<LogEntry> entries = checkoutStaticProject(path, changeLogFile, project.getKey(), project.getValue());
+			CheckoutResult result = checkoutStaticProject(path, changeLogFile, project.getKey(), project.getValue());
+			Collection<LogEntry> entries = result.getLogs();
 			allEntries.addAll(entries);
 		}
 		
@@ -371,7 +388,7 @@ public class SynergySCM extends SCM implements Serializable {
 	 * @throws InterruptedException
 	 * @throws SynergyException
 	 */
-	private Collection<LogEntry> checkoutStaticProject(FilePath path, File changeLogFile, String projectName, String oldProjectName) throws IOException, InterruptedException, SynergyException {
+	private CheckoutResult checkoutStaticProject(FilePath path, File changeLogFile, String projectName, String oldProjectName) throws IOException, InterruptedException, SynergyException {
 		// Compute workare path
 		String desiredWorkArea = getCleanWorkareaPath(path);
 								
@@ -383,7 +400,7 @@ public class SynergySCM extends SCM implements Serializable {
 			
 			Collection<LogEntry> entries = generateChangeLog(result, projectName, changeLogFile, path);
 			copyEntries(path, entries);
-			return entries;
+			return new CheckoutResult(null, entries);
 		} else {									
 			// Create snapshot.
 			WorkareaSnapshotCommand workareaSnapshotCommand = new WorkareaSnapshotCommand(projectName, desiredWorkArea);
@@ -406,7 +423,7 @@ public class SynergySCM extends SCM implements Serializable {
 	 * @throws InterruptedException
 	 * @throws SynergyException
 	 */
-	private Collection<LogEntry> checkoutProject(FilePath path, File changeLogFile, String projectName, String oldProjectName) throws IOException, InterruptedException, SynergyException {
+	private CheckoutResult checkoutProject(FilePath path, File changeLogFile, String projectName, String oldProjectName) throws IOException, InterruptedException, SynergyException {
 		if (isStaticProject(projectName, path)) {
 			// Clear workarea.
 			path.deleteContents();
@@ -417,17 +434,27 @@ public class SynergySCM extends SCM implements Serializable {
 		}
 	}
 
-	private Collection<LogEntry> checkoutDynamicProject(FilePath path, File changeLogFile, String projectName) throws IOException, InterruptedException, SynergyException {
+	private CheckoutResult checkoutDynamicProject(FilePath path, File changeLogFile, String projectName) throws IOException, InterruptedException, SynergyException {
 		// Configure workarea.
 		setAbsoluteWorkarea(path);
 		
 		// Update members.
 		UpdateCommand updateCommand = new UpdateCommand(projectName);
 		commands.executeSynergyCommand(path, updateCommand);
-		List<String> updates = updateCommand.getUpdates();
+		List<String> updates = updateCommand.getUpdates();		
 		
+		// Generate changelog
 		Collection<LogEntry> logs = generateChangeLog(updates, projectName, changeLogFile, path);
-		return logs;		
+		
+		// Check conflicts.
+		List<Conflict> conflicts = null;
+		if (detectConflict) {
+			ProjectConflicts conflictsCommand = new ProjectConflicts(projectName);
+			commands.executeSynergyCommand(path, conflictsCommand);
+			conflicts = conflictsCommand.getConflicts();
+		}
+		
+		return new CheckoutResult(conflicts, logs);		
 	}
 	
 	/**
@@ -894,16 +921,20 @@ public class SynergySCM extends SCM implements Serializable {
 	public String getOldBaseline() {
 		return oldBaseline;
 	}
-
-
-
+	
 	public boolean isRemoteClient() {
 		return remoteClient;
 	}
 
-
-
 	public void setRemoteClient(boolean remoteClient) {
 		this.remoteClient = remoteClient;
+	}
+	
+	public boolean isDetectConflict() {
+		return detectConflict;
+	}
+	
+	public void setDetectConflict(boolean detectConflict) {
+		this.detectConflict = detectConflict;
 	}
 }

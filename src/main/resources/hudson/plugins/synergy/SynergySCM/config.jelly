@@ -17,6 +17,9 @@
 	<f:entry title="Project name" help="/plugin/synergy/project.html">
 		<f:textbox name="synergy.project" value="${scm.project}" />
 	</f:entry>
+	<f:entry title="Detect conflicts" help="/plugin/synergy/conflict.html">
+		<f:checkbox name="synergy.detectConflict" value="true" checked="${scm.isDetectConflict()}" />
+	</f:entry>
 	<f:entry title="Release" help="/plugin/synergy/release.html">
 		<f:textbox name="synergy.release" value="${scm.release}" />
 	</f:entry>
