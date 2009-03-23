@@ -368,7 +368,9 @@ public class SynergySCM extends SCM implements Serializable {
 		for (Map.Entry<String, String> project : projectsMapping.entrySet()) {
 			CheckoutResult result = checkoutStaticProject(path, changeLogFile, project.getKey(), project.getValue());
 			Collection<LogEntry> entries = result.getLogs();
-			allEntries.addAll(entries);
+			if (entries!=null) {
+				allEntries.addAll(entries);
+			}
 		}
 		
 		// Write change log.
@@ -407,7 +409,7 @@ public class SynergySCM extends SCM implements Serializable {
 			commands.executeSynergyCommand(path, workareaSnapshotCommand);
 			
 			// TODO compute and write changelog
-			return null;
+			return new CheckoutResult(null, null);
 		}										
 	}
 
