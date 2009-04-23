@@ -5,7 +5,7 @@
   <artifactId>synergy</artifactId>
   <packaging>hpi</packaging>
   <version>1.5-SNAPSHOT</version>
-  <url>http://hudson.gotdns.com/wiki/display/HUDSON/Synergy+Plugin</url>
+  <url>http://wiki.hudson-ci.org/display/HUDSON/Synergy+Plugin</url>
   <description>This plug-in provides integration with CM/Synergy Version Manager SCM</description>
   <name>Hudson Synergy Plugin</name>
   <inceptionYear>2008</inceptionYear>
