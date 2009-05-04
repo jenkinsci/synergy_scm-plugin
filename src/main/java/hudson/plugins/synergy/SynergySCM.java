@@ -82,6 +82,11 @@ public class SynergySCM extends SCM implements Serializable {
 		 * Path to ccm_eng log.
 		 */
 		private String ccmEngLog;
+		
+		/**
+		 * Path name.
+		 */
+		private String pathName;
 
 		public String getCcmEngLog() {
 			return ccmEngLog;
@@ -89,6 +94,10 @@ public class SynergySCM extends SCM implements Serializable {
 
 		public String getCcmUiLog() {
 			return ccmUiLog;
+		}
+		
+		public String getPathName() {
+			return pathName;
 		}
 
 		private DescriptorImpl() {
@@ -101,6 +110,7 @@ public class SynergySCM extends SCM implements Serializable {
 			ccmExe = request.getParameter("synergy.ccmExe");
 			ccmUiLog = request.getParameter("synergy.ccmUiLog");
 			ccmEngLog = request.getParameter("synergy.ccmEngLog");
+			pathName = request.getParameter("synergy.pathName");
 			save();
 			return true;
 		}
@@ -241,7 +251,7 @@ public class SynergySCM extends SCM implements Serializable {
 		
 		try {
 			// Start Synergy.
-			StartCommand command = new StartCommand(database, engine, username, password, remoteClient);
+			StartCommand command = new StartCommand(database, engine, username, password, remoteClient, getDescriptor().getPathName());
 			commands.executeSynergyCommand(path, command);
 			String ccmAddr = command.getCcmAddr();
 			commands.setCcmAddr(ccmAddr);
@@ -855,7 +865,7 @@ public class SynergySCM extends SCM implements Serializable {
 		
 		try {
 			// Start Synergy.
-			StartCommand command = new StartCommand(database, engine, username, password, remoteClient);
+			StartCommand command = new StartCommand(database, engine, username, password, remoteClient, getDescriptor().getPathName());
 			commands.executeSynergyCommand(path, command);
 			String ccmAddr = command.getCcmAddr();
 			commands.setCcmAddr(ccmAddr);

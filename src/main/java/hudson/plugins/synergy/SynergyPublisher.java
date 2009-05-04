@@ -121,7 +121,7 @@ public class SynergyPublisher extends Publisher {
 			
 			try {
 				// Start Synergy.
-				StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient);
+				StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient, synergySCM.getDescriptor().getPathName());
 				commands.executeSynergyCommand(path, startCommand);
 				String ccmAddr = startCommand.getCcmAddr();
 				commands.setCcmAddr(ccmAddr);

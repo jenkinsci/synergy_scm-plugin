@@ -1,6 +1,7 @@
 package hudson.plugins.synergy.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,6 +15,7 @@ public class StartCommand extends Command {
 	private String engine;
 	private String password;
 	private boolean remoteClient;
+	private String pathName;
 	
 	/**
 	 * Builds a start session command.
@@ -25,28 +27,34 @@ public class StartCommand extends Command {
 	 * @param remoteClient	Use remote client flag
 	 * @return				The start command. The last part of the command is the logon password.
 	 */
-	public StartCommand(String database, String engine, String login, String password, boolean remoteClient) {
+	public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName) {
 		this.database = database;
 		this.engine = engine;
 		this.login = login;
 		this.password = password;
 		this.remoteClient = remoteClient;
+		this.pathName = pathName;
 	}
 
 	
 	@Override
 	public String[] buildCommand(String ccmAddr) {
-		String[] commands = new String[]{ccmAddr, "start", "-d", database, "-h", engine, "-n", login, "-nogui", "-m", "-q", "-pw", password};
+		// Creates an array of required parameters.
+		String[] commands = new String[]{ccmAddr, "start", "-d", database, "-h", engine, "-n", login, "-nogui", "-m", "-q", "-pw", password};		
+		List<String> list = new ArrayList<String>(Arrays.asList(commands));
 		
 		// Add "-rc" parameter if required at the end of the array.
-		if (remoteClient) {
-			List<String> list = new ArrayList<String>(commands.length);
-			for (String command : commands) {
-				list.add(command);
-			}
-			list.add("-rc");
-			commands = list.toArray(new String[list.size()]);
+		if (remoteClient) {			
+			list.add("-rc");	
 		}
+		
+		// Add "-u pathname" if pathname is set.
+		if (pathName!=null) {
+			list.add("-u");
+			list.add(pathName);
+		}		
+		
+		commands = list.toArray(new String[list.size()]);
 		return commands;
 	}
 	
