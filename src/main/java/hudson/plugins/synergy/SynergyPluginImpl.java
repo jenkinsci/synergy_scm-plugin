@@ -23,5 +23,6 @@ public class SynergyPluginImpl extends Plugin {
     public void start() throws Exception {
         SCMS.SCMS.add(SynergySCM.DescriptorImpl.DESCRIPTOR); 
         BuildStep.PUBLISHERS.add(SynergyPublisher.DescriptorImpl.DESCRIPTOR);
+        BuildStep.PUBLISHERS.add(SynergyFolderPublisher.DescriptorImpl.DESCRIPTOR);
     }
 }

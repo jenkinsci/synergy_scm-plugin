@@ -32,19 +32,20 @@ public class ProjectConflicts extends Command {
 			while (line!=null) {
 				line = line.trim();
 				if (line.length()!=0 && !line.startsWith("Project:") && line.indexOf("No conflicts detected")==-1) {				
+					
 					StringTokenizer tokenizer = new StringTokenizer(line, "\t");
 					String objectname = tokenizer.nextToken();
-					String task = tokenizer.nextToken();
-					if ("No task".equals(task)) {
-						Conflict conflict = new Conflict(objectname, null, null, "No task");
-						conflicts.add(conflict);
-					} else {
-						String message = tokenizer.nextToken();
+					String task = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : "No Task";
+					String message = "";
+					String type = "";
+					if(tokenizer.hasMoreTokens()){
+						message = tokenizer.nextToken();
 						int index = message.lastIndexOf("-");
-						String type = message.substring(index+1).trim();
-						Conflict conflict = new Conflict(objectname, task, type, message);
-						conflicts.add(conflict);						
-					}					
+						type = message.substring(index+1).trim();
+					}
+					
+					Conflict conflict = new Conflict(objectname, task, type, message);
+					conflicts.add(conflict);
 				}
 				line = reader.readLine();
 			}

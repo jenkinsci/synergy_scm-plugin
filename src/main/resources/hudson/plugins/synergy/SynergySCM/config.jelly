@@ -20,6 +20,12 @@
 	<f:entry title="Detect conflicts" help="/plugin/synergy/conflict.html">
 		<f:checkbox name="synergy.detectConflict" value="true" checked="${scm.isDetectConflict()}" />
 	</f:entry>
+	<f:entry title="Check for update Warnings" help="/plugin/synergy/checkForUpdateWarnings.html">
+		<f:checkbox name="synergy.checkForUpdateWarnings" value="true" checked="${scm.isCheckForUpdateWarnings()}" />
+	</f:entry>
+	<f:entry title="Replace Subprojects" help="/plugin/synergy/replaceSubprojects.html">
+		<f:checkbox name="synergy.replaceSubprojects" value="true" checked="${scm.isReplaceSubprojects()}" />
+	</f:entry>
 	<f:entry title="Release" help="/plugin/synergy/release.html">
 		<f:textbox name="synergy.release" value="${scm.release}" />
 	</f:entry>
@@ -34,5 +40,8 @@
 	</f:entry>
 	<f:entry title="Old baseline" help="/plugin/synergy/old-baseline.html">
 		<f:textbox name="synergy.oldBaseline" value="${scm.oldBaseline}" />
+	</f:entry>
+	<f:entry title="Leave session open after update" help="/plugin/synergy/leaveSessionOpen.html">
+		<f:checkbox name="synergy.leaveSessionOpen" value="true" checked="${scm.isLeaveSessionOpen()}" />
 	</f:entry>
 </j:jelly>
