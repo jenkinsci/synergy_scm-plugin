@@ -55,7 +55,7 @@ public class StartCommand extends Command {
 		}
 		
 		// Add "-u pathname" if pathname is set.
-		if (pathName!=null) {
+		if (pathName!=null && pathName.length()!=0) {
 			list.add("-u");
 			list.add(pathName);
 		}		
