@@ -40,7 +40,7 @@ public class UpdateCommand extends Command {
 		names = new ArrayList<String>();
 
 		// Creates regexps for what we are looking for in the log.
-		Pattern pReplaces = Pattern.compile("'[^']+'\\sreplaces\\s'[^']+'\\sunder\\s'c");
+		Pattern pReplaces = Pattern.compile("'[^']+'\\sreplaces\\s'[^']+'\\sunder\\s'[^']+'");
 		Pattern pBoundUnder = Pattern.compile("'[^']+'\\sis\\snow\\sbound\\sunder\\s'[^']+'");
 		Pattern pObjectName = Pattern.compile("'[^']+'");
 
