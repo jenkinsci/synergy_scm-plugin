@@ -150,6 +150,15 @@
     </pluginRepository>
   </pluginRepositories>
   
+  <distributionManagement>
+    <repository>
+      <uniqueVersion>false</uniqueVersion>
+      <id>java.net-maven2-repository</id>
+      <url>java-net:/maven2-repository/trunk/repository/</url>
+    </repository>
+  </distributionManagement>
+  
+  
   <scm>
   	<connection>scm:svn:https://svn.dev.java.net/svn/hudson/trunk/hudson/plugins/synergy_scm</connection>
     <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/trunk/hudson/plugins/synergy</developerConnection>
