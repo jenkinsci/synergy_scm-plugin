@@ -4,7 +4,7 @@
   <groupId>org.jvnet.hudson.plugins</groupId>
   <artifactId>synergy</artifactId>
   <packaging>hpi</packaging>
-  <version>1.5-SNAPSHOT</version>
+  <version>1.5</version>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Synergy+Plugin</url>
   <description>This plug-in provides integration with CM/Synergy Version Manager SCM</description>
   <name>Hudson Synergy Plugin</name>
@@ -151,9 +151,9 @@
   </pluginRepositories>
   
   <scm>
-  	<connection>scm:svn:https://svn.dev.java.net/svn/hudson/trunk/hudson/plugins/synergy_scm</connection>
-    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/trunk/hudson/plugins/synergy</developerConnection>
-    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/synergy</url>
+  	<connection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/synergy-1.5</connection>
+    <developerConnection>scm:svn:https://svn.dev.java.net/svn/hudson/tags/synergy-1.5</developerConnection>
+    <url>https://hudson.dev.java.net/source/browse/hudson/hudson/plugins/synergy/tags/synergy-1.5</url>
   </scm>
     
   <developers>
