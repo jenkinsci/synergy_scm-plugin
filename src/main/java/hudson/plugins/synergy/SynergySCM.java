@@ -722,7 +722,7 @@ public class SynergySCM extends SCM implements Serializable {
 				set.add(projectName);
 				for (String project : projects) {
 					if (!project.equals(projectName)) {
-						FindUseCommand findUse = new FindUseCommand(project, set, delimiter);
+						FindUseCommand findUse = new FindUseCommand(project, set, delimiter, true);
 						commands.executeSynergyCommand(workarea, findUse);
 						String use = findUse.getPath();
 						if (use != null) {
@@ -773,7 +773,7 @@ public class SynergySCM extends SCM implements Serializable {
 				}
 
 				// Find use of the element in the project.
-				FindUseCommand command = new FindUseCommand(name, projects, delimiter);
+				FindUseCommand command = new FindUseCommand(name, projects, delimiter, false);
 				commands.executeSynergyCommand(workarea, command);
 				String pathInProject = command.getPath();
 				if (pathInProject != null) {

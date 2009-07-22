@@ -24,17 +24,36 @@ public class FindUseCommand extends Command {
 	 */
 	private String delimiter;
 	
+	/**
+	 * Is the object a project.
+	 */
+	private boolean project;
+	
 	private String path;
 	
-	public FindUseCommand(String object, Set<String> projects, String delimiter) {
+	/**
+	 * Public constructor
+	 * 
+	 * @param object		The object we want to find the use in other projects
+	 * @param projects		The projects we want to kown if and where they contains the object
+	 * @param delimiter		The version delimiter
+	 * @param project		Is the object we want to find the use a project
+	 */
+	public FindUseCommand(String object, Set<String> projects, String delimiter, boolean project) {
 		super();
 		this.object = object;
 		this.projects = projects;
 		this.delimiter = delimiter;
+		this.project = project;
 	}
 	@Override
 	public String[] buildCommand(String ccmExe) {	
-		String[] commands = new String[] { ccmExe, "finduse", object };
+		String[] commands = null;
+		if (project) {
+			commands = new String[] { ccmExe, "finduse", "-p", object };			
+		} else {
+			commands = new String[] { ccmExe, "finduse", object };
+		}
 		return commands;			
 	}
 	@Override
