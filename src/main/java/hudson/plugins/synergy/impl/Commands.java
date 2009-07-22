@@ -150,7 +150,7 @@ public class Commands implements Serializable {
 		int result = proc.join();	
 		String output = out.toString();
 		
-		if (!command.isStatusOK(result)) {
+		if (!command.isStatusOK(result, output)) {
 			buildListener.getLogger().println("ccm command failed");
 			buildListener.getLogger().println(output);
 			buildListener.getLogger().println("The environment was :");

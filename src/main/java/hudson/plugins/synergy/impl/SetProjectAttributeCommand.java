@@ -23,4 +23,10 @@ public class SetProjectAttributeCommand extends Command {
 	public void parseResult(String result) {
 		// do nothing.
 	}
+	
+	@Override
+	public boolean isStatusOK(int status, String output) {
+		// Don't check empty output (can get a warning if the attribute does not exist)
+		return status==0 || status==1;
+	}
 }

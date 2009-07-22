@@ -24,9 +24,15 @@ public abstract class Command {
 	
 	/**
 	 * Return true if the given return status is ok for the command.
-	 * The default is to return true if the status is 0 or 1. 
+	 * The default is to return true if the status is 0 or 1 with empty output.
+	 * 
+	 * Testing only on 0 is not enough for "ccm query" commands as they return 1 for no result.
+	 * Testing 0 or 1 is not enough for "ccm query" commands as they return 1 for failure.  
+	 * 
+	 *  @param status	The ccm process return code
+	 *  @param output	The ccm process output
 	 */
-	public boolean isStatusOK(int status) {
-		return status==0 || status==1;
+	public boolean isStatusOK(int status, String output) {
+		return status==0 || status==1 && (output==null || output.length()==0);
 	}
 }

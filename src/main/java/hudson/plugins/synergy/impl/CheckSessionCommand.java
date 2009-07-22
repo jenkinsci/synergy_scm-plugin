@@ -60,7 +60,7 @@ public class CheckSessionCommand extends Command {
 	}
 
 	@Override
-	public boolean isStatusOK(int status) {
+	public boolean isStatusOK(int status, String result) {
 		return status == 0;
 	}
 }
