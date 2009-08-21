@@ -9,6 +9,7 @@ import hudson.model.Result;
 import hudson.plugins.synergy.impl.Commands;
 import hudson.plugins.synergy.impl.CreateProjectBaselineCommand;
 import hudson.plugins.synergy.impl.PublishBaselineCommand;
+import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.SynergyException;
 import hudson.plugins.synergy.util.SessionUtils;
 import hudson.scm.SCM;
@@ -111,6 +112,11 @@ public class SynergyPublisher extends Publisher {
 				// Open Session.
 				commands = SessionUtils.openSession(path, synergySCM, listener, launcher);
 				
+				// Become build manager.
+				SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
+				commands.executeSynergyCommand(path, setRoleCommand);
+				
+				// Compute baseline name.
 				Date date = build.getTimestamp().getTime();
 				DateFormat format = new SimpleDateFormat("yyyyMMdd-hhmm");
 				String name = build.getProject().getName() + "-" + format.format(date);

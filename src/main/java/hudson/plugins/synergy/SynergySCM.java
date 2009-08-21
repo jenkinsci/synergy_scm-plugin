@@ -270,10 +270,6 @@ public class SynergySCM extends SCM implements Serializable {
 			String baselineName = computeDynamicValue(build, baseline);
 			String oldBaselineName = computeDynamicValue(build, oldBaseline);
 
-			// Set role to build manager.
-			SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
-			commands.executeSynergyCommand(path, setRoleCommand);
-
 			// Check projet state.
 			if (project != null && project.length() != 0) {
 				// Work on a Synergy project.
@@ -544,8 +540,13 @@ public class SynergySCM extends SCM implements Serializable {
 		String state = command.getState();
 
 		// Compute result.
-		if ("prep".equals(state) || "working".equals(state)) {
-			// Integration testing or Development project.
+		if ("prep".equals(state)) {
+			// Integration testing, become build manager.
+			SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
+			commands.executeSynergyCommand(workspace, setRoleCommand);
+			return false;
+		} else if ("working".equals(state)) {
+			 // Development project.
 			return false;
 		} else {
 			// Released project part of a baseline.

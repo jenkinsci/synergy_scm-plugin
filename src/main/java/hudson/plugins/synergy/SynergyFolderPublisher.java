@@ -8,6 +8,7 @@ import hudson.model.Descriptor;
 import hudson.model.Result;
 import hudson.plugins.synergy.impl.Commands;
 import hudson.plugins.synergy.impl.CopyFolderCommand;
+import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.SynergyException;
 import hudson.plugins.synergy.util.SessionUtils;
 import hudson.scm.SCM;
@@ -96,6 +97,10 @@ public class SynergyFolderPublisher extends Publisher {
 			try {
 				// Start Synergy.
 				commands = SessionUtils.openSession(path, synergySCM, listener, launcher);
+				
+				// Become build manager.
+				SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
+				commands.executeSynergyCommand(path, setRoleCommand);
 			
 				// Copy tasks.
 				CopyFolderCommand copyFolderCommand = new CopyFolderCommand(getIntFolder(), getDevFolder());
