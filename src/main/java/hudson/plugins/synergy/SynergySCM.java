@@ -159,6 +159,8 @@ public class SynergySCM extends SCM implements Serializable {
 
 	/**
 	 * The Synergy project name.
+	 * This is the raw project name : 
+	 * if the project name contains variable, they are not substituted here.
 	 */
 	private String project;
 
@@ -264,7 +266,7 @@ public class SynergySCM extends SCM implements Serializable {
 			// Start Synergy.
 			commands = SessionUtils.openSession(path, this, listener, launcher);
 
-			// Compute dynamic name.
+			// Compute dynamic names (replace variable by their values).
 			String projectName = computeDynamicValue(build, project);
 			String oldProjectName = computeDynamicValue(build, oldProject);
 			String baselineName = computeDynamicValue(build, baseline);
@@ -451,7 +453,7 @@ public class SynergySCM extends SCM implements Serializable {
 
 	private CheckoutResult checkoutDynamicProject(FilePath path, File changeLogFile, String projectName) throws IOException, InterruptedException, SynergyException {
 		// Configure workarea.
-		setAbsoluteWorkarea(path);
+		setAbsoluteWorkarea(path, projectName);
 
 		// Update members.
 		UpdateCommand updateCommand = new UpdateCommand(projectName, isReplaceSubprojects());
@@ -611,21 +613,18 @@ public class SynergySCM extends SCM implements Serializable {
 	/**
 	 * Configure the Synergy workarea for the main project and the subprojects.
 	 * 
-	 * @param launcher		Launcher to use to launch command
 	 * @param path			The Hudson projet workspace path
-	 * @param ccmAddr		The current Synergy session address
-	 * @param listener		The Hudson build listener
-	 * @return true if the Synergy workarea was configured propertly
+	 * @param projectName	The Hudson project name
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws SynergyException
 	 */
-	private void setAbsoluteWorkarea(FilePath path) throws IOException, InterruptedException, SynergyException {
+	private void setAbsoluteWorkarea(FilePath path, String projectName) throws IOException, InterruptedException, SynergyException {
 		// Check main project.
-		configureWorkarea(project, false, path);
+		configureWorkarea(projectName, false, path);
 
 		// Get subproject.
-		SubProjectQueryCommand command = new SubProjectQueryCommand(project);
+		SubProjectQueryCommand command = new SubProjectQueryCommand(projectName);
 		try {
 			commands.executeSynergyCommand(path, command);
 		} catch (SynergyException e) {
@@ -887,6 +886,11 @@ public class SynergySCM extends SCM implements Serializable {
 		}
 	}
 
+	/**
+	 * Returns the raw project name.
+	 * If the project name contains variable, they are not substituted here.
+	 * @return	The raw project name
+	 */
 	public String getProject() {
 		return project;
 	}
