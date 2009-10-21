@@ -2,8 +2,6 @@ package hudson.plugins.synergy.impl;
 
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.Proc;
-import hudson.model.BuildListener;
 import hudson.model.TaskListener;
 
 import java.io.ByteArrayOutputStream;
@@ -125,7 +123,7 @@ public class Commands implements Serializable {
 	 * @throws InterruptedException
 	 */
 	public void executeSynergyCommand(FilePath path, Command command) throws IOException, InterruptedException, SynergyException {
-		Map<String, String> system =System.getenv();
+		Map<String, String> system = System.getenv();
 		List<String> param = new ArrayList<String>();
 		for (Map.Entry<String, String> entry : system.entrySet()) {
 			String s = entry.getKey() + "=" + entry.getValue();			
@@ -146,8 +144,7 @@ public class Commands implements Serializable {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		String[] commands = command.buildCommand(ccmExe);
 		boolean[] mask = command.buildMask();
-		Proc proc = launcher.launch(commands, mask, env, null, out, path);
-		int result = proc.join();	
+		int result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
 		String output = out.toString();
 		
 		if (!command.isStatusOK(result, output)) {
@@ -209,8 +206,7 @@ public class Commands implements Serializable {
 		try {
 			String[] commands = command.buildCommand(ccmExe);
 			boolean[] mask = command.buildMask();
-			Proc proc = launcher.launch(commands, mask, env, null, out, path);
-			result = proc.join();
+			result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
 		} finally {
 			out.close();
 		}

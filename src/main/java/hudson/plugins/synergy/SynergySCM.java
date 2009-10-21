@@ -1,5 +1,6 @@
 package hudson.plugins.synergy;
 
+import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -33,8 +34,7 @@ import hudson.plugins.synergy.util.SessionUtils;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.SCM;
 import hudson.scm.SCMDescriptor;
-import hudson.scm.SubversionSCM.SvnInfo;
-import hudson.util.FormFieldValidator;
+import hudson.util.FormValidation;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -52,11 +52,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * Synergy SCM
@@ -65,6 +64,7 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public class SynergySCM extends SCM implements Serializable {
 	public static final class DescriptorImpl extends SCMDescriptor<SynergySCM> {
+		@Extension
 		public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
 		/**
@@ -105,7 +105,7 @@ public class SynergySCM extends SCM implements Serializable {
 		}
 
 		@Override
-		public boolean configure(StaplerRequest request) throws FormException {
+		public boolean configure(StaplerRequest request, JSONObject formData) throws FormException {
 			ccmExe = request.getParameter("synergy.ccmExe");
 			ccmUiLog = request.getParameter("synergy.ccmUiLog");
 			ccmEngLog = request.getParameter("synergy.ccmEngLog");
@@ -115,7 +115,7 @@ public class SynergySCM extends SCM implements Serializable {
 		}
 
 		@Override
-		public SCM newInstance(StaplerRequest req) throws FormException {
+		public SCM newInstance(StaplerRequest req, JSONObject formData) throws FormException {
 			return new SynergySCM(
 					req.getParameter("synergy.project"), 
 					req.getParameter("synergy.database"), 
@@ -137,8 +137,8 @@ public class SynergySCM extends SCM implements Serializable {
 		/**
 		 * Checks if ccm executable exists.
 		 */
-		public void doCcmExeCheck(StaplerRequest req, StaplerResponse rsp) throws IOException, ServletException {
-			new FormFieldValidator.Executable(req, rsp).process();
+		public FormValidation doCcmExeCheck(@QueryParameter String value) {
+			return FormValidation.validateExecutable(value);
 		}
 
 		@Override
@@ -515,12 +515,12 @@ public class SynergySCM extends SCM implements Serializable {
 	 * Replace an expression in the form ${name} in the given String
 	 * by the value of the matching environment variable.
 	 */
-	private String computeDynamicValue(AbstractBuild build, String parameterizedValue) throws IllegalStateException {
+	private String computeDynamicValue(AbstractBuild build, String parameterizedValue) throws IllegalStateException, InterruptedException, IOException {
 		if (parameterizedValue != null && parameterizedValue.indexOf("${") != -1) {
 			int start = parameterizedValue.indexOf("${");
 			int end = parameterizedValue.indexOf("}", start);
 			String parameter = parameterizedValue.substring(start + 2, end);
-			String value = (String) build.getEnvVars().get(parameter);
+			String value = (String) build.getEnvironment(TaskListener.NULL).get(parameter);
 			if (value == null) {
 				throw new IllegalStateException(parameter);
 			}

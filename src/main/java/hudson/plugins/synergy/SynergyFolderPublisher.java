@@ -1,10 +1,11 @@
 package hudson.plugins.synergy;
 
+import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.Descriptor;
 import hudson.model.Result;
 import hudson.plugins.synergy.impl.Commands;
 import hudson.plugins.synergy.impl.CopyFolderCommand;
@@ -12,6 +13,9 @@ import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.SynergyException;
 import hudson.plugins.synergy.util.SessionUtils;
 import hudson.scm.SCM;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
 import java.io.IOException;
@@ -21,17 +25,21 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
-public class SynergyFolderPublisher extends Publisher {
-	public static class DescriptorImpl extends Descriptor<Publisher> {
-		public static DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-
-		private DescriptorImpl() {
+public class SynergyFolderPublisher extends Notifier {
+	@Extension
+	public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+		public DescriptorImpl() {
 			super(SynergyFolderPublisher.class);
 		}
 
 		@Override
 		public String getDisplayName() {
 			return "Synergy Copy Folder";
+		}
+
+		@Override
+		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+			return true;
 		}
 
 		@Override
@@ -63,8 +71,8 @@ public class SynergyFolderPublisher extends Publisher {
 		this.devFolder = devFolder;
 	}
 
-	public Descriptor<Publisher> getDescriptor() {
-		return DescriptorImpl.DESCRIPTOR;
+	public BuildStepMonitor getRequiredMonitorService() {
+		return BuildStepMonitor.STEP;
 	}
 
 	@Override
@@ -90,7 +98,7 @@ public class SynergyFolderPublisher extends Publisher {
 			
 			// Get Synergy parameters.
 			SynergySCM synergySCM = (SynergySCM) scm;
-			FilePath path = build.getProject().getWorkspace();
+			FilePath path = build.getWorkspace();
 
 			Commands commands = null;
 			
