@@ -15,6 +15,8 @@ import hudson.plugins.synergy.impl.CompareProjectCommand;
 import hudson.plugins.synergy.impl.Conflict;
 import hudson.plugins.synergy.impl.FindAssociatedTaskCommand;
 import hudson.plugins.synergy.impl.FindCompletedSinceDateCommand;
+import hudson.plugins.synergy.impl.FindProjectGroupingCommand;
+import hudson.plugins.synergy.impl.FindProjectInProjectGrouping;
 import hudson.plugins.synergy.impl.FindUseCommand;
 import hudson.plugins.synergy.impl.GetDelimiterCommand;
 import hudson.plugins.synergy.impl.GetProjectAttributeCommand;
@@ -131,7 +133,8 @@ public class SynergySCM extends SCM implements Serializable {
 					"true".equals(req.getParameter("synergy.detectConflict")), 
 					"true".equals(req.getParameter("synergy.replaceSubprojects")), 
 					"true".equals(req.getParameter("synergy.checkForUpdateWarnings")),
-					"true".equals(req.getParameter("synergy.leaveSessionOpen")));
+					"true".equals(req.getParameter("synergy.leaveSessionOpen")),
+					"true".equals(req.getParameter("synergy.maintainWorkarea")));
 		}
 
 		/**
@@ -237,11 +240,36 @@ public class SynergySCM extends SCM implements Serializable {
 	 * Abort the build if there are updateWarnings.
 	 */
 	private boolean checkForUpdateWarnings;
-
+	
+	/**
+	 * Maintain a workarea for the project.
+	 * The default value "null" is matched to "true" 
+	 */
+	private Boolean maintainWorkarea;
+	
+	/**
+	 * 
+	 * @param project
+	 * @param database
+	 * @param release
+	 * @param purpose
+	 * @param username
+	 * @param password
+	 * @param engine
+	 * @param oldProject
+	 * @param baseline
+	 * @param oldBaseline
+	 * @param remoteClient
+	 * @param detectConflict
+	 * @param replaceSubprojects
+	 * @param checkForUpdateWarnings
+	 * @param leaveSessionOpen
+	 * @param maintainWorkarea
+	 */
 	@DataBoundConstructor
 	public SynergySCM(String project, String database, String release, String purpose, String username, String password, String engine,
 			String oldProject, String baseline, String oldBaseline, boolean remoteClient, boolean detectConflict, 
-			boolean replaceSubprojects, boolean checkForUpdateWarnings, boolean leaveSessionOpen) {
+			boolean replaceSubprojects, boolean checkForUpdateWarnings, boolean leaveSessionOpen, Boolean maintainWorkarea) {
 
 		this.project = project;
 		this.database = database;
@@ -258,6 +286,7 @@ public class SynergySCM extends SCM implements Serializable {
 		this.replaceSubprojects = replaceSubprojects;
 		this.checkForUpdateWarnings = checkForUpdateWarnings;
 		this.leaveSessionOpen = leaveSessionOpen;
+		this.maintainWorkarea = maintainWorkarea;
 	}
 
 	@Override
@@ -286,8 +315,20 @@ public class SynergySCM extends SCM implements Serializable {
 			} else if (baseline != null && baseline.length() != 0) {
 				// Work on a Synergy baseline.
 				checkoutBaseline(path, changeLogFile, baselineName, oldBaselineName);
+			} else if (release!=null && release.length()!=0) {
+				// Work on a Synergy project grouping.
+				CheckoutResult result = checkoutProjectGrouping(path, changeLogFile, release, purpose);
+				if (result != null) {
+					writeChangeLog(changeLogFile, result.getLogs());
+					if (result.getConflicts() != null && !result.getConflicts().isEmpty()) {
+						listener.getLogger().println("Error : conflicts detected for project " + projectName);
+						return false;
+					}
+				} else {
+					return false;
+				}
 			} else {
-				listener.getLogger().println("Error : neither project nor baseline is specified");
+				listener.getLogger().println("Error : neither project nor baseline nor release is specified");
 				return false;
 			}
 		} catch (SynergyException e) {
@@ -301,6 +342,63 @@ public class SynergySCM extends SCM implements Serializable {
 			}		
 		}
 		return true;
+	}
+	
+	/**
+	 * "Checkout" a project grouping
+	 * 
+	 * @param path				Hudson workarea path
+	 * @param changeLogFile		Hudson changelog file
+	 * @param release			The project grouping release
+	 * @param purpose			The project grouping purpose
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws SynergyException
+	 */
+	private CheckoutResult checkoutProjectGrouping(FilePath path, File changeLogFile, String release, String purpose) throws IOException, InterruptedException, SynergyException {
+		// Find project grouping.
+		FindProjectGroupingCommand findCommand = new FindProjectGroupingCommand(release, purpose);
+		commands.executeSynergyCommand(path, findCommand);
+		List<String> projectGroupings = findCommand.getProjectGroupings();
+		if (projectGroupings.size()!=1) {
+			commands.getTaskListener().error("Error : multiple or no project grouping found");
+			return null;
+		}
+		String projectGrouping = projectGroupings.get(0);
+		
+		// Update members.		
+		UpdateCommand updateCommand = new UpdateCommand(UpdateCommand.PROJECT_GROUPING, projectGrouping, isReplaceSubprojects());
+		commands.executeSynergyCommand(path, updateCommand);
+		List<String> updates = updateCommand.getUpdates();
+			
+		// Generate changelog
+		Collection<LogEntry> logs = generateChangeLog(updates, projectGrouping, changeLogFile, path);
+			
+		// Check update warnings.
+		if(isCheckForUpdateWarnings() && updateCommand.isUpdateWarningsExists()){
+			return new CheckoutResult(updateCommand.getConflicts(), logs);		
+		}				
+		
+		// Check conflicts.
+		List<Conflict> conflicts = new ArrayList<Conflict>();
+		if (detectConflict) {
+			// Find the project to detect conflicts into.
+			FindProjectInProjectGrouping findProjectCommand = new FindProjectInProjectGrouping(projectGrouping);
+			commands.executeSynergyCommand(path, findProjectCommand);
+			List<String> projects = findProjectCommand.getProjects();
+			
+			for (String project : projects) {
+				ProjectConflicts conflictsCommand = new ProjectConflicts(project);
+				commands.executeSynergyCommand(path, conflictsCommand);
+				List<Conflict> projectConflicts = conflictsCommand.getConflicts();
+				if (projectConflicts!=null) {
+					conflicts.addAll(projectConflicts);
+				}
+			}
+		}
+		
+		return new CheckoutResult(conflicts, logs);
 	}
 
 	/**
@@ -453,10 +551,14 @@ public class SynergySCM extends SCM implements Serializable {
 
 	private CheckoutResult checkoutDynamicProject(FilePath path, File changeLogFile, String projectName) throws IOException, InterruptedException, SynergyException {
 		// Configure workarea.
-		setAbsoluteWorkarea(path, projectName);
+		// Assume a null value means TRUE 
+		// (as it was the default behavior before the addition of this parameter) 
+		if (shouldMaintainWorkarea()) {
+			setAbsoluteWorkarea(path, projectName);
+		}
 
 		// Update members.
-		UpdateCommand updateCommand = new UpdateCommand(projectName, isReplaceSubprojects());
+		UpdateCommand updateCommand = new UpdateCommand(UpdateCommand.PROJECT, projectName, isReplaceSubprojects());
 		commands.executeSynergyCommand(path, updateCommand);
 		List<String> updates = updateCommand.getUpdates();
 
@@ -732,6 +834,7 @@ public class SynergySCM extends SCM implements Serializable {
 				}
 			}
 
+			// Find the task associated to each change and the path of each changed object.
 			for (String name : names) {
 				// Entry to use.
 				SynergyChangeLogSet.LogEntry entry = null;
@@ -745,22 +848,9 @@ public class SynergySCM extends SCM implements Serializable {
 					entry = logs.get(taskId);
 					if (entry == null) {
 						entry = new LogEntry();
-
-						// Find task info.
-						List<String> t = new ArrayList<String>(1);
-						t.add(taskId);
-						TaskInfoCommand taskInfoCommand = new TaskInfoCommand(t);
-						commands.executeSynergyCommand(workarea, taskInfoCommand);
-						List<TaskCompleted> infos = taskInfoCommand.getInformations();
-						if (!infos.isEmpty()) {
-							entry.setMsg(infos.get(0).getSynopsis());
-							entry.setUser(infos.get(0).getResolver());
-							entry.setTaskId(infos.get(0).getId());
-							entry.setDate(infos.get(0).getDateCompleted() == null ? null : dateFormat.format(infos.get(0).getDateCompleted()));
-						}
 						logs.put(taskId, entry);
 					}
-				}
+				}				
 
 				// Deal with no task case (should not happen)
 				if (entry == null) {
@@ -787,6 +877,26 @@ public class SynergySCM extends SCM implements Serializable {
 					entry.addPath(path);
 				}
 			}
+			
+			// Find the info for each task.
+			for (Map.Entry<String,LogEntry> entry : logs.entrySet()) {
+				String taskId = entry.getKey();
+				LogEntry log = entry.getValue();
+				
+				if (taskId!=null) {
+					List<String> t = new ArrayList<String>(1);
+					t.add(taskId);
+					TaskInfoCommand taskInfoCommand = new TaskInfoCommand(t);
+					commands.executeSynergyCommand(workarea, taskInfoCommand);
+					List<TaskCompleted> infos = taskInfoCommand.getInformations();
+					if (!infos.isEmpty()) {
+						log.setMsg(infos.get(0).getSynopsis());
+						log.setUser(infos.get(0).getResolver());
+						log.setTaskId(infos.get(0).getId());
+						log.setDate(infos.get(0).getDateCompleted() == null ? null : dateFormat.format(infos.get(0).getDateCompleted()));
+					}						
+				}
+			}		
 		}
 
 		return logs.values();
@@ -972,5 +1082,14 @@ public class SynergySCM extends SCM implements Serializable {
 	}
 	public boolean isLeaveSessionOpen() {
 		return leaveSessionOpen;
+	}
+	public void setMaintainWorkarea(Boolean maintainWorkarea) {
+		this.maintainWorkarea = maintainWorkarea;
+	}
+	public Boolean getMaintainWorkarea() {
+		return maintainWorkarea;
+	}
+	public boolean shouldMaintainWorkarea() {
+		return maintainWorkarea==null || maintainWorkarea.booleanValue();
 	}
 }

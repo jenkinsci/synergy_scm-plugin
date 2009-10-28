@@ -10,7 +10,7 @@ public class ReadUpdateLogTest extends AbstractLogTest {
 	 * Tests the update log 1.
 	 */
 	public void testLog1() throws IOException {
-		UpdateCommand update = new UpdateCommand("project", false);
+		UpdateCommand update = new UpdateCommand(UpdateCommand.PROJECT, "project", false);
 		String log = readLog("logs/updates/update1.log.txt");
 		update.parseResult(log);
 		List<String> updates = update.getUpdates();

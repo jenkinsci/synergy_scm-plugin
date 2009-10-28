@@ -12,6 +12,14 @@ import java.util.regex.Pattern;
  * @author jrbe
  */
 public class UpdateCommand extends Command {
+	public static final String PROJECT = "-p";
+	public static final String PROJECT_GROUPING = "-pg";
+	
+	/**
+	 * The type of element to update
+	 */
+	private String type;
+	
 	/**
 	 * The spec of the project to update.
 	 */
@@ -29,7 +37,8 @@ public class UpdateCommand extends Command {
 
 	private List<Conflict> conflicts = new ArrayList<Conflict>();
 
-	public UpdateCommand(String project, boolean replaceSubprojects) {
+	public UpdateCommand(String type, String project, boolean replaceSubprojects) {
+		this.type = type;
 		this.project = project;
 		this.replaceSubprojects = replaceSubprojects;
 	}
@@ -83,7 +92,7 @@ public class UpdateCommand extends Command {
 	public String[] buildCommand(String ccmExe) {
 		String subprojectUpdateRule = replaceSubprojects ? "-replace_subprojects" :  "-keep_subprojects";		
 
-		String[] commands = new String[] { ccmExe, "update", "-r", subprojectUpdateRule, "-p", project };
+		String[] commands = new String[] { ccmExe, "update", "-r", subprojectUpdateRule, type, project };
 		return commands;
 	}
 
