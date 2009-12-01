@@ -18,6 +18,7 @@ import hudson.plugins.synergy.impl.FindCompletedSinceDateCommand;
 import hudson.plugins.synergy.impl.FindProjectGroupingCommand;
 import hudson.plugins.synergy.impl.FindProjectInProjectGrouping;
 import hudson.plugins.synergy.impl.FindUseCommand;
+import hudson.plugins.synergy.impl.FindUseWithoutVersionCommand;
 import hudson.plugins.synergy.impl.GetDelimiterCommand;
 import hudson.plugins.synergy.impl.GetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.GetProjectInBaselineCommand;
@@ -29,6 +30,7 @@ import hudson.plugins.synergy.impl.SubProjectQueryCommand;
 import hudson.plugins.synergy.impl.SynergyException;
 import hudson.plugins.synergy.impl.TaskCompleted;
 import hudson.plugins.synergy.impl.TaskInfoCommand;
+import hudson.plugins.synergy.impl.TaskShowObjectsCommand;
 import hudson.plugins.synergy.impl.UpdateCommand;
 import hudson.plugins.synergy.impl.WorkareaSnapshotCommand;
 import hudson.plugins.synergy.impl.WriteObjectCommand;
@@ -48,6 +50,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -134,7 +137,8 @@ public class SynergySCM extends SCM implements Serializable {
 					"true".equals(req.getParameter("synergy.replaceSubprojects")), 
 					"true".equals(req.getParameter("synergy.checkForUpdateWarnings")),
 					"true".equals(req.getParameter("synergy.leaveSessionOpen")),
-					"true".equals(req.getParameter("synergy.maintainWorkarea")));
+					"true".equals(req.getParameter("synergy.maintainWorkarea")),
+					"true".equals(req.getParameter("synergy.checkTaskModifiedObjects")));
 		}
 
 		/**
@@ -222,7 +226,13 @@ public class SynergySCM extends SCM implements Serializable {
 	/**
 	 * Detect conflict flag.
 	 */
-	private boolean detectConflict;
+	private boolean detectConflict;	
+
+	/**
+	 * Deep detect changes flag.
+	 * Deep detect will check wich project is modified by a task.
+	 */
+	private boolean checkTaskModifiedObjects;
 
 	private transient Commands commands;
 
@@ -269,7 +279,7 @@ public class SynergySCM extends SCM implements Serializable {
 	@DataBoundConstructor
 	public SynergySCM(String project, String database, String release, String purpose, String username, String password, String engine,
 			String oldProject, String baseline, String oldBaseline, boolean remoteClient, boolean detectConflict, 
-			boolean replaceSubprojects, boolean checkForUpdateWarnings, boolean leaveSessionOpen, Boolean maintainWorkarea) {
+			boolean replaceSubprojects, boolean checkForUpdateWarnings, boolean leaveSessionOpen, Boolean maintainWorkarea, boolean checkTaskModifiedObjects) {
 
 		this.project = project;
 		this.database = database;
@@ -287,6 +297,7 @@ public class SynergySCM extends SCM implements Serializable {
 		this.checkForUpdateWarnings = checkForUpdateWarnings;
 		this.leaveSessionOpen = leaveSessionOpen;
 		this.maintainWorkarea = maintainWorkarea;
+		this.checkTaskModifiedObjects = checkTaskModifiedObjects;
 	}
 
 	@Override
@@ -983,7 +994,12 @@ public class SynergySCM extends SCM implements Serializable {
 			FindCompletedSinceDateCommand findCommand = new FindCompletedSinceDateCommand(date, release);
 			commands.executeSynergyCommand(path, findCommand);
 			List<String> result = findCommand.getTasks();
-			return result != null && !result.isEmpty();
+
+			if (checkTaskModifiedObjects) {
+			    return checkTaskModifiedObjects(result, path);
+			} else {
+			    return result != null && !result.isEmpty();
+			}
 		} catch (SynergyException e) {
 			return false;
 		} finally {
@@ -995,6 +1011,41 @@ public class SynergySCM extends SCM implements Serializable {
 			}
 		}
 	}
+	
+	/**
+	 * Check if the specified taks modify the current project.
+	 * @param tasks		A list of task number
+	 * @param path		The current project path.
+	 * @return			If a task in the list modify the current project
+	 * @throws SynergyException
+	 * @throws InterruptedException
+	 * @throws IOException
+	 */
+	private boolean checkTaskModifiedObjects(List<String> tasks, FilePath path) throws SynergyException, InterruptedException, IOException {
+		if (tasks == null || tasks.isEmpty()) {
+			return false;
+		}
+
+		// Find if the task updated some files
+		TaskShowObjectsCommand showObjectsCommand = new TaskShowObjectsCommand(tasks);
+		commands.executeSynergyCommand(path, showObjectsCommand);
+		List<String> modifiedObjects = showObjectsCommand.getObjects();
+
+		// Get project use of those files
+		GetDelimiterCommand getDelim = new GetDelimiterCommand();
+		commands.executeSynergyCommand(path, getDelim);
+		String delimiter = getDelim.getDelimiter();
+		Set<String> projects = Collections.singleton(this.project);
+		for (String modifiedObject : modifiedObjects) {
+			FindUseWithoutVersionCommand findUseCommand = new FindUseWithoutVersionCommand(modifiedObject, projects, delimiter);
+			commands.executeSynergyCommand(path, findUseCommand);
+			if (findUseCommand.getPath() != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	/**
 	 * Returns the raw project name.
@@ -1091,5 +1142,11 @@ public class SynergySCM extends SCM implements Serializable {
 	}
 	public boolean shouldMaintainWorkarea() {
 		return maintainWorkarea==null || maintainWorkarea.booleanValue();
+	}
+	public boolean isCheckTaskModifiedObjects() {
+		return checkTaskModifiedObjects;
+	}
+	public void setCheckTaskModifiedObjects(boolean checkTaskModifiedObjects) {
+		this.checkTaskModifiedObjects = checkTaskModifiedObjects;
 	}
 }

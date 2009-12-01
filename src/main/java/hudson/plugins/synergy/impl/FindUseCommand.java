@@ -17,19 +17,19 @@ public class FindUseCommand extends Command {
 	/**
 	 * The Synergy projects we are interesting in knowing the use they makes of the object.
 	 */
-	private Set<String> projects;
+	protected Set<String> projects;
 	
 	/**
 	 * The Synergy version delimiter.
 	 */
-	private String delimiter;
+	protected String delimiter;
 	
 	/**
 	 * Is the object a project.
 	 */
 	private boolean project;
 	
-	private String path;
+	protected String path;
 	
 	/**
 	 * Public constructor
@@ -37,7 +37,7 @@ public class FindUseCommand extends Command {
 	 * @param object		The object we want to find the use in other projects
 	 * @param projects		The projects we want to kown if and where they contains the object
 	 * @param delimiter		The version delimiter
-	 * @param project		Is the object we want to find the use a project
+	 * @param project		Is the object we want to find the use is a project
 	 */
 	public FindUseCommand(String object, Set<String> projects, String delimiter, boolean project) {
 		super();

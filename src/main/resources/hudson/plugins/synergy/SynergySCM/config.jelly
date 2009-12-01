@@ -26,6 +26,9 @@
 	<f:entry title="Check for update Warnings" help="/plugin/synergy/checkForUpdateWarnings.html">
 		<f:checkbox name="synergy.checkForUpdateWarnings" value="true" checked="${scm.isCheckForUpdateWarnings()}" />
 	</f:entry>
+	<f:entry title="Check for modifications" help="/plugin/synergy/checkTaskModifiedObjects.html">
+		<f:checkbox name="synergy.checkTaskModifiedObjects" value="true" checked="${scm.isCheckTaskModifiedObjects()}" />
+	</f:entry>
 	<f:entry title="Replace Subprojects" help="/plugin/synergy/replaceSubprojects.html">
 		<f:checkbox name="synergy.replaceSubprojects" value="true" checked="${scm.isReplaceSubprojects()}" />
 	</f:entry>
