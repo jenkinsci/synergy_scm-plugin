@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * A start session command. 
@@ -74,7 +75,14 @@ public class StartCommand extends Command {
 
 	@Override
 	public void parseResult(String result) {
-		ccmAddr = result;
+		StringTokenizer tokenizer = new StringTokenizer(result,"\t\n\r\f");
+		while (tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			if (!token.startsWith("Warning")) {
+				ccmAddr = token;
+				break;
+			}
+		}
 	}
 
 	public String getCcmAddr() {
