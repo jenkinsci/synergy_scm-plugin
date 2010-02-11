@@ -31,6 +31,11 @@ public class UpdateCommand extends Command {
 	private List<String> names;
 
 	/**
+	 * The displayname of the project grouping.
+	 */
+	private String pgName;
+
+	/**
 	 * Should the subprojects be replaced?
 	 */
 	private boolean replaceSubprojects;
@@ -86,7 +91,12 @@ public class UpdateCommand extends Command {
 			Conflict conflict = new Conflict(objectname, task, type, message);
 			conflicts.add(conflict);
 		}
-	}
+
+		// Look for project grouping name
+		Pattern pgNamePattern = Pattern.compile("Refreshing baseline and tasks for project grouping '([^']+)'");
+		Matcher mPgNamePattern = pgNamePattern.matcher(result);
+		pgName = mPgNamePattern.find() ? mPgNamePattern.group(1) : null;
+}
 
 	@Override
 	public String[] buildCommand(String ccmExe) {
@@ -111,4 +121,9 @@ public class UpdateCommand extends Command {
 	public boolean isUpdateWarningsExists() {
 		return !getConflicts().isEmpty();
 	}
+	
+	public String getPgName() {
+		return pgName;
+	}
+
 }

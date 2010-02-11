@@ -14,6 +14,9 @@
 	<f:entry title="Remote client" help="/plugin/synergy/remoteClient.html">
 		<f:checkbox name="synergy.remoteClient" value="true" checked="${scm.isRemoteClient()}" />
 	</f:entry>
+    <f:entry title="Ccm Home" help="/plugin/synergy/ccmHome.html">
+        <f:textbox name="synergy.ccmHome" value="${scm.ccmHome}" />
+    </f:entry>
 	<f:entry title="Project name" help="/plugin/synergy/project.html">
 		<f:textbox name="synergy.project" value="${scm.project}" />
 	</f:entry>

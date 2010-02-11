@@ -20,9 +20,14 @@ import hudson.plugins.synergy.impl.FindProjectInProjectGrouping;
 import hudson.plugins.synergy.impl.FindUseCommand;
 import hudson.plugins.synergy.impl.FindUseWithoutVersionCommand;
 import hudson.plugins.synergy.impl.GetDelimiterCommand;
+import hudson.plugins.synergy.impl.GetMemberStatusCommand;
 import hudson.plugins.synergy.impl.GetProjectAttributeCommand;
+import hudson.plugins.synergy.impl.GetProjectGroupingCommand;
+import hudson.plugins.synergy.impl.GetProjectGroupingInfoCommand;
 import hudson.plugins.synergy.impl.GetProjectInBaselineCommand;
+import hudson.plugins.synergy.impl.GetProjectOwnerCommand;
 import hudson.plugins.synergy.impl.GetProjectStateCommand;
+import hudson.plugins.synergy.impl.RecursiveProjectQueryCommand;
 import hudson.plugins.synergy.impl.ProjectConflicts;
 import hudson.plugins.synergy.impl.SetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.SetRoleCommand;
@@ -39,6 +44,8 @@ import hudson.scm.ChangeLogParser;
 import hudson.scm.SCM;
 import hudson.scm.SCMDescriptor;
 import hudson.util.FormValidation;
+import hudson.util.Secret;
+import static hudson.Util.fixEmpty;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -132,6 +139,7 @@ public class SynergySCM extends SCM implements Serializable {
 					req.getParameter("synergy.oldProject"), 
 					req.getParameter("synergy.baseline"), 
 					req.getParameter("synergy.oldBaseline"), 
+					req.getParameter("synergy.ccmHome"),
 					"true".equals(req.getParameter("synergy.remoteClient")), 
 					"true".equals(req.getParameter("synergy.detectConflict")), 
 					"true".equals(req.getParameter("synergy.replaceSubprojects")), 
@@ -201,7 +209,7 @@ public class SynergySCM extends SCM implements Serializable {
 	/**
 	 * The user password.
 	 */
-	private String password;
+	private final Secret password;
 
 	/**
 	 * The old project for differential delivery.
@@ -258,6 +266,13 @@ public class SynergySCM extends SCM implements Serializable {
 	private Boolean maintainWorkarea;
 	
 	/**
+	 * The CCM_HOME location on UNIX systems.
+	 * This is used to locate ccm executable and set the remote
+	 * UNIX environment.
+	 */
+	private String ccmHome;
+	
+	/**
 	 * 
 	 * @param project
 	 * @param database
@@ -269,6 +284,7 @@ public class SynergySCM extends SCM implements Serializable {
 	 * @param oldProject
 	 * @param baseline
 	 * @param oldBaseline
+	 * @param ccmHome
 	 * @param remoteClient
 	 * @param detectConflict
 	 * @param replaceSubprojects
@@ -278,7 +294,7 @@ public class SynergySCM extends SCM implements Serializable {
 	 */
 	@DataBoundConstructor
 	public SynergySCM(String project, String database, String release, String purpose, String username, String password, String engine,
-			String oldProject, String baseline, String oldBaseline, boolean remoteClient, boolean detectConflict, 
+			String oldProject, String baseline, String oldBaseline, String ccmHome, boolean remoteClient, boolean detectConflict, 
 			boolean replaceSubprojects, boolean checkForUpdateWarnings, boolean leaveSessionOpen, Boolean maintainWorkarea, boolean checkTaskModifiedObjects) {
 
 		this.project = project;
@@ -286,11 +302,12 @@ public class SynergySCM extends SCM implements Serializable {
 		this.release = release;
 		this.purpose = purpose;
 		this.username = username;
-		this.password = password;
+		this.password = fixEmpty(password)!=null ? Secret.fromString(password) : null;
 		this.engine = engine;
 		this.oldProject = oldProject;
 		this.baseline = baseline;
 		this.oldBaseline = oldBaseline;
+		this.ccmHome = ccmHome;
 		this.remoteClient = remoteClient;
 		this.detectConflict = detectConflict;
 		this.replaceSubprojects = replaceSubprojects;
@@ -574,7 +591,8 @@ public class SynergySCM extends SCM implements Serializable {
 		List<String> updates = updateCommand.getUpdates();
 
 		// Generate changelog
-		Collection<LogEntry> logs = generateChangeLog(updates, projectName, changeLogFile, path);
+		String pgName = updateCommand.getPgName();
+		Collection<LogEntry> logs = generateChangeLog(updates, projectName, changeLogFile, path, pgName);
 		
 		// Check update warnings.
 		if(isCheckForUpdateWarnings() && updateCommand.isUpdateWarningsExists()){
@@ -811,6 +829,23 @@ public class SynergySCM extends SCM implements Serializable {
 	 * @throws SynergyException
 	 */
 	private Collection<LogEntry> generateChangeLog(List<String> names, String projectName, File changeLogFile, FilePath workarea) throws IOException, InterruptedException, SynergyException {
+		return generateChangeLog(names, projectName, changeLogFile, workarea, null);
+	}
+	
+	/**
+	 * Generate the changelog.
+	 * 
+	 * @param names			Names of the elements that have changed
+	 * @param projects		Name of the Synergy project being build and that may contain changes
+	 * @param changeLogFile	File to write the changelog into
+	 * @param workarea		The Workarea path
+	 * @param pgName		Optional name of the project grouping to which the project belongs
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws SynergyException
+	 */
+	private Collection<LogEntry> generateChangeLog(List<String> names, String projectName, File changeLogFile, FilePath workarea, String pgName) throws IOException, InterruptedException, SynergyException {
 		// Find information about the element.
 		Map<String, LogEntry> logs = new HashMap<String, LogEntry>();
 		DateFormat dateFormat = DateFormat.getDateTimeInstance();
@@ -818,7 +853,8 @@ public class SynergySCM extends SCM implements Serializable {
 		if (names != null) {
 			// Compute the subproject list for the finduse project
 			// in case the given project is a top level project.
-			SubProjectQueryCommand subProjectQuery = new SubProjectQueryCommand(projectName);
+			RecursiveProjectQueryCommand subProjectQuery = new RecursiveProjectQueryCommand(projectName);
+//			SubProjectQueryCommand subProjectQuery = new SubProjectQueryCommand(projectName);
 			commands.executeSynergyCommand(workarea, subProjectQuery);
 			Set<String> projects = new HashSet<String>(subProjectQuery.getSubProjects());
 			projects.add(projectName);
@@ -845,13 +881,44 @@ public class SynergySCM extends SCM implements Serializable {
 				}
 			}
 
+			// Get project state.
+			GetProjectStateCommand stateCommand = new GetProjectStateCommand(project);
+			commands.executeSynergyCommand(workarea, stateCommand);
+			String state = stateCommand.getState();
+			
+			// Determine instance for project grouping
+			String subsystem;
+			if ("working".equals(state)) {
+				GetProjectOwnerCommand ownerCommand = new GetProjectOwnerCommand(project);
+				commands.executeSynergyCommand(workarea, ownerCommand);
+				subsystem = ownerCommand.getOwner();
+			} else {
+				subsystem = "1";				
+			}
+
+			// Get project grouping release and purpose
+			GetProjectGroupingInfoCommand projectGroupingInfo = new GetProjectGroupingInfoCommand(pgName);
+			commands.executeSynergyCommand(workarea, projectGroupingInfo);
+			String pgProjectPurpose = projectGroupingInfo.getProjectPurpose();
+			String pgRelease = projectGroupingInfo.getRelease();
+			
+			// Determine member status from project purpose
+			GetMemberStatusCommand statusCommand = new GetMemberStatusCommand(pgProjectPurpose);
+			commands.executeSynergyCommand(workarea, statusCommand);
+			String memberStatus = statusCommand.getMemberStatus();
+			
+			// Get project grouping object
+			GetProjectGroupingCommand findCommand = new GetProjectGroupingCommand(pgRelease, memberStatus, subsystem);
+			commands.executeSynergyCommand(workarea, findCommand);
+			String projectGrouping = findCommand.getProjectGrouping();
+			
 			// Find the task associated to each change and the path of each changed object.
 			for (String name : names) {
 				// Entry to use.
 				SynergyChangeLogSet.LogEntry entry = null;
 
 				// Find associate task.
-				FindAssociatedTaskCommand taskCommand = new FindAssociatedTaskCommand(name);
+				FindAssociatedTaskCommand taskCommand = new FindAssociatedTaskCommand(name, projectGrouping);
 				commands.executeSynergyCommand(workarea, taskCommand);
 				List<String> taskIds = taskCommand.getTasks();
 				if (taskIds != null && !taskIds.isEmpty()) {
@@ -1056,6 +1123,10 @@ public class SynergySCM extends SCM implements Serializable {
 		return project;
 	}
 
+	public String getCcmHome() {
+		return ccmHome;
+	}
+
 	public String getDatabase() {
 		return database;
 	}
@@ -1065,7 +1136,7 @@ public class SynergySCM extends SCM implements Serializable {
 	}
 
 	public String getPassword() {
-		return password;
+        return password!=null ? password.toString() : null;
 	}
 
 	public String getRelease() {

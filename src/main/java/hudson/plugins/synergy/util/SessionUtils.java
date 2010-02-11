@@ -26,7 +26,15 @@ public class SessionUtils {
 	 */
 	private static Commands configureCommands(SynergySCM synergySCM, TaskListener listener, Launcher launcher) {
 		Commands commands = new Commands();
-		commands.setCcmExe(synergySCM.getDescriptor().getCcmExe());
+		String ccmExe = synergySCM.getDescriptor().getCcmExe();
+		String ccmHome = synergySCM.getCcmHome();
+		if (launcher.isUnix()){
+			commands.setCcmHome(ccmHome);
+			commands.setCcmExe(ccmHome + "/bin/" + ccmExe);
+		} else {
+			commands.setCcmExe(ccmExe);
+		}
+//		commands.setCcmExe(synergySCM.getDescriptor().getCcmExe());
 		commands.setCcmUiLog(synergySCM.getDescriptor().getCcmUiLog());
 		commands.setCcmEngLog(synergySCM.getDescriptor().getCcmEngLog());
 
@@ -75,7 +83,8 @@ public class SessionUtils {
 		String engine = synergySCM.getEngine();
 		
 		// Start Synergy.
-		StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient, pathName);
+		boolean isUnixSession = commands.getLauncher().isUnix();
+		StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient, pathName, isUnixSession);
 		commands.executeSynergyCommand(path, startCommand);
 		ccmAddr = startCommand.getCcmAddr();
 		startCommand.addCcmAddrToSessionMapFile(ccmSessionMapFile);

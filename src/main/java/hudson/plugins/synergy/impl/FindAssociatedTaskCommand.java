@@ -8,15 +8,26 @@ import java.util.List;
 
 public class FindAssociatedTaskCommand extends Command {
 	private String objectname;
+	private String projectGrouping;
 	private List<String> tasks;
 	
 	public FindAssociatedTaskCommand(String objectname) {
 		this.objectname = objectname;
+		this.projectGrouping = null;
+	}
+	
+	public FindAssociatedTaskCommand(String objectname, String projectGrouping) {
+		this.objectname = objectname;
+		this.projectGrouping = projectGrouping;
 	}
 	
 	@Override
 	public String[] buildCommand(String ccmExe) {
-		return new String[]{ccmExe, "query", "-u", "-f", "%objectname", "has_associated_cv('" + objectname + "')"};
+		if (projectGrouping != null) {
+			return new String[]{ccmExe, "query", "-u", "-f", "%objectname", "has_associated_cv('" + objectname + "') and (is_saved_task_in_pg_of('" + projectGrouping + "') or is_added_task_in_pg_of('" + projectGrouping + "'))"};
+		} else {
+			return new String[]{ccmExe, "query", "-u", "-f", "%objectname", "has_associated_cv('" + objectname + "')"};
+		}
 	}
 	@Override
 	public void parseResult(String result) {

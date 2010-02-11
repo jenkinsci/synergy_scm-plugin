@@ -2,7 +2,9 @@ package hudson.plugins.synergy.impl;
 
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.model.Computer;
 import hudson.model.TaskListener;
+import hudson.model.Hudson.MasterComputer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,6 +29,11 @@ public class Commands implements Serializable {
 	 * Path to Engine log.
 	 */
 	private String ccmEngLog;
+	
+	/**
+	 * Path to CCM_HOME.
+	 */
+	private String ccmHome;
 	
 	/**
 	 * Launcher.
@@ -102,6 +109,15 @@ public class Commands implements Serializable {
 		this.ccmExe = ccmExe;
 	}
 	
+	public String getHome() {
+		return ccmHome;
+	}
+		
+
+	public void setCcmHome(String ccmHome) {
+		this.ccmHome = ccmHome;
+	}
+	
 	/**
 	 * Builds a compare project command.
 	 */
@@ -125,9 +141,11 @@ public class Commands implements Serializable {
 	public void executeSynergyCommand(FilePath path, Command command) throws IOException, InterruptedException, SynergyException {
 		Map<String, String> system = System.getenv();
 		List<String> param = new ArrayList<String>();
-		for (Map.Entry<String, String> entry : system.entrySet()) {
-			String s = entry.getKey() + "=" + entry.getValue();			
-			param.add(s);
+		if (!launcher.isUnix()){
+			for (Map.Entry<String, String> entry : system.entrySet()) {
+				String s = entry.getKey() + "=" + entry.getValue();			
+				param.add(s);
+			}
 		}
 		if (ccmAddr!=null) {
 			param.add("CCM_ADDR=" + ccmAddr);
@@ -139,11 +157,23 @@ public class Commands implements Serializable {
 			param.add("CCM_ENGLOG=" + ccmEngLog);
 		}
 		
+		if (launcher.isUnix()){
+			param.add("CCM_HOME=" + ccmHome);
+			param.add("PATH=$CCM_HOME/bin:$PATH");
+		}
+		
+		
+		
 		String[] env = param.toArray(new String[param.size()]);
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		String[] commands = command.buildCommand(ccmExe);
 		boolean[] mask = command.buildMask();
+		if (launcher.isUnix()){
+			// Print Synergy command otherwise does not get printed
+			// by launcher
+			printCommandLine(commands, null);
+		}
 		int result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
 		String output = out.toString();
 		
@@ -185,9 +215,11 @@ public class Commands implements Serializable {
 	public void executeSynergyCommand(FilePath path, StreamCommand command) throws IOException, InterruptedException, SynergyException {
 		Map<String, String> system =System.getenv();
 		List<String> param = new ArrayList<String>();
-		for (Map.Entry<String, String> entry : system.entrySet()) {
-			String s = entry.getKey() + "=" + entry.getValue();			
-			param.add(s);
+		if (!launcher.isUnix()){
+			for (Map.Entry<String, String> entry : system.entrySet()) {
+				String s = entry.getKey() + "=" + entry.getValue();			
+				param.add(s);
+			}
 		}
 		if (ccmAddr!=null) {
 			param.add("CCM_ADDR=" + ccmAddr);
@@ -198,7 +230,11 @@ public class Commands implements Serializable {
 		if (ccmEngLog!=null) {
 			param.add("CCM_ENGLOG=" + ccmEngLog);
 		}
-		
+
+		if (launcher.isUnix()){
+			param.add("CCM_HOME=" + ccmHome);
+			param.add("PATH=$CCM_HOME/bin:$PATH");
+		}
 		String[] env = param.toArray(new String[param.size()]);
 		
 		OutputStream out = command.buildResultOutputer();
@@ -206,6 +242,11 @@ public class Commands implements Serializable {
 		try {
 			String[] commands = command.buildCommand(ccmExe);
 			boolean[] mask = command.buildMask();
+			if (launcher.isUnix()){
+				// Print Synergy command otherwise does not get printed
+				// by launcher
+				printCommandLine(commands, null);
+			}
 			result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
 		} finally {
 			out.close();
@@ -220,4 +261,29 @@ public class Commands implements Serializable {
 			throw new SynergyException(result);
 		} 
 	}
+
+	/**
+     * Prints out the command line to the listener so that users know what we are doing.
+     */
+    protected final void printCommandLine(String[] cmd, FilePath workDir) {
+        StringBuilder buf = new StringBuilder();
+        if (workDir != null) {
+            buf.append('[');
+            buf.append(workDir.getRemote().replaceFirst("^.+[/\\\\]", ""));
+            buf.append("] ");
+        }
+        buf.append('$');
+        for (String c : cmd) {
+            buf.append(' ');
+            if(c.indexOf(' ')>=0) {
+                if(c.indexOf('"')>=0)
+                    buf.append('\'').append(c).append('\'');
+                else
+                    buf.append('"').append(c).append('"');
+            } else
+                buf.append(c);
+        }
+        buildListener.getLogger().println(buf.toString());
+    }
+
 }

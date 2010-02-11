@@ -1,6 +1,8 @@
 package hudson.plugins.synergy.impl;
 
 import hudson.FilePath;
+import hudson.model.Computer;
+import hudson.model.Hudson.MasterComputer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +26,7 @@ public class StartCommand extends Command {
 	private String password;
 	private boolean remoteClient;
 	private String pathName;
+	private boolean isUnixSession;
 
 	/**
 	 * Builds a start session command. 
@@ -33,21 +36,29 @@ public class StartCommand extends Command {
 	 * @param login			The user login
 	 * @param password		The user password
 	 * @param remoteClient	Use remote client flag
+	 * @param pathName      The path name
+	 * @param isUnixSession UNIX session flag
 	 * @return 				The start command. The last part of the command is the logon password.
 	 */
-	public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName) {
+	public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName, boolean isUnixSession) {
 		this.database = database;
 		this.engine = engine;
 		this.login = login;
 		this.password = password;
 		this.remoteClient = remoteClient;
 		this.pathName = pathName;
+		this.isUnixSession = isUnixSession;
 	}
 
 	@Override
 	public String[] buildCommand(String ccmAddr) {
 		// Creates an array of required parameters.
-		String[] commands = new String[] { ccmAddr, "start", "-d", database, "-h", engine, "-n", login, "-nogui", "-m", "-q", "-pw", password };
+		String[] commands;
+        if(isUnixSession) {
+        	commands = new String[] { ccmAddr, "start", "-d", database, "-nogui", "-m", "-q" };
+        } else {
+        	commands = new String[] { ccmAddr, "start", "-d", database, "-h", engine, "-n", login, "-nogui", "-m", "-q", "-pw", password };               	
+        }
 		List<String> list = new ArrayList<String>(Arrays.asList(commands));
 
 		// Add "-rc" parameter if required at the end of the array.
@@ -68,8 +79,10 @@ public class StartCommand extends Command {
 	@Override
 	public boolean[] buildMask() {
 		boolean[] result = super.buildMask();
-		int pwdIndex = 12;
-		result[pwdIndex] = true;
+		if (!isUnixSession){
+			int pwdIndex = 12;
+			result[pwdIndex] = true;
+		}
 		return result;
 	}
 
