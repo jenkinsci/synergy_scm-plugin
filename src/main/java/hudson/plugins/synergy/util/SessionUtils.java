@@ -28,7 +28,7 @@ public class SessionUtils {
 		Commands commands = new Commands();
 		String ccmExe = synergySCM.getDescriptor().getCcmExe();
 		String ccmHome = synergySCM.getCcmHome();
-		if (launcher.isUnix() && ccmHome!=null){
+		if (launcher.isUnix() && ccmHome!=null && ccmHome.length()!=0){
 			commands.setCcmHome(ccmHome);
 			commands.setCcmExe(ccmHome + "/bin/" + ccmExe);
 		} else {

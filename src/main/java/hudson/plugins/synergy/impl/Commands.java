@@ -139,7 +139,7 @@ public class Commands implements Serializable {
 	public void executeSynergyCommand(FilePath path, Command command) throws IOException, InterruptedException, SynergyException {
 		Map<String, String> system = System.getenv();
 		List<String> param = new ArrayList<String>();
-		if (!launcher.isUnix() || ccmHome==null){
+		if (!launcher.isUnix() || ccmHome==null || ccmHome.length()==0){
 			for (Map.Entry<String, String> entry : system.entrySet()) {
 				String s = entry.getKey() + "=" + entry.getValue();			
 				param.add(s);
@@ -155,7 +155,7 @@ public class Commands implements Serializable {
 			param.add("CCM_ENGLOG=" + ccmEngLog);
 		}
 		
-		if (launcher.isUnix() && ccmHome!=null){
+		if (launcher.isUnix() && ccmHome!=null && ccmHome.length()!=0){
 			param.add("CCM_HOME=" + ccmHome);
 			param.add("PATH=$CCM_HOME/bin:$PATH");
 		}
@@ -213,7 +213,7 @@ public class Commands implements Serializable {
 	public void executeSynergyCommand(FilePath path, StreamCommand command) throws IOException, InterruptedException, SynergyException {
 		Map<String, String> system =System.getenv();
 		List<String> param = new ArrayList<String>();
-		if (!launcher.isUnix() || ccmHome==null){
+		if (!launcher.isUnix() || ccmHome==null || ccmHome.length()!=0){
 			for (Map.Entry<String, String> entry : system.entrySet()) {
 				String s = entry.getKey() + "=" + entry.getValue();			
 				param.add(s);
@@ -229,7 +229,7 @@ public class Commands implements Serializable {
 			param.add("CCM_ENGLOG=" + ccmEngLog);
 		}
 
-		if (launcher.isUnix() && ccmHome!=null){
+		if (launcher.isUnix() && ccmHome!=null && ccmHome.length()!=0){
 			param.add("CCM_HOME=" + ccmHome);
 			param.add("PATH=$CCM_HOME/bin:$PATH");
 		}
