@@ -1,8 +1,6 @@
 package hudson.plugins.synergy.impl;
 
 import hudson.FilePath;
-import hudson.model.Computer;
-import hudson.model.Hudson.MasterComputer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +24,8 @@ public class StartCommand extends Command {
 	private String password;
 	private boolean remoteClient;
 	private String pathName;
-	private boolean isUnixSession;
+	
+	private transient int passwordIndex = -1;
 
 	/**
 	 * Builds a start session command. 
@@ -37,29 +36,40 @@ public class StartCommand extends Command {
 	 * @param password		The user password
 	 * @param remoteClient	Use remote client flag
 	 * @param pathName      The path name
-	 * @param isUnixSession UNIX session flag
-	 * @return 				The start command. The last part of the command is the logon password.
 	 */
-	public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName, boolean isUnixSession) {
+	public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName) {
 		this.database = database;
 		this.engine = engine;
 		this.login = login;
 		this.password = password;
 		this.remoteClient = remoteClient;
 		this.pathName = pathName;
-		this.isUnixSession = isUnixSession;
 	}
 
 	@Override
 	public String[] buildCommand(String ccmAddr) {
 		// Creates an array of required parameters.
-		String[] commands;
-        if(isUnixSession) {
-        	commands = new String[] { ccmAddr, "start", "-d", database, "-nogui", "-m", "-q" };
-        } else {
-        	commands = new String[] { ccmAddr, "start", "-d", database, "-h", engine, "-n", login, "-nogui", "-m", "-q", "-pw", password };               	
-        }
+		String[] commands = new String[] { ccmAddr, "start", "-d", database, "-nogui", "-m", "-q" };               	        
 		List<String> list = new ArrayList<String>(Arrays.asList(commands));
+		
+		// Add "-h engine" if engine is set.
+		if (engine!=null && engine.length()!=0) {
+			list.add("-h");
+			list.add(engine);
+		}
+		
+		// Add "-n login" if login is set
+		if (login!=null && login.length()!=0) {
+			list.add("-n");
+			list.add(login);
+		}
+		
+		// Add "-pw password" if password is set
+		if (password!=null && password.length()!=0) {
+			list.add("-pw");
+			list.add(password);
+			passwordIndex = list.size()-1;
+		}
 
 		// Add "-rc" parameter if required at the end of the array.
 		if (remoteClient) {
@@ -79,9 +89,8 @@ public class StartCommand extends Command {
 	@Override
 	public boolean[] buildMask() {
 		boolean[] result = super.buildMask();
-		if (!isUnixSession){
-			int pwdIndex = 12;
-			result[pwdIndex] = true;
+		if (passwordIndex!=-1) {
+			result[passwordIndex] = true;
 		}
 		return result;
 	}
@@ -106,7 +115,7 @@ public class StartCommand extends Command {
 	public boolean isStatusOK(int status, String result) {
 		return status == 0;
 	}
-
+	
 	public void addCcmAddrToSessionMapFile(FilePath ccmSessionMapFile) throws IOException, InterruptedException {
 		InputStream is = null;
 		OutputStream os = null;

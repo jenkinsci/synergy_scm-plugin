@@ -2,9 +2,7 @@ package hudson.plugins.synergy.impl;
 
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.Computer;
 import hudson.model.TaskListener;
-import hudson.model.Hudson.MasterComputer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -141,7 +139,7 @@ public class Commands implements Serializable {
 	public void executeSynergyCommand(FilePath path, Command command) throws IOException, InterruptedException, SynergyException {
 		Map<String, String> system = System.getenv();
 		List<String> param = new ArrayList<String>();
-		if (!launcher.isUnix()){
+		if (!launcher.isUnix() || ccmHome==null){
 			for (Map.Entry<String, String> entry : system.entrySet()) {
 				String s = entry.getKey() + "=" + entry.getValue();			
 				param.add(s);
@@ -157,7 +155,7 @@ public class Commands implements Serializable {
 			param.add("CCM_ENGLOG=" + ccmEngLog);
 		}
 		
-		if (launcher.isUnix()){
+		if (launcher.isUnix() && ccmHome!=null){
 			param.add("CCM_HOME=" + ccmHome);
 			param.add("PATH=$CCM_HOME/bin:$PATH");
 		}
@@ -215,7 +213,7 @@ public class Commands implements Serializable {
 	public void executeSynergyCommand(FilePath path, StreamCommand command) throws IOException, InterruptedException, SynergyException {
 		Map<String, String> system =System.getenv();
 		List<String> param = new ArrayList<String>();
-		if (!launcher.isUnix()){
+		if (!launcher.isUnix() || ccmHome==null){
 			for (Map.Entry<String, String> entry : system.entrySet()) {
 				String s = entry.getKey() + "=" + entry.getValue();			
 				param.add(s);
@@ -231,7 +229,7 @@ public class Commands implements Serializable {
 			param.add("CCM_ENGLOG=" + ccmEngLog);
 		}
 
-		if (launcher.isUnix()){
+		if (launcher.isUnix() && ccmHome!=null){
 			param.add("CCM_HOME=" + ccmHome);
 			param.add("PATH=$CCM_HOME/bin:$PATH");
 		}

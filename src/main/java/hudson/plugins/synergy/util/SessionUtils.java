@@ -28,7 +28,7 @@ public class SessionUtils {
 		Commands commands = new Commands();
 		String ccmExe = synergySCM.getDescriptor().getCcmExe();
 		String ccmHome = synergySCM.getCcmHome();
-		if (launcher.isUnix()){
+		if (launcher.isUnix() && ccmHome!=null){
 			commands.setCcmHome(ccmHome);
 			commands.setCcmExe(ccmHome + "/bin/" + ccmExe);
 		} else {
@@ -82,9 +82,8 @@ public class SessionUtils {
 		String pathName = synergySCM.getDescriptor().getPathName();
 		String engine = synergySCM.getEngine();
 		
-		// Start Synergy.
-		boolean isUnixSession = commands.getLauncher().isUnix();
-		StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient, pathName, isUnixSession);
+		// Start Synergy.		
+		StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient, pathName);
 		commands.executeSynergyCommand(path, startCommand);
 		ccmAddr = startCommand.getCcmAddr();
 		startCommand.addCcmAddrToSessionMapFile(ccmSessionMapFile);
