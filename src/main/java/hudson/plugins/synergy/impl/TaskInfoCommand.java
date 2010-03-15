@@ -47,8 +47,12 @@ public class TaskInfoCommand extends Command {
 					informations.add(task);
 					task.setId(line.substring(line.indexOf(':')+1).trim());
 				}else if (line.indexOf("Synopsis:")!=-1) {
-					// TODO multiline synopsis
-					task.setSynopsis(line.substring(line.indexOf(':')+1).trim());
+					// Check whether we have already stored task synopsis
+					// (in case task description also contains 'Synopsis:')
+					if (task.getSynopsis() == null){
+						// TODO multiline synopsis
+						task.setSynopsis(line.substring(line.indexOf(':')+1).trim());
+					}
 				} else if (line.indexOf("Resolver:")!=-1) {
 					task.setResolver(line.substring(line.indexOf(':')+1).trim());
 				} else if (line.indexOf("Status set to 'completed'")!=-1) try {
