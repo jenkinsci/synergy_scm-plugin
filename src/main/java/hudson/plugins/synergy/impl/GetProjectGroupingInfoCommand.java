@@ -3,7 +3,8 @@ package hudson.plugins.synergy.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Get project grouping information.
@@ -12,6 +13,9 @@ public class GetProjectGroupingInfoCommand extends Command {
 	private String pgSpec;
 	private String release;	
 	private String projectPurpose;	
+
+	Pattern re_release = Pattern.compile("^.*Release:\\s*(..*)$");
+	Pattern re_purpose = Pattern.compile("^.*Purpose:\\s*(..*)$");
 	
 	public GetProjectGroupingInfoCommand(String pgSpec) {
 		this.pgSpec = pgSpec;
@@ -31,11 +35,13 @@ public class GetProjectGroupingInfoCommand extends Command {
 				linecount++;
 				line = line.trim();
 				if (line.length()!=0) {
-					if (linecount == 2){
-						release = line;
+					Matcher m_purpose = re_purpose.matcher(line);
+					if (m_purpose.matches()){
+						projectPurpose = m_purpose.group(1);
 					}
-					if (linecount == 3){
-						projectPurpose = line;
+					Matcher m_release = re_release.matcher(line);
+					if (m_release.matches()){
+						release = m_release.group(1);
 					}
 				}
 				line = reader.readLine();

@@ -336,7 +336,7 @@ public class SynergySCM extends SCM implements Serializable {
 				if (result != null) {
 					writeChangeLog(changeLogFile, result.getLogs());
 					if (result.getConflicts() != null && !result.getConflicts().isEmpty()) {
-						listener.getLogger().println("Error : conflicts detected for project " + projectName);
+						listener.getLogger().println("Error(no project provided) : conflicts detected for project " + projectName);
 						return false;
 					}
 				}
@@ -349,7 +349,7 @@ public class SynergySCM extends SCM implements Serializable {
 				if (result != null) {
 					writeChangeLog(changeLogFile, result.getLogs());
 					if (result.getConflicts() != null && !result.getConflicts().isEmpty()) {
-						listener.getLogger().println("Error : conflicts detected for project " + projectName);
+						listener.getLogger().println("Error(no release provided) : conflicts detected for project " + projectName);
 						return false;
 					}
 				} else {
@@ -759,8 +759,10 @@ public class SynergySCM extends SCM implements Serializable {
 		try {
 			commands.executeSynergyCommand(path, command);
 		} catch (SynergyException e) {
-			// 1 is ok (means the query returns nothing).
-			if (e.getStatus() != 1) {
+			// 1 and 6 is ok (means the query returns nothing).
+			// (For Synergy 7.1 and above exitcode 6 provides the information that the result of the command was empty)
+			if ((e.getStatus() != 1) && (e.getStatus() != 6)){
+			   System.out.println("ERROR: "+command+" EXITCODE :"+e.getStatus());
 				throw e;
 			}
 		}

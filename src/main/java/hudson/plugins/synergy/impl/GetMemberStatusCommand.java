@@ -32,13 +32,16 @@ public class GetMemberStatusCommand extends Command {
 				linecount++;
 				line = line.trim();
 				if (line.length()!=0) {
-					if (linecount == 3){
+					if (linecount >= 2){
 						// Creates regexp to extract.
-						Pattern p = Pattern.compile("\\S*\\s+(\\w+)\\s+\\w+\\s*$");
+						Pattern p = Pattern.compile("^.*\\S*\\s+(\\w+)\\s+\\w+\\s*$");
 
 						// Look for updates.
 						Matcher m = p.matcher(line);
 						memberStatus = m.find() ? m.group(1) : null;
+						if (memberStatus != null){
+						  break;
+						}
 					}
 				}
 				line = reader.readLine();
