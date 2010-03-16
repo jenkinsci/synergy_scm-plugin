@@ -170,7 +170,7 @@ public class Commands implements Serializable {
 		if (launcher.isUnix()){
 			// Print Synergy command otherwise does not get printed
 			// by launcher
-			printCommandLine(commands, null);
+			printCommandLine(commands, null, mask);
 		}
 		int result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
 		String output = out.toString();
@@ -178,7 +178,7 @@ public class Commands implements Serializable {
 		if (!command.isStatusOK(result, output)) {
 			buildListener.getLogger().println("ccm command failed");
 			buildListener.getLogger().println(output);
-			buildListener.getLogger().println("The environment was :");
+			buildListener.getLogger().println("Command: The environment was :");
 			for (String s : param) {
 				buildListener.getLogger().println(s);
 			}
@@ -243,7 +243,7 @@ public class Commands implements Serializable {
 			if (launcher.isUnix()){
 				// Print Synergy command otherwise does not get printed
 				// by launcher
-				printCommandLine(commands, null);
+				printCommandLine(commands, null, mask);
 			}
 			result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
 		} finally {
@@ -252,7 +252,7 @@ public class Commands implements Serializable {
 				
 		if (result!=0 && result!=1) {
 			buildListener.getLogger().println("ccm command failed");		
-			buildListener.getLogger().println("The environment was :");
+			buildListener.getLogger().println("StreamCommand : The environment was :");
 			for (String s : param) {
 				buildListener.getLogger().println(s);
 			}
@@ -263,8 +263,10 @@ public class Commands implements Serializable {
 	/**
      * Prints out the command line to the listener so that users know what we are doing.
      */
-    protected final void printCommandLine(String[] cmd, FilePath workDir) {
+    protected final void printCommandLine(String[] cmd, FilePath workDir, boolean[] mask) {
         StringBuilder buf = new StringBuilder();
+        int arg_index = 0;
+
         if (workDir != null) {
             buf.append('[');
             buf.append(workDir.getRemote().replaceFirst("^.+[/\\\\]", ""));
@@ -272,14 +274,26 @@ public class Commands implements Serializable {
         }
         buf.append('$');
         for (String c : cmd) {
+				String c_masked;
             buf.append(' ');
-            if(c.indexOf(' ')>=0) {
-                if(c.indexOf('"')>=0)
-                    buf.append('\'').append(c).append('\'');
-                else
-                    buf.append('"').append(c).append('"');
-            } else
-                buf.append(c);
+			/* determine if argument should be masked 
+			 * TODO: consider displaying the password when debug mode is enabled
+			 */
+			if (mask[arg_index] == true){
+				c_masked = "******";
+			}else{
+				c_masked = c;
+			}
+
+			if(c.indexOf(' ')>=0) {
+				 if(c.indexOf('"')>=0)
+					  buf.append('\'').append(c_masked).append('\'');
+				 else
+					  buf.append('"').append(c_masked).append('"');
+			} else{
+				 buf.append(c_masked);
+			}
+			arg_index++;
         }
         buildListener.getLogger().println(buf.toString());
     }
