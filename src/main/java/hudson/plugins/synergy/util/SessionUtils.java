@@ -2,6 +2,9 @@ package hudson.plugins.synergy.util;
 
 import java.io.IOException;
 
+import java.util.StringTokenizer;
+import java.io.File;
+
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.TaskListener;
@@ -18,6 +21,9 @@ import hudson.plugins.synergy.impl.SynergyException;
 public class SessionUtils {
 	/**
 	 * Create and configure a Synergy command launcher.
+	 *
+	 * If ccmHome is not defined in a unix environment, the value of the CCM_HOME environment
+	 * variable is used instead.
 	 * 
 	 * @param synergySCM	The SCM configuration.
 	 * @param listener		The build listener
@@ -29,8 +35,25 @@ public class SessionUtils {
 		String ccmExe = synergySCM.getDescriptor().getCcmExe();
 		String ccmHome = synergySCM.getCcmHome();
 		if (launcher.isUnix() && ccmHome!=null && ccmHome.length()!=0){
-			commands.setCcmHome(ccmHome);
-			commands.setCcmExe(ccmHome + "/bin/" + ccmExe);
+			if (((ccmHome == null) || (ccmHome.length() <= 0)) && ccmExe.startsWith("/")){
+				commands.setCcmHome(System.getenv("CCM_HOME"));
+				commands.setCcmExe(ccmExe);
+			}else if ((ccmHome == null) || (ccmHome.length() <= 0)){
+				StringTokenizer tokenizer = new StringTokenizer(System.getenv("PATH"),":");
+				while (tokenizer.hasMoreTokens()) {
+					String path = tokenizer.nextToken();
+					if(new File(path, ccmExe).canExecute()){
+						ccmHome=System.getenv("CCM_HOME");
+						ccmExe=path+"/"+ccmExe;
+						break;
+					}
+				}
+				commands.setCcmHome(ccmHome);
+				commands.setCcmExe(ccmExe);
+			}else{
+				commands.setCcmHome(ccmHome);
+				commands.setCcmExe(ccmHome + "/bin/" + ccmExe);
+			}
 		} else {
 			commands.setCcmExe(ccmExe);
 		}
