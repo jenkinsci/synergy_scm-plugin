@@ -33,6 +33,6 @@ public abstract class Command {
 	 *  @param output	The ccm process output
 	 */
 	public boolean isStatusOK(int status, String output) {
-		return status==0 || status==1 && (output==null || output.length()==0);
+		return status==0 || ((status==1 || status==6) && (output==null || output.length()==0));
 	}
 }
