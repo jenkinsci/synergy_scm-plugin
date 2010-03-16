@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * A start session command. 
@@ -26,6 +28,8 @@ public class StartCommand extends Command {
 	private String pathName;
 	
 	private transient int passwordIndex = -1;
+	private boolean isWebmodeSession;
+	private boolean isRunningOnUnix = false;
 
 	/**
 	 * Builds a start session command. 
@@ -44,22 +48,39 @@ public class StartCommand extends Command {
 		this.password = password;
 		this.remoteClient = remoteClient;
 		this.pathName = pathName;
+
+		isWebmodeSession = false;
+		Pattern re_webmode = Pattern.compile("^https?://..*$");
+		if (re_webmode.matcher(engine).matches()){
+			isWebmodeSession = true;
+		}
+
+		// TODO: implement a better way to detect unix runtime environment
+		if (System.getProperty("file.separator").equals("/")){
+			isRunningOnUnix = true;
+		}
 	}
 
 	@Override
 	public String[] buildCommand(String ccmAddr) {
 		// Creates an array of required parameters.
 		String[] commands = new String[] { ccmAddr, "start", "-d", database, "-nogui", "-m", "-q" };               	        
+
 		List<String> list = new ArrayList<String>(Arrays.asList(commands));
 		
-		// Add "-h engine" if engine is set.
+		// Add "-h engine" or "-s engine" if engine is set.
 		if (engine!=null && engine.length()!=0) {
-			list.add("-h");
+			if (isWebmodeSession){
+				list.add("-s");
+			}else{
+				list.add("-h");
+			}
 			list.add(engine);
 		}
 		
 		// Add "-n login" if login is set
-		if (login!=null && login.length()!=0) {
+		// Unix commandline client does not support the "-n" option
+		if (login!=null && login.length()!=0 && !isRunningOnUnix) {
 			list.add("-n");
 			list.add(login);
 		}
@@ -86,6 +107,10 @@ public class StartCommand extends Command {
 		return commands;
 	}
 
+   /* 
+    * This Method marks the position for masking the password
+    * (see commands array in this.buildCommand())
+    */
 	@Override
 	public boolean[] buildMask() {
 		boolean[] result = super.buildMask();
