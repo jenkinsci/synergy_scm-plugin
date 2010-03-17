@@ -1,0 +1,27 @@
+Task 462:
+  Synopsis:                   JavaDoc Foobar (hehehe) gnarf?
+  State:                      completed
+  Resolver:                   BacAn2d
+  Release:                    Schuffi/1.0_01
+  Priority:                   
+  Subsystem:                  
+  Platform:                   
+  Estimated Time to Complete:
+  Actual Duration of Task:    
+  Estimated Completion Date:  
+  Actual Completion Date:     3/17/10 7:55 AM
+  Modifiable In:              
+  Completed In:               
+
+  Task Description:
+     
+
+  Associated Change Requests:
+    No change request tool has been set up for this database.
+
+  Fixes Task:
+    None
+
+  Fixed By Tasks:
+    None
+
