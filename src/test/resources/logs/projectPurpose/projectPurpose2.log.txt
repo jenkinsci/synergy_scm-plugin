@@ -1,0 +1,10 @@
+Project Grouping My FOOBAR/1.0_01 Collaborative Development Projects:
+  Release: FOOBAR/1.0_01
+  Purpose: Collaborative Development
+  Owner:   foobar-autotest
+  Projects:
+    R01_Pilot_Initialdaten~foobar-autotest working foobar-autotest FOOBAR/1.0_01 Collaborative Development
+    foobar-domain~foobar-autotest          working foobar-autotest FOOBAR/1.0_01 Collaborative Development
+    foobar-domain~foobar-autotest1         working foobar-autotest FOOBAR/1.0_01 Collaborative Development
+    foobar-parent~foobar-autotest          working foobar-autotest FOOBAR/1.0_01 Collaborative Development
+

@@ -31,10 +31,16 @@ public class GetProjectGroupingInfoCommand extends Command {
 			BufferedReader reader = new BufferedReader(new StringReader(result));
 			String line = reader.readLine();
 			int linecount = 0;
+			Boolean isSynergy7 = false;
 			while (line!=null) {
 				linecount++;
 				line = line.trim();
-				if (line.length()!=0) {
+
+            if ((linecount == 1) && (line.indexOf("Project Grouping") != -1)){
+					isSynergy7 = true;
+            }
+
+				if ((line.length()!=0) && isSynergy7){
 					Matcher m_purpose = re_purpose.matcher(line);
 					if (m_purpose.matches()){
 						projectPurpose = m_purpose.group(1);
@@ -43,6 +49,13 @@ public class GetProjectGroupingInfoCommand extends Command {
 					if (m_release.matches()){
 						release = m_release.group(1);
 					}
+				}else if (line.length()!=0) {
+               if (linecount == 2){
+                   release = line;
+               }
+               if (linecount == 3){
+                   projectPurpose = line;
+               }
 				}
 				line = reader.readLine();
 			}
@@ -50,6 +63,7 @@ public class GetProjectGroupingInfoCommand extends Command {
 			// Should not happen with a StringReader.
 		}
 	}
+
 	public String getRelease() {
 		return release;
 	}
