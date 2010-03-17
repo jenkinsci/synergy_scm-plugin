@@ -1,0 +1,24 @@
+Task:  10827
+
+ Synopsis:     Ajout LNG_CODE vue interface uti
+
+ State:        completed
+
+ Resolver:     dhet
+ Release:      TakeOver/2.0.29
+ Priority:     <Uninitialized>
+ Subsystem:    <Uninitialized>
+ Platform:     <Uninitialized>
+
+ Associated Change Request:  None
+
+ Estimated Time to Complete:  <Uninitialized>
+ Estimated Completion Date:   <Uninitialized>
+ Actual Duration of Task:     <Uninitialized>
+
+ Task Description:   <Uninitialized>
+
+ Status Log:
+Tue Mar 16 17:06:49 2010: Status set to 'registered' by dhet
+Tue Mar 16 17:06:52 2010: Status set to 'task_assigned' by dhet
+Tue Mar 16 17:10:32 2010: Status set to 'completed' by dhet
