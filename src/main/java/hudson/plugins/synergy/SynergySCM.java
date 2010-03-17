@@ -884,14 +884,14 @@ public class SynergySCM extends SCM implements Serializable {
 			}
 
 			// Get project state.
-			GetProjectStateCommand stateCommand = new GetProjectStateCommand(project);
+			GetProjectStateCommand stateCommand = new GetProjectStateCommand(projectName);
 			commands.executeSynergyCommand(workarea, stateCommand);
 			String state = stateCommand.getState();
 			
 			// Determine instance for project grouping
 			String subsystem;
 			if ("working".equals(state)) {
-				GetProjectOwnerCommand ownerCommand = new GetProjectOwnerCommand(project);
+				GetProjectOwnerCommand ownerCommand = new GetProjectOwnerCommand(projectName);
 				commands.executeSynergyCommand(workarea, ownerCommand);
 				subsystem = ownerCommand.getOwner();
 			} else {
