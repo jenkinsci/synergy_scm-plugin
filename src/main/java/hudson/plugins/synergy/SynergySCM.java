@@ -708,12 +708,6 @@ public class SynergySCM extends SCM implements Serializable {
 		String maintainWorkArea = getProjectAttributeCommand.getValue();
 		boolean changeMaintain = false;
 
-		if (!"TRUE".equals(maintainWorkArea)) {
-			// If workarea is not maintain, maintain it.
-			SetProjectAttributeCommand setProjectAttributeCommand = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA, "TRUE");
-			commands.executeSynergyCommand(workspace, setProjectAttributeCommand);
-			changeMaintain = true;
-		}
 
 		// Check relative/absolute wo.
 		if (relative) {
@@ -739,6 +733,14 @@ public class SynergySCM extends SCM implements Serializable {
 			SetProjectAttributeCommand setProjectAttributeCommand = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.WORKAREA_PATH, desiredWorkArea);
 			commands.executeSynergyCommand(workspace, setProjectAttributeCommand);
 		}
+
+		if (!"TRUE".equals(maintainWorkArea)) {
+			// If workarea is not maintain, maintain it.
+			SetProjectAttributeCommand setProjectAttributeCommand = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA, "TRUE");
+			commands.executeSynergyCommand(workspace, setProjectAttributeCommand);
+			changeMaintain = true;
+		}
+
 	}
 
 	/**
