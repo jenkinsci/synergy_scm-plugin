@@ -242,7 +242,7 @@ public class SynergySCM extends SCM implements Serializable {
 	 */
 	private boolean checkTaskModifiedObjects;
 
-	private transient Commands commands;
+	private transient ThreadLocal<Commands> commands;
 
 	/**
 	 * Should subprojects be replaced?
@@ -321,7 +321,7 @@ public class SynergySCM extends SCM implements Serializable {
 	public boolean checkout(AbstractBuild build, Launcher launcher, FilePath path, BuildListener listener, File changeLogFile) throws IOException, InterruptedException {	
 		try {
 			// Start Synergy.
-			commands = SessionUtils.openSession(path, this, listener, launcher);
+			setCommands(SessionUtils.openSession(path, this, listener, launcher));
 
 			// Compute dynamic names (replace variable by their values).
 			String projectName = computeDynamicValue(build, project);
@@ -364,8 +364,10 @@ public class SynergySCM extends SCM implements Serializable {
 		} finally {
 			// Stop Synergy.			
 			try {
-				SessionUtils.closeSession(path, this, commands);
+				SessionUtils.closeSession(path, this, getCommands());
+				setCommands(null);
 			} catch (SynergyException e) {
+				setCommands(null);
 				return false;
 			}		
 		}
@@ -387,17 +389,17 @@ public class SynergySCM extends SCM implements Serializable {
 	private CheckoutResult checkoutProjectGrouping(FilePath path, File changeLogFile, String release, String purpose) throws IOException, InterruptedException, SynergyException {
 		// Find project grouping.
 		FindProjectGroupingCommand findCommand = new FindProjectGroupingCommand(release, purpose);
-		commands.executeSynergyCommand(path, findCommand);
+		getCommands().executeSynergyCommand(path, findCommand);
 		List<String> projectGroupings = findCommand.getProjectGroupings();
 		if (projectGroupings.size()!=1) {
-			commands.getTaskListener().error("Error : multiple or no project grouping found");
+			getCommands().getTaskListener().error("Error : multiple or no project grouping found");
 			return null;
 		}
 		String projectGrouping = projectGroupings.get(0);
 		
 		// Update members.		
 		UpdateCommand updateCommand = new UpdateCommand(UpdateCommand.PROJECT_GROUPING, projectGrouping, isReplaceSubprojects());
-		commands.executeSynergyCommand(path, updateCommand);
+		getCommands().executeSynergyCommand(path, updateCommand);
 		List<String> updates = updateCommand.getUpdates();
 			
 		// Generate changelog
@@ -413,12 +415,12 @@ public class SynergySCM extends SCM implements Serializable {
 		if (detectConflict) {
 			// Find the project to detect conflicts into.
 			FindProjectInProjectGrouping findProjectCommand = new FindProjectInProjectGrouping(projectGrouping);
-			commands.executeSynergyCommand(path, findProjectCommand);
+			getCommands().executeSynergyCommand(path, findProjectCommand);
 			List<String> projects = findProjectCommand.getProjects();
 			
 			for (String project : projects) {
 				ProjectConflicts conflictsCommand = new ProjectConflicts(project);
-				commands.executeSynergyCommand(path, conflictsCommand);
+				getCommands().executeSynergyCommand(path, conflictsCommand);
 				List<Conflict> projectConflicts = conflictsCommand.getConflicts();
 				if (projectConflicts!=null) {
 					conflicts.addAll(projectConflicts);
@@ -444,7 +446,7 @@ public class SynergySCM extends SCM implements Serializable {
 	private void checkoutBaseline(FilePath path, File changeLogFile, String baselineName, String oldBaselineName) throws IOException, InterruptedException, SynergyException {
 		// Get delimiter.
 		GetDelimiterCommand getDelim = new GetDelimiterCommand();
-		commands.executeSynergyCommand(path, getDelim);
+		getCommands().executeSynergyCommand(path, getDelim);
 		String delim = getDelim.getDelimiter();
 
 		// Get projects.
@@ -453,7 +455,7 @@ public class SynergySCM extends SCM implements Serializable {
 			baselineObjectName = baselineName + delim + "1:baseline:1";
 		}
 		GetProjectInBaselineCommand projectsCommand = new GetProjectInBaselineCommand(baselineObjectName);
-		commands.executeSynergyCommand(path, projectsCommand);
+		getCommands().executeSynergyCommand(path, projectsCommand);
 		List<String> projects = projectsCommand.getProjects();
 
 		// Mapping of old/new projects.
@@ -472,7 +474,7 @@ public class SynergySCM extends SCM implements Serializable {
 				oldBaselineObjectName = oldBaselineName + delim + "1:baseline:1";
 			}
 			projectsCommand = new GetProjectInBaselineCommand(oldBaselineObjectName);
-			commands.executeSynergyCommand(path, projectsCommand);
+			getCommands().executeSynergyCommand(path, projectsCommand);
 			List<String> oldProjects = projectsCommand.getProjects();
 
 			// Map each old project to a new project.
@@ -538,7 +540,7 @@ public class SynergySCM extends SCM implements Serializable {
 		if (oldProjectName != null && oldProjectName.length() != 0) {
 			// Compute difference.
 			CompareProjectCommand compareCommand = new CompareProjectCommand(projectName, oldProjectName);
-			commands.executeSynergyCommand(path, compareCommand);
+			getCommands().executeSynergyCommand(path, compareCommand);
 			List<String> result = compareCommand.getDifferences();
 
 			Collection<LogEntry> entries = generateChangeLog(result, projectName, changeLogFile, path);
@@ -547,7 +549,7 @@ public class SynergySCM extends SCM implements Serializable {
 		} else {
 			// Create snapshot.
 			WorkareaSnapshotCommand workareaSnapshotCommand = new WorkareaSnapshotCommand(projectName, desiredWorkArea);
-			commands.executeSynergyCommand(path, workareaSnapshotCommand);
+			getCommands().executeSynergyCommand(path, workareaSnapshotCommand);
 
 			// TODO compute and write changelog
 			return new CheckoutResult(null, null);
@@ -587,7 +589,7 @@ public class SynergySCM extends SCM implements Serializable {
 
 		// Update members.
 		UpdateCommand updateCommand = new UpdateCommand(UpdateCommand.PROJECT, projectName, isReplaceSubprojects());
-		commands.executeSynergyCommand(path, updateCommand);
+		getCommands().executeSynergyCommand(path, updateCommand);
 		List<String> updates = updateCommand.getUpdates();
 
 		// Generate changelog
@@ -603,7 +605,7 @@ public class SynergySCM extends SCM implements Serializable {
 		List<Conflict> conflicts = null;
 		if (detectConflict) {
 			ProjectConflicts conflictsCommand = new ProjectConflicts(projectName);
-			commands.executeSynergyCommand(path, conflictsCommand);
+			getCommands().executeSynergyCommand(path, conflictsCommand);
 			conflicts = conflictsCommand.getConflicts();
 		}
 		
@@ -627,7 +629,7 @@ public class SynergySCM extends SCM implements Serializable {
 					String pathInProject = object.getValue();
 					FilePath pathInWorkarea = path.child(pathInProject);
 					WriteObjectCommand command = new WriteObjectCommand(id, pathInWorkarea);
-					commands.executeSynergyCommand(path, command);
+					getCommands().executeSynergyCommand(path, command);
 				}
 			}
 		}
@@ -669,14 +671,14 @@ public class SynergySCM extends SCM implements Serializable {
 	private boolean isStaticProject(String project, FilePath workspace) throws IOException, InterruptedException, SynergyException {
 		// Get project state.
 		GetProjectStateCommand command = new GetProjectStateCommand(project);
-		commands.executeSynergyCommand(workspace, command);
+		getCommands().executeSynergyCommand(workspace, command);
 		String state = command.getState();
 
 		// Compute result.
 		if ("prep".equals(state)) {
 			// Integration testing, become build manager.
 			SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
-			commands.executeSynergyCommand(workspace, setRoleCommand);
+			getCommands().executeSynergyCommand(workspace, setRoleCommand);
 			return false;
 		} else if ("working".equals(state)) {
 			 // Development project.
@@ -704,7 +706,7 @@ public class SynergySCM extends SCM implements Serializable {
 	private void configureWorkarea(String project, boolean relative, FilePath workspace) throws IOException, InterruptedException, SynergyException {
 		// Check maintain workarea.
 		GetProjectAttributeCommand getProjectAttributeCommand = new GetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA);
-		commands.executeSynergyCommand(workspace, getProjectAttributeCommand);
+		getCommands().executeSynergyCommand(workspace, getProjectAttributeCommand);
 		String maintainWorkArea = getProjectAttributeCommand.getValue();
 		boolean changeMaintain = false;
 
@@ -712,32 +714,32 @@ public class SynergySCM extends SCM implements Serializable {
 		// Check relative/absolute wo.
 		if (relative) {
 			getProjectAttributeCommand = new GetProjectAttributeCommand(project, GetProjectAttributeCommand.RELATIVE);
-			commands.executeSynergyCommand(workspace, getProjectAttributeCommand);
+			getCommands().executeSynergyCommand(workspace, getProjectAttributeCommand);
 			String relativeWorkArea = getProjectAttributeCommand.getValue();
 
 			if (relative && !"TRUE".equals(relativeWorkArea)) {
 				// If asked for relative workarea, and workarea is not relative, set relative workarea.
 				SetProjectAttributeCommand setProjectAttributeCommand = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.RELATIVE, relative ? "TRUE" : "FALSE");
-				commands.executeSynergyCommand(workspace, setProjectAttributeCommand);
+				getCommands().executeSynergyCommand(workspace, setProjectAttributeCommand);
 			}
 		}
 
 		// Check workarea path.
 		getProjectAttributeCommand = new GetProjectAttributeCommand(project, GetProjectAttributeCommand.WORKAREA_PATH);
-		commands.executeSynergyCommand(workspace, getProjectAttributeCommand);
+		getCommands().executeSynergyCommand(workspace, getProjectAttributeCommand);
 		String currentWorkArea = getProjectAttributeCommand.getValue();
 
 		String desiredWorkArea = relative ? currentWorkArea : getCleanWorkareaPath(workspace);
 		if (!currentWorkArea.equals(desiredWorkArea) || changeMaintain) {
 			// If current workarea location is not the desired one, change it.
 			SetProjectAttributeCommand setProjectAttributeCommand = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.WORKAREA_PATH, desiredWorkArea);
-			commands.executeSynergyCommand(workspace, setProjectAttributeCommand);
+			getCommands().executeSynergyCommand(workspace, setProjectAttributeCommand);
 		}
 
 		if (!"TRUE".equals(maintainWorkArea)) {
 			// If workarea is not maintain, maintain it.
 			SetProjectAttributeCommand setProjectAttributeCommand = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA, "TRUE");
-			commands.executeSynergyCommand(workspace, setProjectAttributeCommand);
+			getCommands().executeSynergyCommand(workspace, setProjectAttributeCommand);
 			changeMaintain = true;
 		}
 
@@ -759,7 +761,7 @@ public class SynergySCM extends SCM implements Serializable {
 		// Get subproject.
 		SubProjectQueryCommand command = new SubProjectQueryCommand(projectName);
 		try {
-			commands.executeSynergyCommand(path, command);
+			getCommands().executeSynergyCommand(path, command);
 		} catch (SynergyException e) {
 			// 1 and 6 is ok (means the query returns nothing).
 			// (For Synergy 7.1 and above exitcode 6 provides the information that the result of the command was empty)
@@ -859,13 +861,13 @@ public class SynergySCM extends SCM implements Serializable {
 			// in case the given project is a top level project.
 			RecursiveProjectQueryCommand subProjectQuery = new RecursiveProjectQueryCommand(projectName);
 //			SubProjectQueryCommand subProjectQuery = new SubProjectQueryCommand(projectName);
-			commands.executeSynergyCommand(workarea, subProjectQuery);
+			getCommands().executeSynergyCommand(workarea, subProjectQuery);
 			Set<String> projects = new HashSet<String>(subProjectQuery.getSubProjects());
 			projects.add(projectName);
 
 			// Find the delimiter.
 			GetDelimiterCommand getDelim = new GetDelimiterCommand();
-			commands.executeSynergyCommand(workarea, getDelim);
+			getCommands().executeSynergyCommand(workarea, getDelim);
 			String delimiter = getDelim.getDelimiter();
 
 			// Compute the use of the subprojects in the project.
@@ -876,7 +878,7 @@ public class SynergySCM extends SCM implements Serializable {
 				for (String project : projects) {
 					if (!project.equals(projectName)) {
 						FindUseCommand findUse = new FindUseCommand(project, set, delimiter, true);
-						commands.executeSynergyCommand(workarea, findUse);
+						getCommands().executeSynergyCommand(workarea, findUse);
 						String use = findUse.getPath();
 						if (use != null) {
 							subProjectsUse.put(project, use);
@@ -887,14 +889,14 @@ public class SynergySCM extends SCM implements Serializable {
 
 			// Get project state.
 			GetProjectStateCommand stateCommand = new GetProjectStateCommand(projectName);
-			commands.executeSynergyCommand(workarea, stateCommand);
+			getCommands().executeSynergyCommand(workarea, stateCommand);
 			String state = stateCommand.getState();
 			
 			// Determine instance for project grouping
 			String subsystem;
 			if ("working".equals(state)) {
 				GetProjectOwnerCommand ownerCommand = new GetProjectOwnerCommand(projectName);
-				commands.executeSynergyCommand(workarea, ownerCommand);
+				getCommands().executeSynergyCommand(workarea, ownerCommand);
 				subsystem = ownerCommand.getOwner();
 			} else {
 				subsystem = "1";				
@@ -902,18 +904,18 @@ public class SynergySCM extends SCM implements Serializable {
 
 			// Get project grouping release and purpose
 			GetProjectGroupingInfoCommand projectGroupingInfo = new GetProjectGroupingInfoCommand(pgName);
-			commands.executeSynergyCommand(workarea, projectGroupingInfo);
+			getCommands().executeSynergyCommand(workarea, projectGroupingInfo);
 			String pgProjectPurpose = projectGroupingInfo.getProjectPurpose();
 			String pgRelease = projectGroupingInfo.getRelease();
 			
 			// Determine member status from project purpose
 			GetMemberStatusCommand statusCommand = new GetMemberStatusCommand(pgProjectPurpose);
-			commands.executeSynergyCommand(workarea, statusCommand);
+			getCommands().executeSynergyCommand(workarea, statusCommand);
 			String memberStatus = statusCommand.getMemberStatus();
 			
 			// Get project grouping object
 			GetProjectGroupingCommand findCommand = new GetProjectGroupingCommand(pgRelease, memberStatus, subsystem);
-			commands.executeSynergyCommand(workarea, findCommand);
+			getCommands().executeSynergyCommand(workarea, findCommand);
 			String projectGrouping = findCommand.getProjectGrouping();
 			
 			// Find the task associated to each change and the path of each changed object.
@@ -923,7 +925,7 @@ public class SynergySCM extends SCM implements Serializable {
 
 				// Find associate task.
 				FindAssociatedTaskCommand taskCommand = new FindAssociatedTaskCommand(name, projectGrouping);
-				commands.executeSynergyCommand(workarea, taskCommand);
+				getCommands().executeSynergyCommand(workarea, taskCommand);
 				List<String> taskIds = taskCommand.getTasks();
 				if (taskIds != null && !taskIds.isEmpty()) {
 					String taskId = taskIds.get(0);
@@ -946,7 +948,7 @@ public class SynergySCM extends SCM implements Serializable {
 
 				// Find use of the element in the project.
 				FindUseCommand command = new FindUseCommand(name, projects, delimiter, false);
-				commands.executeSynergyCommand(workarea, command);
+				getCommands().executeSynergyCommand(workarea, command);
 				String pathInProject = command.getPath();
 				if (pathInProject != null) {
 					if (!pathInProject.startsWith(projectName)) {
@@ -969,7 +971,7 @@ public class SynergySCM extends SCM implements Serializable {
 					List<String> t = new ArrayList<String>(1);
 					t.add(taskId);
 					TaskInfoCommand taskInfoCommand = new TaskInfoCommand(t);
-					commands.executeSynergyCommand(workarea, taskInfoCommand);
+					getCommands().executeSynergyCommand(workarea, taskInfoCommand);
 					List<TaskCompleted> infos = taskInfoCommand.getInformations();
 					if (!infos.isEmpty()) {
 						log.setMsg(infos.get(0).getSynopsis());
@@ -1056,14 +1058,14 @@ public class SynergySCM extends SCM implements Serializable {
 		Calendar date = lastBuild.getTimestamp();
 
 		// Configure commands.
-		commands = null;
+		setCommands(null);
 		try {
 			// Start Synergy.
-			commands = SessionUtils.openSession(path, this, listener, launcher);
+			setCommands(SessionUtils.openSession(path, this, listener, launcher));
 
 			// Find completed tasks.
 			FindCompletedSinceDateCommand findCommand = new FindCompletedSinceDateCommand(date, release);
-			commands.executeSynergyCommand(path, findCommand);
+			getCommands().executeSynergyCommand(path, findCommand);
 			List<String> result = findCommand.getTasks();
 
 			if (checkTaskModifiedObjects) {
@@ -1076,8 +1078,10 @@ public class SynergySCM extends SCM implements Serializable {
 		} finally {
 			// Stop Synergy			
 			try {
-				SessionUtils.closeSession(path, this, commands);
+				SessionUtils.closeSession(path, this, getCommands());
+				setCommands(null);
 			} catch (SynergyException e) {
+				setCommands(null);
 				return false;
 			}
 		}
@@ -1099,17 +1103,17 @@ public class SynergySCM extends SCM implements Serializable {
 
 		// Find if the task updated some files
 		TaskShowObjectsCommand showObjectsCommand = new TaskShowObjectsCommand(tasks);
-		commands.executeSynergyCommand(path, showObjectsCommand);
+		getCommands().executeSynergyCommand(path, showObjectsCommand);
 		List<String> modifiedObjects = showObjectsCommand.getObjects();
 
 		// Get project use of those files
 		GetDelimiterCommand getDelim = new GetDelimiterCommand();
-		commands.executeSynergyCommand(path, getDelim);
+		getCommands().executeSynergyCommand(path, getDelim);
 		String delimiter = getDelim.getDelimiter();
 		Set<String> projects = Collections.singleton(this.project);
 		for (String modifiedObject : modifiedObjects) {
 			FindUseWithoutVersionCommand findUseCommand = new FindUseWithoutVersionCommand(modifiedObject, projects, delimiter);
-			commands.executeSynergyCommand(path, findUseCommand);
+			getCommands().executeSynergyCommand(path, findUseCommand);
 			if (findUseCommand.getPath() != null) {
 				return true;
 			}
@@ -1223,5 +1227,19 @@ public class SynergySCM extends SCM implements Serializable {
 	}
 	public void setCheckTaskModifiedObjects(boolean checkTaskModifiedObjects) {
 		this.checkTaskModifiedObjects = checkTaskModifiedObjects;
+	}
+
+	private void setCommands(Commands commands) {
+		if (this.commands==null)
+			this.commands=new ThreadLocal<Commands>();
+		this.commands.set(commands);
+		if (commands==null)
+			this.commands.remove();
+	}
+
+	private Commands getCommands() {
+		if (this.commands==null)
+			this.commands=new ThreadLocal<Commands>();
+		return commands.get();
 	}
 }
