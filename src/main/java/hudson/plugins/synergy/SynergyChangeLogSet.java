@@ -143,7 +143,7 @@ public final class SynergyChangeLogSet extends ChangeLogSet<SynergyChangeLogSet.
 
 		@Exported
 		public String getUser() {
-			return author==null ? null : author.getDisplayName();
+			return author==null ? null : author.getId();
 		}
 
 		@Exported
