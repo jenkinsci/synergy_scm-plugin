@@ -173,7 +173,7 @@ public class Commands implements Serializable {
 			printCommandLine(commands, null, mask);
 		}
 		int result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
-		String output = out.toString();
+		String output = out.toString("ISO-8859-1");
 		
 		if (!command.isStatusOK(result, output)) {
 			buildListener.getLogger().println("ccm command failed");
