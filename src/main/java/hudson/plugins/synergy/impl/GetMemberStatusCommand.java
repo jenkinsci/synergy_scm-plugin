@@ -25,26 +25,17 @@ public class GetMemberStatusCommand extends Command {
 	@Override
 	public void parseResult(String result) {
 		try {
+			// Creates regexp to extract.
+			Pattern p = Pattern.compile("^.*\\Q"+projectPurpose+"\\E\\s+(\\w+)\\s+\\w+\\s*$");
 			BufferedReader reader = new BufferedReader(new StringReader(result));
-			String line = reader.readLine();
-			int linecount = 0;
-			while (line!=null) {
-				linecount++;
+			String line;
+			while (memberStatus==null && ((line = reader.readLine())!=null)) {
 				line = line.trim();
 				if (line.length()!=0) {
-					if (linecount >= 2){
-						// Creates regexp to extract.
-						Pattern p = Pattern.compile("^.*\\S*\\s+(\\w+)\\s+\\w+\\s*$");
-
-						// Look for updates.
-						Matcher m = p.matcher(line);
-						memberStatus = m.find() ? m.group(1) : null;
-						if (memberStatus != null){
-						  break;
-						}
-					}
+					// Look for updates.
+					Matcher m = p.matcher(line);
+					memberStatus = m.matches() ? m.group(1) : null;
 				}
-				line = reader.readLine();
 			}
 		} catch (IOException e) {
 			// Should not happen with a StringReader.

@@ -868,23 +868,6 @@ public class SynergySCM extends SCM implements Serializable {
 			commands.executeSynergyCommand(workarea, getDelim);
 			String delimiter = getDelim.getDelimiter();
 
-			// Compute the use of the subprojects in the project.
-			Map<String, String> subProjectsUse = new HashMap<String, String>();
-			if (projects.size() > 1) {
-				Set<String> set = new HashSet<String>();
-				set.add(projectName);
-				for (String project : projects) {
-					if (!project.equals(projectName)) {
-						FindUseCommand findUse = new FindUseCommand(project, set, delimiter, true);
-						commands.executeSynergyCommand(workarea, findUse);
-						String use = findUse.getPath();
-						if (use != null) {
-							subProjectsUse.put(project, use);
-						}
-					}
-				}
-			}
-
 			// Get project state.
 			GetProjectStateCommand stateCommand = new GetProjectStateCommand(projectName);
 			commands.executeSynergyCommand(workarea, stateCommand);
