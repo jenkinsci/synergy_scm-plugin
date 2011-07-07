@@ -1,5 +1,8 @@
 package hudson.plugins.synergy.impl;
 
+import java.util.Arrays;
+import java.util.Vector;
+
 public class CreateProjectBaselineCommand extends Command {
 	private String name;
 	private String project;
@@ -14,8 +17,18 @@ public class CreateProjectBaselineCommand extends Command {
 	}
 	@Override
 	public String[] buildCommand(String ccmExe) {
-		String[] commands = new String[]{ccmExe, "baseline", "-create", name, "-p", project, "-r", release, "-purpose", purpose};
-		return commands;
+		Vector<String> commands = new Vector<String>(Arrays.asList(new String[]{ccmExe, "baseline", "-create", name, "-p", project }));
+		if(this.release != "") {
+			commands.add("-r");
+			commands.add(release);
+		}
+		
+		if(this.purpose != "") {
+			commands.add("-purpose");
+			commands.add(purpose);	
+		}
+		
+		return commands.toArray(new String[]{});
 	}
 	@Override
 	public void parseResult(String result) {
