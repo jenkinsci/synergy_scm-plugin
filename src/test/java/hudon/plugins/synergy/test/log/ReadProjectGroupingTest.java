@@ -4,13 +4,13 @@ import hudson.plugins.synergy.impl.GetProjectGroupingInfoCommand;
 
 import java.io.IOException;
 
-public class ReadProjectPurposeTest extends AbstractLogTest {
+public class ReadProjectGroupingTest extends AbstractLogTest {
 	/**
 	 * Tests the update log 1.
 	 */
 	public void testLogSynergy65() throws IOException {
 		GetProjectGroupingInfoCommand update = new GetProjectGroupingInfoCommand("All Sinistre/1.0 Integration Testing Projects");
-		String log = readLog("logs/projectPurpose/projectPurpose1.log.txt");
+		String log = readLog("logs/projectGrouping/projectGrouping1.log.txt");
 		update.parseResult(log);
 		String purpose = update.getProjectPurpose();
 		String release = update.getRelease();
@@ -24,7 +24,7 @@ public class ReadProjectPurposeTest extends AbstractLogTest {
 	 */
 	public void testLogSynergy71() throws IOException {
 		GetProjectGroupingInfoCommand update = new GetProjectGroupingInfoCommand("All Sinistre/1.0 Integration Testing Projects");
-		String log = readLog("logs/projectPurpose/projectPurpose2.log.txt");
+		String log = readLog("logs/projectGrouping/projectGrouping2.log.txt");
 		update.parseResult(log);
 		String purpose = update.getProjectPurpose();
 		String release = update.getRelease();
