@@ -52,6 +52,6 @@
   <scm>
       <connection>scm:git:git://github.com/jenkinsci/synergy_scm-plugin.git</connection>
 	  <developerConnection>scm:git:git@github.com:jenkinsci/synergy_scm-plugin.git</developerConnection>
-	  <url>https://github.com/jenkinsci/synergy_scm-plugin</url>
+	  <url>http://github.com/jenkinsci/synergy_scm-plugin</url>
   </scm>
 </project>
