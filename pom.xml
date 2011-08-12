@@ -8,7 +8,7 @@
   <groupId>org.jvnet.hudson.plugins</groupId>
   <artifactId>synergy</artifactId>
   <packaging>hpi</packaging>
-  <version>1.7-SNAPSHOT</version>
+  <version>1.6-SNAPSHOT</version>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Synergy+Plugin</url>
   <description>This plug-in provides integration with CM/Synergy Version Manager SCM</description>
   <name>Hudson Synergy Plugin</name>
