@@ -1,4 +1,0 @@
-All Sinistre/1.0 Integration Testing Projects
-Sinistre/1.0
-Integration Testing
-jrbe
