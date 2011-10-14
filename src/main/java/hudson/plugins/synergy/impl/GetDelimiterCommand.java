@@ -14,7 +14,7 @@ public class GetDelimiterCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
-		delim = result;
+		delim = result.trim();
 	}
 	
 	public String getDelimiter() {
