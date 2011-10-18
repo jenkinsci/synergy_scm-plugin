@@ -6,6 +6,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Performs 'ccm task -show objects taskXYZ' and returns list of modified
@@ -14,6 +16,7 @@ import java.util.List;
  */
 public class TaskShowObjectsCommand extends Command {
 
+    private static final Pattern objectFullPattern = Pattern.compile("(.+:.+:.+)\\s+\\S+\\s+\\S+");
     private final Collection<String> tasks;
     private List<String> objects = new ArrayList<String>();
 
@@ -37,6 +40,7 @@ public class TaskShowObjectsCommand extends Command {
     @Override
     public void parseResult(String result) {
 	objects = new ArrayList<String>();
+
 	
 	BufferedReader reader = new BufferedReader(new StringReader(result));
 	try {
@@ -49,7 +53,13 @@ public class TaskShowObjectsCommand extends Command {
 			continue;
 
 		    String sub = line.substring(index+2);
-		    sub = sub.substring(0, sub.indexOf(" "));
+            Matcher objectNameMatch = objectFullPattern.matcher(sub);
+            if (objectNameMatch.find()) {
+                sub = objectNameMatch.group(1).trim();
+            } else {
+                sub = sub.substring(0, sub.indexOf(" "));
+            }
+
 		    objects.add(sub);
 		}
 		line = reader.readLine();
