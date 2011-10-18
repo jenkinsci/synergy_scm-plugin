@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
  */
 public class TaskShowObjectsCommand extends Command {
 
+    private static final Pattern objectFullPattern = Pattern.compile("(.+:.+:.+)\\s+\\S+\\s+\\S+");
     private final Collection<String> tasks;
     private List<String> objects = new ArrayList<String>();
 
@@ -39,7 +40,7 @@ public class TaskShowObjectsCommand extends Command {
     @Override
     public void parseResult(String result) {
 	objects = new ArrayList<String>();
-    Pattern objectFullPattern = Pattern.compile("(.+:.+:.+)\\s+\\S+\\s+\\S+");
+
 	
 	BufferedReader reader = new BufferedReader(new StringReader(result));
 	try {
@@ -56,7 +57,7 @@ public class TaskShowObjectsCommand extends Command {
             if (objectNameMatch.find()) {
                 sub = objectNameMatch.group(1).trim();
             } else {
-		    sub = sub.substring(0, sub.indexOf(" "));
+                sub = sub.substring(0, sub.indexOf(" "));
             }
 
 		    objects.add(sub);
