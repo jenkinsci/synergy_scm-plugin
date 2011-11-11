@@ -36,4 +36,13 @@ public class TaskShowObjectsCommandTest {
 	assertEquals("DeliverSM.java~3:java:pmaf#2", command.getObjects().get(0));
 	assertEquals("mplus-core-smtp.spec~2:spec:pmaf#1", command.getObjects().get(4));
     }
+    
+    @Test
+    public void testParseNameWithWhitespace() {
+	String toParse = "1) CADI MDC Workbooks 2011-10-13~1:dir:slc#1 integrate sarobson\n";
+
+	command.parseResult(toParse);
+	assertEquals(1, command.getObjects().size());
+	assertEquals("CADI MDC Workbooks 2011-10-13~1:dir:slc#1", command.getObjects().get(0));
+    }
 }
