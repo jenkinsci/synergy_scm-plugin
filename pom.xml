@@ -23,7 +23,7 @@
   <developers>
   	<developer>
  		<id>jribette</id>
- 		<name>Jean-NoÃ«l RIBETTE</name>
+ 		<name>Jean-No‘l RIBETTE</name>
   	</developer>
 	<developer>
 		<id>pantherse</id>
@@ -54,4 +54,20 @@
 	  <developerConnection>scm:git:git@github.com:jenkinsci/synergy_scm-plugin.git</developerConnection>
 	  <url>http://github.com/jenkinsci/synergy_scm-plugin</url>
   </scm>
-</project>
+
+    <repositories>
+        <repository>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>  
+  
+
