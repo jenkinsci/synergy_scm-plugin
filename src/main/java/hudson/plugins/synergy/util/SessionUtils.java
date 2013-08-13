@@ -14,6 +14,7 @@ import hudson.plugins.synergy.impl.Commands;
 import hudson.plugins.synergy.impl.StartCommand;
 import hudson.plugins.synergy.impl.StopCommand;
 import hudson.plugins.synergy.impl.SynergyException;
+import hudson.util.Secret;
 
 /**
  * Utility class to open and close a session.
@@ -100,7 +101,7 @@ public class SessionUtils {
 		// Get Synergy parameters.
 		String database = synergySCM.getDatabase();
 		String username = synergySCM.getUsername();
-		String password = synergySCM.getPassword();
+		String password = Secret.toString(synergySCM.getPassword());
 		boolean remoteClient = synergySCM.isRemoteClient();
 		String pathName = synergySCM.getDescriptor().getPathName();
 		String engine = synergySCM.getEngine();
