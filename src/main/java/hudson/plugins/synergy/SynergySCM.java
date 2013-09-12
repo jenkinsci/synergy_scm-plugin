@@ -1130,8 +1130,8 @@ public class SynergySCM extends SCM implements Serializable {
 		return username;
 	}
 
-	public String getPassword() {
-        return password!=null ? password.toString() : null;
+	public Secret getPassword() {
+        return password;
 	}
 
 	public String getRelease() {
