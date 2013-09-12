@@ -29,7 +29,7 @@ public class StartCommand extends Command {
 	
 	private transient int passwordIndex = -1;
 	private boolean isWebmodeSession;
-	private boolean isRunningOnUnix = false;
+	private final boolean isRunningOnUnix;
 
 	/**
 	 * Builds a start session command. 
@@ -41,7 +41,7 @@ public class StartCommand extends Command {
 	 * @param remoteClient	Use remote client flag
 	 * @param pathName      The path name
 	 */
-	public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName) {
+	public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName, boolean isUnix) {
 		this.database = database;
 		this.engine = engine;
 		this.login = login;
@@ -55,10 +55,7 @@ public class StartCommand extends Command {
 			isWebmodeSession = true;
 		}
 
-		// TODO: implement a better way to detect unix runtime environment
-		if (System.getProperty("file.separator").equals("/")){
-			isRunningOnUnix = true;
-		}
+        isRunningOnUnix = isUnix;
 	}
 
 	@Override
