@@ -41,12 +41,6 @@ public class SynergyFolderPublisher extends Notifier {
 		public boolean isApplicable(Class<? extends AbstractProject> jobType) {
 			return true;
 		}
-
-		@Override
-		public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-			return new SynergyFolderPublisher(Boolean.parseBoolean(req.getParameter("synergyPublisher.publish")), req
-					.getParameter("synergy.intFolder"), req.getParameter("synergy.devFolder"));
-		}
 	}
 
 	/**
