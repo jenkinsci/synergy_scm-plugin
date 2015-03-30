@@ -1,56 +1,56 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<f:entry field="database" title="Database" help="${descriptor.getHelpFile('database')}">
+	<f:entry field="database" title="Database">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="engine" title="Engine" help="${descriptor.getHelpFile('engine')}">
+	<f:entry field="engine" title="Engine">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="username" title="Username" help="${descriptor.getHelpFile('username')}">
+	<f:entry field="username" title="Username">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="password" title="Password" help="${descriptor.getHelpFile('password')}">
+	<f:entry field="password" title="Password">
 		<f:password />
 	</f:entry>
-	<f:entry field="remoteClient" title="Remote client" help="${descriptor.getHelpFile('remoteClient')}">>
+	<f:entry field="remoteClient" title="Remote client">
 		<f:checkbox checked="${scm.isRemoteClient()}"/>
 	</f:entry>
-    <f:entry field="ccmHome" title="Ccm Home" help="${descriptor.getHelpFile('ccmHome')}">
+    <f:entry field="ccmHome" title="Ccm Home">
         <f:textbox />
     </f:entry>
-	<f:entry field="project" title="Project name" help="${descriptor.getHelpFile('project')}">
+	<f:entry field="project" title="Project name">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="maintainWorkarea" title="Maintain workarea" help="${descriptor.getHelpFile('maintainWorkarea')}">
+	<f:entry field="maintainWorkarea" title="Maintain workarea">
 		<f:checkbox checked="${scm.shouldMaintainWorkarea()}"/>
 	</f:entry>
-	<f:entry field="detectConflict" title="Detect conflicts" help="${descriptor.getHelpFile('conflict')}">
+	<f:entry field="detectConflict" title="Detect conflicts">
 		<f:checkbox checked="${scm.isDetectConflict()}"/>
 	</f:entry>
-	<f:entry field="checkForUpdateWarnings" title="Check for update Warnings" help="${descriptor.getHelpFile('checkForUpdateWarnings')}">
+	<f:entry field="checkForUpdateWarnings" title="Check for update Warnings">
 		<f:checkbox checked="${scm.isCheckForUpdateWarnings()}"/>
 	</f:entry>
-	<f:entry field="checkTaskModifiedObjects" title="Check for modifications" help="${descriptor.getHelpFile('checkTaskModifiedObjects')}">
+	<f:entry field="checkTaskModifiedObjects" title="Check for modifications">
 		<f:checkbox checked="${scm.isCheckTaskModifiedObjects()}"/>
 	</f:entry>
-	<f:entry field="replaceSubprojects" title="Replace Subprojects" help="${descriptor.getHelpFile('replaceSubprojects')}">
+	<f:entry field="replaceSubprojects" title="Replace Subprojects">
 		<f:checkbox checked="${scm.isReplaceSubprojects()}"/>
 	</f:entry>
-	<f:entry field="release" title="Release" help="${descriptor.getHelpFile('release')}">
+	<f:entry field="release" title="Release">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="purpose" title="Purpose" help="${descriptor.getHelpFile('purpose')}">
+	<f:entry field="purpose" title="Purpose">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="oldProject" title="Old project name" help="${descriptor.getHelpFile('oldProject')}">
+	<f:entry field="oldProject" title="Old project name">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="baseline" title="Baseline" help="${descriptor.getHelpFile('baseline')}">
+	<f:entry field="baseline" title="Baseline">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="oldBaseline" title="Old baseline" help="${descriptor.getHelpFile('old-baseline')}">
+	<f:entry field="oldBaseline" title="Old baseline">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="leaveSessionOpen" title="Leave session open after update" help="${descriptor.getHelpFile('leaveSessionOpen')}">
+	<f:entry field="leaveSessionOpen" title="Leave session open after update">
 		<f:checkbox checked="${scm.isLeaveSessionOpen()}"/>
 	</f:entry>
 </j:jelly>

@@ -1,17 +1,17 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
 	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<f:section title="Synergy">
-		<f:entry title="ccm executable" help="${descriptor.getHelpFile('ccmexe')}">
+		<f:entry title="ccm executable">
 			<f:textbox name="synergy.ccmExe" value="${descriptor.ccmExe}"
 				checkUrl="'${rootURL}/scm/SynergySCM/ccmExeCheck?value='+escape(this.value)" />
 		</f:entry>
-		<f:entry title="ccm pathname" help="${descriptor.getHelpFile('pathname')}">
+		<f:entry title="ccm pathname">
 			<f:textbox name="synergy.pathName" value="${descriptor.pathName}"/>
 		</f:entry>
-		<f:entry title="ccm ui log" help="${descriptor.getHelpFile('ccmuilog')}">
+		<f:entry title="ccm ui log">
 			<f:textbox name="synergy.ccmUiLog" value="${descriptor.ccmUiLog}" />
 		</f:entry>
-		<f:entry title="ccm eng log" help="${descriptor.getHelpFile('ccmenglog')}">
+		<f:entry title="ccm eng log">
 			<f:textbox name="synergy.ccmEngLog" value="${descriptor.ccmEngLog}" />
 		</f:entry>
 	</f:section>

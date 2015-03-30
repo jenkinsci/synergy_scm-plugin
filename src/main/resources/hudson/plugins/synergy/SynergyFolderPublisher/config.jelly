@@ -2,10 +2,10 @@
 	<f:entry field="publish" title="Copy folder only if the build is successful">
 		<f:checkbox checked="${instance.isPublish()}" />
 	</f:entry>
-	<f:entry field="intFolder" title="int folder" help="${descriptor.getHelpFile('intFolder')}">
+	<f:entry field="intFolder" title="int folder">
 		<f:textbox />
 	</f:entry>
-	<f:entry field="devFolder" title="dev folder" help="${descriptor.getHelpFile('devFolder')}">
+	<f:entry field="devFolder" title="dev folder">
 		<f:textbox />
 	</f:entry>
 </j:jelly>
