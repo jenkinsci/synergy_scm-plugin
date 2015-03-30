@@ -3,6 +3,6 @@
     <f:select/>
 </f:entry>
 <f:entry field="publish" title="Publish the baseline if the build is successful">
-    <f:checkbox />
+    <f:checkbox/>
 </f:entry>
 </j:jelly>
