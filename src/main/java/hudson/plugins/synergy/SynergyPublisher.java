@@ -33,7 +33,6 @@ import org.kohsuke.stapler.StaplerRequest;
 public class SynergyPublisher extends Notifier {
 	@Extension
 	public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
         public DescriptorImpl() {
 			super(SynergyPublisher.class);
 		}
