@@ -118,16 +118,6 @@ public class SynergySCM extends SCM implements Serializable {
 			load();
 		}
 
-		@Override
-		public boolean configure(StaplerRequest request, JSONObject formData) throws FormException {
-			ccmExe = formData.getString("synergy.ccmExe");
-			ccmUiLog = formData.getString("synergy.ccmUiLog");
-			ccmEngLog = formData.getString("synergy.ccmEngLog");
-			pathName = formData.getString("synergy.pathName");
-			save();
-			return true;
-		}
-
 		/**
 		 * Checks if ccm executable exists.
 		 */
