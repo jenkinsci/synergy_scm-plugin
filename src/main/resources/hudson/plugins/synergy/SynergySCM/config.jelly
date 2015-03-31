@@ -1,56 +1,56 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<f:entry field="database" title="Database">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="engine" title="Engine">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="username" title="Username">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="password" title="Password">
-		<f:password />
+		<f:password/>
 	</f:entry>
 	<f:entry field="remoteClient" title="Remote client">
-		<f:checkbox checked="${scm.isRemoteClient()}"/>
+		<f:checkbox/>
 	</f:entry>
     <f:entry field="ccmHome" title="Ccm Home">
-        <f:textbox />
+        <f:textbox/>
     </f:entry>
 	<f:entry field="project" title="Project name">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="maintainWorkarea">
-		<f:checkbox checked="${scm.shouldMaintainWorkarea()}" title="Maintain workarea"/>
+		<f:checkbox title="Maintain workarea"/>
 	</f:entry>
 	<f:entry field="detectConflict">
-		<f:checkbox checked="${scm.isDetectConflict()}" title="Detect conflicts"/>
+		<f:checkbox title="Detect conflicts"/>
 	</f:entry>
 	<f:entry field="checkForUpdateWarnings">
-		<f:checkbox checked="${scm.isCheckForUpdateWarnings()}" title="Check for update Warnings"/>
+		<f:checkbox title="Check for update Warnings"/>
 	</f:entry>
 	<f:entry field="checkTaskModifiedObjects">
-		<f:checkbox checked="${scm.isCheckTaskModifiedObjects()}" title="Check for modifications"/>
+		<f:checkbox title="Check for modifications"/>
 	</f:entry>
 	<f:entry field="replaceSubprojects">
-		<f:checkbox checked="${scm.isReplaceSubprojects()}" title="Replace Subprojects"/>
+		<f:checkbox title="Replace Subprojects"/>
 	</f:entry>
 	<f:entry field="release" title="Release">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="purpose" title="Purpose">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="oldProject" title="Old project name">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="baseline" title="Baseline">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="oldBaseline" title="Old baseline">
-		<f:textbox />
+		<f:textbox/>
 	</f:entry>
 	<f:entry field="leaveSessionOpen">
-		<f:checkbox checked="${scm.isLeaveSessionOpen()}" title="Leave session open after update"/>
+		<f:checkbox title="Leave session open after update"/>
 	</f:entry>
 </j:jelly>
