@@ -1,56 +1,56 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<f:entry title="Database" help="/plugin/synergy/database.html">
-		<f:textbox name="synergy.database" value="${scm.database}" />
+	<f:entry field="database" title="Database">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Engine" help="/plugin/synergy/engine.html">
-		<f:textbox name="synergy.engine" value="${scm.engine}" />
+	<f:entry field="engine" title="Engine">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Username" help="/plugin/synergy/username.html">
-		<f:textbox name="synergy.username" value="${scm.username}" />
+	<f:entry field="username" title="Username">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Password" help="/plugin/synergy/password.html">
-		<f:password name="synergy.password" value="${scm.password}" />
+	<f:entry field="password" title="Password">
+		<f:password/>
 	</f:entry>
-	<f:entry title="Remote client" help="/plugin/synergy/remoteClient.html">
-		<f:checkbox name="synergy.remoteClient" value="true" checked="${scm.isRemoteClient()}" />
+	<f:entry field="remoteClient" title="Remote client">
+		<f:checkbox/>
 	</f:entry>
-    <f:entry title="Ccm Home" help="/plugin/synergy/ccmHome.html">
-        <f:textbox name="synergy.ccmHome" value="${scm.ccmHome}" />
+    <f:entry field="ccmHome" title="Ccm Home">
+        <f:textbox/>
     </f:entry>
-	<f:entry title="Project name" help="/plugin/synergy/project.html">
-		<f:textbox name="synergy.project" value="${scm.project}" />
+	<f:entry field="project" title="Project name">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Maintain workarea" help="/plugin/synergy/maintainWorkarea.html">
-		<f:checkbox name="synergy.maintainWorkarea" value="true" checked="${scm.shouldMaintainWorkarea()}" />
+	<f:entry field="maintainWorkarea">
+		<f:checkbox title="Maintain workarea"/>
 	</f:entry>
-	<f:entry title="Detect conflicts" help="/plugin/synergy/conflict.html">
-		<f:checkbox name="synergy.detectConflict" value="true" checked="${scm.isDetectConflict()}" />
+	<f:entry field="detectConflict">
+		<f:checkbox title="Detect conflicts"/>
 	</f:entry>
-	<f:entry title="Check for update Warnings" help="/plugin/synergy/checkForUpdateWarnings.html">
-		<f:checkbox name="synergy.checkForUpdateWarnings" value="true" checked="${scm.isCheckForUpdateWarnings()}" />
+	<f:entry field="checkForUpdateWarnings">
+		<f:checkbox title="Check for update Warnings"/>
 	</f:entry>
-	<f:entry title="Check for modifications" help="/plugin/synergy/checkTaskModifiedObjects.html">
-		<f:checkbox name="synergy.checkTaskModifiedObjects" value="true" checked="${scm.isCheckTaskModifiedObjects()}" />
+	<f:entry field="checkTaskModifiedObjects">
+		<f:checkbox title="Check for modifications"/>
 	</f:entry>
-	<f:entry title="Replace Subprojects" help="/plugin/synergy/replaceSubprojects.html">
-		<f:checkbox name="synergy.replaceSubprojects" value="true" checked="${scm.isReplaceSubprojects()}" />
+	<f:entry field="replaceSubprojects">
+		<f:checkbox title="Replace Subprojects"/>
 	</f:entry>
-	<f:entry title="Release" help="/plugin/synergy/release.html">
-		<f:textbox name="synergy.release" value="${scm.release}" />
+	<f:entry field="release" title="Release">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Purpose" help="/plugin/synergy/purpose.html">
-		<f:textbox name="synergy.purpose" value="${scm.purpose}" />
+	<f:entry field="purpose" title="Purpose">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Old project name" help="/plugin/synergy/old-project.html">
-		<f:textbox name="synergy.oldProject" value="${scm.oldProject}" />
+	<f:entry field="oldProject" title="Old project name">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Baseline" help="/plugin/synergy/baseline.html">
-		<f:textbox name="synergy.baseline" value="${scm.baseline}" />
+	<f:entry field="baseline" title="Baseline">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Old baseline" help="/plugin/synergy/old-baseline.html">
-		<f:textbox name="synergy.oldBaseline" value="${scm.oldBaseline}" />
+	<f:entry field="oldBaseline" title="Old baseline">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="Leave session open after update" help="/plugin/synergy/leaveSessionOpen.html">
-		<f:checkbox name="synergy.leaveSessionOpen" value="true" checked="${scm.isLeaveSessionOpen()}" />
+	<f:entry field="leaveSessionOpen">
+		<f:checkbox title="Leave session open after update"/>
 	</f:entry>
 </j:jelly>

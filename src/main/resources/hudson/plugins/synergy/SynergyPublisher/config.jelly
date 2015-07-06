@@ -1,14 +1,8 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<f:entry title="Before building the project (not working yet)">
-		<f:radio name="synergyPublisher.time" value="before" checked="${instance.time=='before'}"/>
-	</f:entry>
-	<f:entry title="After building the project">
-		<f:radio name="synergyPublisher.time" value="after" checked="${instance.time=='after'}"/>
-	</f:entry>
-	<f:entry title="If the build is successful">
-		<f:radio name="synergyPublisher.time" value="success" checked="${instance.time=='success'}"/>
-	</f:entry>
-	<f:entry title="Publish the baseline if the build is successful">
-		<f:checkbox name="synergyPublisher.publish" value="true" checked="${instance.isPublish()}"/>
-	</f:entry>
+<f:entry field="time">
+    <f:select/>
+</f:entry>
+<f:entry field="publish" title="Publish the baseline if the build is successful">
+    <f:checkbox/>
+</f:entry>
 </j:jelly>

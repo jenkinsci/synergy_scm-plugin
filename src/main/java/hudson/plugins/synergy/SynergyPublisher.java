@@ -24,6 +24,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import hudson.util.ListBoxModel;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -32,7 +33,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public class SynergyPublisher extends Notifier {
 	@Extension
 	public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-		public DescriptorImpl() {
+        public DescriptorImpl() {
 			super(SynergyPublisher.class);
 		}
 
@@ -46,13 +47,13 @@ public class SynergyPublisher extends Notifier {
 			return true;
 		}
 
-		@Override
-		public Publisher newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-			return new SynergyPublisher(
-				req.getParameter("synergyPublisher.time"),
-				Boolean.parseBoolean(req.getParameter("synergyPublisher.publish"))
-			);
-		}
+        public ListBoxModel doFillTimeItems() {
+            ListBoxModel listBoxModel = new ListBoxModel();
+            listBoxModel.add("Before building the project (not working yet)", "before");
+            listBoxModel.add("After building the project", "after");
+            listBoxModel.add("If the build is successful", "success");
+            return listBoxModel;
+        }
 
 	}
 

@@ -1,11 +1,11 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<f:entry title="Copy folder only if the build is successful">
-		<f:checkbox name="synergyPublisher.publish" value="true" checked="${instance.isPublish()}"/>
+	<f:entry field="publish">
+		<f:checkbox title="Copy folder only if the build is successful"/>
 	</f:entry>
-	<f:entry title="int folder" help="/plugin/synergy/intFolder.html">
-		<f:textbox name="synergy.intFolder" value="${instance.intFolder}" />
+	<f:entry field="intFolder" title="int folder">
+		<f:textbox/>
 	</f:entry>
-	<f:entry title="dev folder" help="/plugin/synergy/devFolder.html">
-		<f:textbox name="synergy.devFolder" value="${instance.devFolder}" />
+	<f:entry field="devFolder" title="dev folder">
+		<f:textbox/>
 	</f:entry>
 </j:jelly>

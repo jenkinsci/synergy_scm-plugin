@@ -118,39 +118,6 @@ public class SynergySCM extends SCM implements Serializable {
 			load();
 		}
 
-		@Override
-		public boolean configure(StaplerRequest request, JSONObject formData) throws FormException {
-			ccmExe = request.getParameter("synergy.ccmExe");
-			ccmUiLog = request.getParameter("synergy.ccmUiLog");
-			ccmEngLog = request.getParameter("synergy.ccmEngLog");
-			pathName = request.getParameter("synergy.pathName");
-			save();
-			return true;
-		}
-
-		@Override
-		public SCM newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-			return new SynergySCM(
-					req.getParameter("synergy.project"), 
-					req.getParameter("synergy.database"), 
-					req.getParameter("synergy.release"), 
-					req.getParameter("synergy.purpose"), 
-					req.getParameter("synergy.username"), 
-					req.getParameter("synergy.password"), 
-					req.getParameter("synergy.engine"), 
-					req.getParameter("synergy.oldProject"), 
-					req.getParameter("synergy.baseline"), 
-					req.getParameter("synergy.oldBaseline"), 
-					req.getParameter("synergy.ccmHome"),
-					"true".equals(req.getParameter("synergy.remoteClient")), 
-					"true".equals(req.getParameter("synergy.detectConflict")), 
-					"true".equals(req.getParameter("synergy.replaceSubprojects")), 
-					"true".equals(req.getParameter("synergy.checkForUpdateWarnings")),
-					"true".equals(req.getParameter("synergy.leaveSessionOpen")),
-					"true".equals(req.getParameter("synergy.maintainWorkarea")),
-					"true".equals(req.getParameter("synergy.checkTaskModifiedObjects")));
-		}
-
 		/**
 		 * Checks if ccm executable exists.
 		 */
