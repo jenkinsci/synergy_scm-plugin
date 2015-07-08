@@ -33,7 +33,12 @@ public class ProjectConflicts extends Command {
 				line = line.trim();
 				if((line.indexOf("Conflict detection completed") == -1) &&
 					(line.indexOf("Finding objects that are not included") == -1) &&
-					(line.indexOf("Collecting objects and tasks beyond baseline") == -1))
+					(line.indexOf("Collecting objects and tasks beyond baseline") == -1) &&
+					  // the following lines are needed using Synergy 7.1; these lines occure sporadically!
+					(line.indexOf("%...") == -1) &&	 // lines like "0%..."
+					(line.indexOf("Getting explicitly included objects.") == -1) &&
+					(line.indexOf("Getting members of baseline project.") == -1) &&
+					(line.indexOf("Checking for missing fix tasks.") == -1))
 				{
 					if (line.length()!=0 && !line.startsWith("Project:") && line.indexOf("No conflicts detected")==-1) {				
 						
