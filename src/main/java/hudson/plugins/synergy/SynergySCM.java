@@ -32,6 +32,7 @@ import hudson.plugins.synergy.impl.ProjectConflicts;
 import hudson.plugins.synergy.impl.SetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.SubProjectQueryCommand;
+import hudson.plugins.synergy.impl.SyncCommand;
 import hudson.plugins.synergy.impl.SynergyException;
 import hudson.plugins.synergy.impl.TaskCompleted;
 import hudson.plugins.synergy.impl.TaskInfoCommand;
@@ -558,8 +559,17 @@ public class SynergySCM extends SCM implements Serializable {
 
 		// Update members.
 		UpdateCommand updateCommand = new UpdateCommand(UpdateCommand.PROJECT, projectName, isReplaceSubprojects());
-		getCommands().executeSynergyCommand(path, updateCommand);
-		List<String> updates = updateCommand.getUpdates();
+		try {
+			getCommands().executeSynergyCommand(path, updateCommand);
+		} catch (SynergyException e ) { 
+			// ccm update failed. Let's try a sync before we give up completely.
+			SyncCommand syncCommand = new SyncCommand(projectName, true);
+			getCommands().executeSynergyCommand(path, syncCommand);
+
+			// Now update again. If this doesn't work, just die.
+			getCommands().executeSynergyCommand(path, updateCommand);
+		}
+                List<String> updates = updateCommand.getUpdates();
 
 		// Generate changelog
 		String pgName = updateCommand.getPgName();
