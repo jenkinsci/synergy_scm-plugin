@@ -1,23 +1,36 @@
 Starting update process...
 
-Updating project 'top,contint:project:1' from object version 'top,contint:project:1'...
-Refreshing baseline and tasks for project grouping 'All Risk/next Integration Testing Projects'.
-Replacing tasks in folder 13
-  Added the following tasks to folder 13
-	Task 145: Task 3
-	Task 146: Task 4
+Updating project 'HS_Restruct~BT7.1.0_Delivery:project:HBT#1' from object version 'HS_Restruct~BT7.1.0_Delivery:project:HBT#1'...
+Refreshing baseline and tasks.
+Refreshing baseline and tasks for project grouping 'All BT7.1.0_test Integration Testing Projects from Database MPH'.
+Replacing tasks in folder MPH#29286
+  Contents of folder MPH#29286 have not changed.
+Added the following tasks to project grouping 'All BT7.1.0_test Integration Testing Projects from Database MPH':
+Updating 'HS_Restruct~BT7.1.0_Delivery:project:HBT#1'.
+	Task MPH#461978: ENTW: Fehler durch Wegfall der Transferable-Spalte an CompetenceEgo - BT7.1.0.11
 
-Added the following tasks to project grouping 'All Risk/next Integration Testing Projects':
-	Task 145: Task 3
-	Task 146: Task 4
+Replaced 0 object(s), out of 10 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Warning:  No candidates found for directory entry WorkItemActionPerformer.launch:ascii:MPH#1.  It will be left empty!
+Warning!  No selection available for directory entry 'WorkItemActionPerformer.launch,?:ascii:MPH#1' under 'launches~4' in project 'HS_Restruct~BT7.1.0_Delivery:project:HBT#1'.
+Replaced 0 object(s), out of 560 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 0 object(s), out of 1170 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 0 object(s), out of 1660 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 0 object(s), out of 2150 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 0 object(s), out of 2700 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 0 object(s), out of 3160 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 0 object(s), out of 3660 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+	'OrgModelAdminFacade.java~129:java:HBT#1' replaces 'OrgModelAdminFacade.java~128:java:HBT#1' under 'admin~1:dir:HBT#9'.
+Replaced 1 object(s), out of 4090 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 1 object(s), out of 4580 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 1 object(s), out of 5110 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 1 object(s), out of 5580 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 1 object(s), out of 6000 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 1 object(s), out of 6510 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Replaced 1 object(s), out of 7020 examined, in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1.
+Update for 'HS_Restruct~BT7.1.0_Delivery:project:HBT#1' complete with 1 out of 7288 objects replaced.
 
-Update for 'top,contint:project:1' complete with 0 out of 4 objects replaced.
-
-Updating project 'JRisk,contint:project:1', reselecting root object version...
-	'runFlashGUI.cmd,3:ascii:1' replaces 'runFlashGUI.cmd,2:ascii:1' under 'JRisk,4:dir:1'.
-	'risk.ico,2:binary:1' replaces 'risk.ico,1:binary:1' under 'resources,1:dir:2'.
-	'Increment1Frame.java,4:java:1' replaces 'Increment1Frame.java,3:java:1' under 'Increment1GUI,1:dir:2'.
-Update for 'JRisk,contint:project:1' complete with 3 out of 227 objects replaced.
-Skipping 'Ant,1.6.5'.  You do not have permission to modify this project.
+Update Summary
+1 directory entry was left empty because it had no candidates or no selection available.
+	WorkItemActionPerformer.launch:ascii:MPH#1 under directory launches~4:dir:HBT#32 in project HS_Restruct~BT7.1.0_Delivery:project:HBT#1 had no candidates
 
 Update complete.

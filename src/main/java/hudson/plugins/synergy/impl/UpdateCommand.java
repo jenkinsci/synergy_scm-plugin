@@ -2,7 +2,9 @@ package hudson.plugins.synergy.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,7 +30,7 @@ public class UpdateCommand extends Command {
 	/**
 	 * The list of members that have been added to the workarea.
 	 */
-	private List<String> names;
+	private HashMap<String, List<String>> names;
 
 	/**
 	 * The displayname of the project grouping.
@@ -51,34 +53,43 @@ public class UpdateCommand extends Command {
 	@Override
 	public void parseResult(String result) {
 		// List of elements found.
-		names = new ArrayList<String>();
+		names = new HashMap<String, List<String>>();
 
 		// Creates regexps for what we are looking for in the log.
-		Pattern pReplaces = Pattern.compile("'[^']+'\\sreplaces\\s'[^']+'\\sunder\\s'[^']+'");
-		Pattern pBoundUnder = Pattern.compile("'[^']+'\\sis\\snow\\sbound\\sunder\\s'[^']+'");
-		Pattern pObjectName = Pattern.compile("'[^']+'");
+		Pattern pReplaces = Pattern.compile("'([^']+)'\\sreplaces\\s'([^']+)'\\sunder\\s'([^']+)'");
+		Pattern pBoundUnder = Pattern.compile("'([^']+)'\\sis\\snow\\sbound\\sunder\\s'([^']+)'");
+		Pattern pUpdateComplete = Pattern.compile("Update for '([^']+)' complete");
 
-		// Look for updates.
-		Matcher mReplaces = pReplaces.matcher(result);
-		while (mReplaces.find()) {
-			String group = mReplaces.group();
-			Matcher mObjectNames = pObjectName.matcher(group);
-			String newElement = mObjectNames.find() ? mObjectNames.group() : null;
-			String oldElement = mObjectNames.find() ? mObjectNames.group() : null;
-			String elementParent = mObjectNames.find() ? mObjectNames.group() : null;
-			names.add(newElement.substring(1, newElement.length() - 1));
+		Matcher mUpdateComplete = pUpdateComplete.matcher(result);
+		int start = 0;
+		while (mUpdateComplete.find()) {
+			List<String> pnames = new ArrayList<String>();
+			String project = mUpdateComplete.group(1);
+			names.put(project, pnames);
+			int end = mUpdateComplete.end();
+			String subresult = result.substring(start, end);
+			start = end;
+
+			// Look for updates.
+			Matcher mReplaces = pReplaces.matcher(subresult);
+			while (mReplaces.find()) {
+				String group = mReplaces.group();
+				String newElement = mReplaces.group(1);
+				String oldElement = mReplaces.group(2);
+				String elementParent = mReplaces.group(3);
+				pnames.add(newElement);
+			}
+
+			// Look for new elements.
+			Matcher mBound = pBoundUnder.matcher(subresult);
+			while (mBound.find()) {
+				String group = mBound.group();
+				String newElement = mBound.group(1);
+				String elementParent = mBound.group(2);
+				pnames.add(newElement);
+			}
 		}
-
-		// Look for new elements.
-		Matcher mBound = pBoundUnder.matcher(result);
-		while (mBound.find()) {
-			String group = mBound.group();
-			Matcher mObjectNames = pObjectName.matcher(group);
-			String newElement = mObjectNames.find() ? mObjectNames.group() : null;
-			String elementParent = mObjectNames.find() ? mObjectNames.group() : null;
-			names.add(newElement.substring(1, newElement.length() - 1));
-		}
-
+		
 		Pattern updateWarningPattern = Pattern.compile("Warning:\\s.*");
 		Matcher mUpdateWarningPattern = updateWarningPattern.matcher(result);
 		boolean foundWarning = mUpdateWarningPattern.find();
@@ -106,7 +117,7 @@ public class UpdateCommand extends Command {
 		return commands;
 	}
 
-	public List<String> getUpdates() {
+	public Map<String, List<String>> getUpdates() {
 		return names;
 	}
 

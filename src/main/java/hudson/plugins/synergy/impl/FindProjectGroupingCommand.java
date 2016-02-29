@@ -43,6 +43,7 @@ public class FindProjectGroupingCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		projectGroupings = new ArrayList<String>();
 		try {
 			BufferedReader reader = new BufferedReader(new StringReader(result));
@@ -54,6 +55,7 @@ public class FindProjectGroupingCommand extends Command {
 		} catch (IOException e) {
 			// Ignore on StringReader.
 		}
+	}
 	}
 	
 	public List<String> getProjectGroupings() {

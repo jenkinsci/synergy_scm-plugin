@@ -9,7 +9,7 @@ import static org.junit.Assert.*;
 public class CreateProjectBaselineCommandTest {
 	@Test
 	public void testNoReleaseAndPurpose() {
-		CreateProjectBaselineCommand cmd = new CreateProjectBaselineCommand("Test_baseline", "TestProj", "", "");
+		CreateProjectBaselineCommand cmd = new CreateProjectBaselineCommand("Test_baseline", "%baseline_name", "TestProj", "", "");
 		String[] cmdList =  cmd.buildCommand("/opt/ccm/bin/ccm");
 		for(int i = 0; i<cmdList.length; i++) {
 			if(cmdList[i] == "-r")

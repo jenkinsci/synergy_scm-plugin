@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 
 public class Commands implements Serializable {
 	/**
@@ -184,14 +185,23 @@ public class Commands implements Serializable {
 			}
 			throw new SynergyException(result);
 		} else {
-			buildListener.getLogger().println(output);
+			if(command instanceof QueryCommand)
+				buildListener.getLogger().println("...");
+			else
+				buildListener.getLogger().println(output);
 		}
 		
 		
 		
+		output = StringUtils.stripToNull(output);
 		if (output!=null) {
 			// TODO better way to handle this : distinguish mono an multi line result 
 			// and use a BufferedReader to read the lines.  
+			int oldLength = output.length();
+			do {
+				oldLength = output.length();
+				output = StringUtils.chomp(output);
+			} while (output.length() < oldLength);
 			if (output.endsWith("\r\n")) {
 				// DOS endline.
 				output = output.substring(0, output.length()-2);
@@ -200,6 +210,7 @@ public class Commands implements Serializable {
 				output = output.substring(0, output.length()-1);
 			}
 		}
+		output = StringUtils.stripToNull(output);
 		command.parseResult(output);
 	}
 	

@@ -29,7 +29,7 @@ public class StartCommand extends Command {
 	
 	private transient int passwordIndex = -1;
 	private boolean isWebmodeSession;
-	private final boolean isRunningOnUnix;
+	private boolean isRunningOnUnix = false;
 
 	/**
 	 * Builds a start session command. 
@@ -119,6 +119,7 @@ public class StartCommand extends Command {
 
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		StringTokenizer tokenizer = new StringTokenizer(result,"\t\n\r\f");
 		while (tokenizer.hasMoreTokens()) {
 			String token = tokenizer.nextToken();
@@ -127,6 +128,7 @@ public class StartCommand extends Command {
 				break;
 			}
 		}
+	}
 	}
 
 	public String getCcmAddr() {

@@ -2,6 +2,7 @@ package hudson.plugins.synergy.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Builds a compare project command.
@@ -29,6 +30,7 @@ public class CompareProjectCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
+            if (result != null) {
 		String[] resultAsArray = result.split("\n"); // TODO this leaves the result with \r at the end of the String on Windows 
 		differences = new ArrayList<String>(resultAsArray.length);
 		for (String difference : resultAsArray) {
@@ -37,6 +39,7 @@ public class CompareProjectCommand extends Command {
 				differences.add(trim);
 			}
 		}
+	}
 	}
 	
 	/**

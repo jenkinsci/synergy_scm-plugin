@@ -32,10 +32,19 @@
 	<f:entry field="checkTaskModifiedObjects">
 		<f:checkbox title="Check for modifications"/>
 	</f:entry>
+	<f:entry field="insignificantChangePatterns" title="Insignificant change patterns">
+		<f:textbox/>
+	</f:entry>
+        <f:entry field="maxQueryLength" title="Max query length for Check">
+		<f:textbox/>
+	</f:entry>
 	<f:entry field="replaceSubprojects">
 		<f:checkbox title="Replace Subprojects"/>
 	</f:entry>
 	<f:entry field="release" title="Release">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="updateReleases" title="Update-Releases">
 		<f:textbox/>
 	</f:entry>
 	<f:entry field="purpose" title="Purpose">

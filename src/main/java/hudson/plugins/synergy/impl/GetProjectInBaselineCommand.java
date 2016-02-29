@@ -22,6 +22,7 @@ public class GetProjectInBaselineCommand extends Command {
 
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		BufferedReader reader = new BufferedReader(new StringReader(result));
 		String line;
 		try {
@@ -33,7 +34,7 @@ public class GetProjectInBaselineCommand extends Command {
 		} catch (IOException e) {
 			// Should not happen whith a StringReader.
 		}
-		
+	}
 	}
 	
 	public List<String> getProjects() {

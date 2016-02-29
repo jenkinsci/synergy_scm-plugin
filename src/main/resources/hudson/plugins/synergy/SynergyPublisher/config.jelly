@@ -5,4 +5,13 @@
 <f:entry field="publish" title="Publish the baseline if the build is successful">
     <f:checkbox/>
 </f:entry>
+<f:entry field="baselineName" title="Baseline Name">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="baselineTemplate" title="Version template">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="phoenicsRelease" title="Phoenics Delivery Release">
+		<f:textbox/>
+	</f:entry>
 </j:jelly>

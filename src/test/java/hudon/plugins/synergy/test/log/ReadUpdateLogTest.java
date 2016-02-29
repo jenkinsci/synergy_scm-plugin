@@ -13,17 +13,15 @@ public class ReadUpdateLogTest extends AbstractLogTest {
 		UpdateCommand update = new UpdateCommand(UpdateCommand.PROJECT, "project", false);
 		String log = readLog("logs/updates/update1.log.txt");
 		update.parseResult(log);
-		List<String> updates = update.getUpdates();
+		List<String> updates = update.getUpdates().get("HS_Restruct~BT7.1.0_Delivery:project:HBT#1");
 		
 		// Parsing of the log should not be null.
 		assertNotNull(updates);
 		
 		// There are 3 updates in this log.
-		assertEquals(3,updates.size());
+		assertEquals(1,updates.size());
 		
 		// Check the name of updated elements.
-		assertEquals("runFlashGUI.cmd,3:ascii:1", updates.get(0));
-		assertEquals("risk.ico,2:binary:1", updates.get(1));
-		assertEquals("Increment1Frame.java,4:java:1", updates.get(2));
+		assertEquals("OrgModelAdminFacade.java~129:java:HBT#1", updates.get(0));
 	}
 }

@@ -2,10 +2,10 @@
 	<f:entry field="publish">
 		<f:checkbox title="Copy folder only if the build is successful"/>
 	</f:entry>
-	<f:entry field="intFolder" title="int folder">
+	<f:entry field="sourceFolder" title="source folder">
 		<f:textbox/>
 	</f:entry>
-	<f:entry field="devFolder" title="dev folder">
+	<f:entry field="targetFolder" title="target folder">
 		<f:textbox/>
 	</f:entry>
 </j:jelly>

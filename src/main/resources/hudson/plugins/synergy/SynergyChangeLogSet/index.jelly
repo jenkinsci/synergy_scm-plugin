@@ -7,12 +7,15 @@
   </ol>
   <table class="pane" style="border:none">
     <j:forEach var="cs" items="${it.items}" varStatus="loop">
+      <j:invokeStatic var="encodedName" className="hudson.Util" method="rawEncode">
+		<j:arg value="${cs.taskId}" />
+	  </j:invokeStatic>
       <tr class="pane">
         <td colspan="2" class="changeset">
           <a name="detail${loop.index}"></a>
           <div class="changeset-message">
             <b>
-              Task ${cs.taskId} by <a href="${rootURL}/${cs.author.url}/">${cs.author}</a>:
+              Task <a href="https://phoenicspt.ms.bgnet.de/phoenics/PTweb?ACTION_FLAG=frameset_form&amp;TEMPLATE_FLAG=TaskDetailsView&amp;database=%2Fccmdb%2Fphoenics&amp;from_db_path=%2Fccmdb%2Fphoenics&amp;role=User&amp;task_number=${encodedName}">${cs.taskId}</a> by <a href="${rootURL}/${cs.author.url}/">${cs.author}</a>:
             </b><br/>
             Synopsis: ${cs.msgAnnotated}<br/>
             Completed on: ${cs.date}

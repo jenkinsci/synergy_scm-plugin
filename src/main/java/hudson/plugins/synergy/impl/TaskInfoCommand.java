@@ -26,6 +26,7 @@ public class TaskInfoCommand extends Command {
 	private DateFormat synergyDateFormat65 = new SimpleDateFormat("EE MMM dd hh:mm:ss yyyy", Locale.ENGLISH);
 	// 3/17/10 7:55 AM
 	private DateFormat synergyDateFormat71 = new SimpleDateFormat("MM/dd/yy hh:mm a", Locale.ENGLISH);
+        private DateFormat synergyDateFormat71DefaultLocale = new SimpleDateFormat();
 	
 	private List<String> tasks;
 	private List<TaskCompleted> informations;
@@ -42,6 +43,7 @@ public class TaskInfoCommand extends Command {
 	
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		informations = new ArrayList<TaskCompleted>();
 		TaskCompleted task = null;
 		Pattern re_taskid = Pattern.compile("^\\s*Task.+?([0-9]+)[^\\d]*$");
@@ -81,14 +83,25 @@ public class TaskInfoCommand extends Command {
 					}
 				}else if (m_completiondate.matches()){
 					String dateAsString = m_completiondate.group(1);
+                                        Date date = null;
 					try {
-						Date date = synergyDateFormat71.parse(dateAsString);
+                                                date = synergyDateFormat71DefaultLocale.parse(dateAsString);
 						task.setDateCompleted(date);
 					} catch (ParseException e) {
 						// ignore.
 						// TODO: log parsing problems to hudson logfile
+					  System.out.println("ParseException Default-Locale: '"+dateAsString+"'");
+					}
+                                        if (date == null) {
+                                            try {
+						date = synergyDateFormat71.parse(dateAsString);
+						task.setDateCompleted(date);
+                                            } catch (ParseException e) {
+						// ignore.
+						// TODO: log parsing problems to hudson logfile
 					  System.out.println("ParseException: '"+dateAsString+"'");
 					}
+			   }
 			   }
 
 				line = reader.readLine();				
@@ -97,6 +110,7 @@ public class TaskInfoCommand extends Command {
 			// TODO: log parsing problems to hudson logfile
 			// Will not happen on a StringReader.
 		}
+	}
 	}
 	
 	public List<TaskCompleted> getInformations() {
