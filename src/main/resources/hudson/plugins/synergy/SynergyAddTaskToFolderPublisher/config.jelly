@@ -1,0 +1,11 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:entry field="onlyOnSuccess">
+		<f:checkbox title="Add tasks to folder only if the build is successful"/>
+	</f:entry>
+        <f:entry field="simulateOnly">
+		<f:checkbox title="do not execute command, just log"/>
+	</f:entry>
+        <f:entry field="folderDescription" title="description of destination folder, part after 'release' : '......'">
+		<f:textbox/>
+	</f:entry>
+</j:jelly>

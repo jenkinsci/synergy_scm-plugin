@@ -1,4 +1,4 @@
-package hudon.plugins.synergy.test.log;
+package hudson.plugins.synergy.test.log;
 
 import hudson.plugins.synergy.impl.GetProjectGroupingInfoCommand;
 

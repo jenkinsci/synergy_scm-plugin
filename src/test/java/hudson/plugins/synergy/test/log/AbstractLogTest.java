@@ -1,4 +1,4 @@
-package hudon.plugins.synergy.test.log;
+package hudson.plugins.synergy.test.log;
 
 import java.io.IOException;
 import java.io.InputStream;

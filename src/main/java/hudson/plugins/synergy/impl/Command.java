@@ -1,5 +1,7 @@
 package hudson.plugins.synergy.impl;
 
+import java.util.Arrays;
+
 /**
  * Synergy text command returning some text.
  */
@@ -35,4 +37,11 @@ public abstract class Command {
 	public boolean isStatusOK(int status, String output) {
 		return status==0 || ((status==1 || status==6) && (output==null || output.length()==0));
 	}
+
+  @Override
+  public String toString() {
+    return Arrays.toString(buildCommand("ccm.executable"));
+  }
+    
+    
 }

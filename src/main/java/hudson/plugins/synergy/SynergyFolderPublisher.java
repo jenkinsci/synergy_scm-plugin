@@ -154,11 +154,11 @@ public class SynergyFolderPublisher extends Notifier {
 		return true;
 	}
 
-	public void setPublish(boolean publish) {
-		this.onlyOnSuccess = publish;
+	public void setOnlyOnSuccess(boolean onlyOnSuccess) {
+		this.onlyOnSuccess = onlyOnSuccess;
 	}
 
-	public boolean isPublish() {
+	public boolean isOnlyOnSuccess() {
 		return onlyOnSuccess;
 	}
 	

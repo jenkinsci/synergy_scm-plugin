@@ -1,4 +1,4 @@
-package hudon.plugins.synergy.test.start;
+package hudson.plugins.synergy.test.start;
 
 import hudson.plugins.synergy.impl.StartCommand;
 import junit.framework.TestCase;
