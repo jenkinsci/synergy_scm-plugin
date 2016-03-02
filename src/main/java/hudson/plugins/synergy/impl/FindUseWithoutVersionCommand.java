@@ -7,7 +7,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -24,8 +23,7 @@ public class FindUseWithoutVersionCommand extends FindUseCommand {
     if (result != null) {
       // Trim the version out of projects
       List<String> trimmedProjects = new ArrayList<String>();
-      for (String project : projects)
-      {
+      for (String project : projects) {
         int versionDelimIndex = project.indexOf(delimiter);
         if (versionDelimIndex != -1) {
           trimmedProjects.add(project.substring(0, versionDelimIndex));

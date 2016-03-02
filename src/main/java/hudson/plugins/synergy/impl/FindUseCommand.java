@@ -5,12 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -38,11 +36,11 @@ public class FindUseCommand extends Command {
 
   /**
    * Public constructor
-   * 
-   * @param object		The object we want to find the use in other projects
-   * @param projects		The projects we want to kown if and where they contains the object
-   * @param delimiter		The version delimiter
-   * @param project		Is the object we want to find the use is a project
+   *
+   * @param object	The object we want to find the use in other projects
+   * @param projects	The projects we want to kown if and where they contains the object
+   * @param delimiter	The version delimiter
+   * @param project	Is the object we want to find the use is a project
    */
   public FindUseCommand(List<String> object, Set<String> projects, String delimiter, boolean project) {
     super();
@@ -90,8 +88,7 @@ public class FindUseCommand extends Command {
   }
 
   /**
-   * Returns the path of the object in the project.
-   * The path begins with the project name and ends with the object name.
+   * Returns the path of the object in the project. The path begins with the project name and ends with the object name.
    */
   public Map<String, String> getPath() {
     return path;

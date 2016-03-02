@@ -2,7 +2,6 @@ package hudson.plugins.synergy.test.log;
 
 import hudson.plugins.synergy.impl.TaskCompleted;
 import hudson.plugins.synergy.impl.TaskInfoCommand;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;

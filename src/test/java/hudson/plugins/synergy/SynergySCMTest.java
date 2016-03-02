@@ -6,28 +6,19 @@
 	%version: 2 %
 	%create_time: CREATETIME%
 **/
-
 package hudson.plugins.synergy;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import hudson.console.ConsoleNote;
 import hudson.model.TaskListener;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-
 
 /**
  * @author u48jfe
@@ -85,9 +76,8 @@ public class SynergySCMTest {
   @Test
   public void testIsOneObjectSignificant() {
 
-
-    SynergySCM l_synergySCM =
-        new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
+    SynergySCM l_synergySCM
+        = new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
             false, null, ".dbx;.xmi");
 
     Map<String, String> l_map = new HashMap<String, String>();
@@ -105,9 +95,8 @@ public class SynergySCMTest {
   @Test
   public void testIsOneObjectSignificantTrue() {
 
-
-    SynergySCM l_synergySCM =
-        new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
+    SynergySCM l_synergySCM
+        = new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
             false, null, ".dbx;.xmi");
 
     Map<String, String> l_map = new HashMap<String, String>();
@@ -127,9 +116,8 @@ public class SynergySCMTest {
   @Test
   public void testIsOneObjectSignificantNull() {
 
-
-    SynergySCM l_synergySCM =
-        new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
+    SynergySCM l_synergySCM
+        = new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
             false, null, null);
 
     Map<String, String> l_map = new HashMap<String, String>();
@@ -142,7 +130,5 @@ public class SynergySCMTest {
     assertTrue(l_synergySCM.isOneObjectSignificant(l_map, new TaskListenerImplementation()));
 
   }
-
-
 
 }

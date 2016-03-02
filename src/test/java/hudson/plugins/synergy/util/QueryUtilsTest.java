@@ -6,29 +6,15 @@
 	%version: 2 %
 	%create_time: CREATETIME%
 **/
-
 package hudson.plugins.synergy.util;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import hudson.console.ConsoleNote;
-import hudson.model.TaskListener;
-import hudson.plugins.synergy.util.QueryUtils;
-
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-
 
 /**
  * @author u48jfe
@@ -41,16 +27,14 @@ public class QueryUtilsTest {
    */
   private static final String _I = File.separator;
 
-
   /**
    * Test method for {@link hudson.plugins.synergy.util.QueryUtils#createOptimizedSubLists(java.util.HashSet, String)}.
    */
   @Test
   public void testCreateOptimizedSubLists() {
 
-
-    List<String> l_alle =
-        Arrays.asList("status_bereitgestellt24.png~2:png:MPH#1", "ordner_schulungsort24.png~2:png:MPH#1",
+    List<String> l_alle
+        = Arrays.asList("status_bereitgestellt24.png~2:png:MPH#1", "ordner_schulungsort24.png~2:png:MPH#1",
             "dozent_zuordnen24.png~1:png:MPH#1", "warteliste24.png~2:png:MPH#1", "teilnehmer_auffuellen16.png~2:png:MPH#1",
             "status_inplanung24.png~2:png:MPH#1", "konflikt_akzeptieren16.png~1:png:MPH#2", "idee24.png~2:png:MPH#1",
             "bild_vorschau24.png~1:png:MPH#1", "akte_unternehmen16.png~2:png:MPH#1", "akte_seminar16.png~2:png:MPH#1",

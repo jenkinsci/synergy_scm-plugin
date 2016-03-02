@@ -1,10 +1,5 @@
 package hudson.plugins.synergy;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -25,7 +20,10 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class SynergyAddTaskToFolderPublisher extends Notifier {
 
@@ -80,12 +78,12 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
    * Should the baseline be published
    */
   private boolean onlyOnSuccess;
-  
+
   /**
    * simulate only
    */
   private boolean simulateOnly;
-  
+
   /**
    * description of folder for query
    */
@@ -149,19 +147,15 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
         commands.executeSynergyCommand(path, taskCompletedInFolderCommand);
         List<String> tasks = taskCompletedInFolderCommand.getInformations();
 
-        for (String l_string : tasks) {
-          listener.getLogger().println("Add task " + l_string + " to Folder: " + folderID);
-        }
-
         // optimize for max querylength
         String maxQueryLength = synergySCM.getMaxQueryLength();
         List<List<String>> optimizedSubLists = QueryUtils.createOptimizedSubLists(new HashSet<String>(tasks), maxQueryLength);
         for (List<String> optimizedSubList : optimizedSubLists) {
           AddTasksToFolderCommand addTaskToFolderCommand = new AddTasksToFolderCommand(optimizedSubList, folderID);
-          if (isSimulateOnly()) {            
-            listener.getLogger().println("Command to execute: "+ addTaskToFolderCommand.toString());
+          if (isSimulateOnly()) {
+            listener.getLogger().println("Command to execute: " + addTaskToFolderCommand.toString());
           } else {
-          commands.executeSynergyCommand(path, addTaskToFolderCommand);
+            commands.executeSynergyCommand(path, addTaskToFolderCommand);
           }
         }
 

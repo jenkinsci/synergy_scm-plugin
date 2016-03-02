@@ -1,7 +1,6 @@
 package hudson.plugins.synergy.impl;
 
 import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 
 public class AddTasksToFolderCommand extends Command {

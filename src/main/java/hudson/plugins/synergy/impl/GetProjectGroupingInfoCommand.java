@@ -3,8 +3,8 @@ package hudson.plugins.synergy.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Get project grouping information.

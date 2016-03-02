@@ -3,6 +3,7 @@ package hudson.plugins.synergy;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import static hudson.Util.fixEmpty;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
@@ -21,8 +22,11 @@ import hudson.plugins.synergy.impl.GetDelimiterCommand;
 import hudson.plugins.synergy.impl.GetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.GetProjectInBaselineCommand;
 import hudson.plugins.synergy.impl.GetProjectStateCommand;
-import hudson.plugins.synergy.impl.RecursiveProjectQueryCommand;
 import hudson.plugins.synergy.impl.ProjectConflicts;
+import hudson.plugins.synergy.impl.QueryCommand;
+import hudson.plugins.synergy.impl.ReconcileCommand;
+import hudson.plugins.synergy.impl.ReconcileCommand.PARAMS;
+import hudson.plugins.synergy.impl.RecursiveProjectQueryCommand;
 import hudson.plugins.synergy.impl.SetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.SubProjectQueryCommand;
@@ -32,22 +36,17 @@ import hudson.plugins.synergy.impl.TaskShowObjectsCommand;
 import hudson.plugins.synergy.impl.UpdateCommand;
 import hudson.plugins.synergy.impl.WorkareaSnapshotCommand;
 import hudson.plugins.synergy.impl.WriteObjectCommand;
-import hudson.plugins.synergy.util.SessionUtils;
-import hudson.plugins.synergy.util.QueryUtils;
-import hudson.scm.ChangeLogParser;
-import hudson.scm.SCM;
-import hudson.scm.SCMDescriptor;
-import hudson.util.FormValidation;
-import hudson.util.Secret;
-import static hudson.Util.fixEmpty;
-import hudson.plugins.synergy.impl.QueryCommand;
-import hudson.plugins.synergy.impl.ReconcileCommand;
-import hudson.plugins.synergy.impl.ReconcileCommand.PARAMS;
 import hudson.plugins.synergy.remote.SynergyQueryService;
+import hudson.plugins.synergy.util.QueryUtils;
+import hudson.plugins.synergy.util.SessionUtils;
+import hudson.scm.ChangeLogParser;
 import hudson.scm.PollingResult;
 import hudson.scm.PollingResult.Change;
+import hudson.scm.SCM;
+import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
-
+import hudson.util.FormValidation;
+import hudson.util.Secret;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -65,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -143,8 +141,8 @@ public class SynergySCM extends SCM implements Serializable {
   public static final String CCM_SESSION_MAP_FILE_NAME = "ccmSessionMap.properties";
 
   /**
-   * The Synergy project name. This is the raw project name : if the project
-   * name contains variable, they are not substituted here.
+   * The Synergy project name. This is the raw project name : if the project name contains variable, they are not
+   * substituted here.
    */
   private String project;
 
@@ -216,8 +214,7 @@ public class SynergySCM extends SCM implements Serializable {
   private boolean reconcile;
 
   /**
-   * Deep detect changes flag. Deep detect will check wich project is modified
-   * by a task.
+   * Deep detect changes flag. Deep detect will check wich project is modified by a task.
    */
   private boolean checkTaskModifiedObjects;
 
@@ -239,14 +236,12 @@ public class SynergySCM extends SCM implements Serializable {
   private boolean checkForUpdateWarnings;
 
   /**
-   * Maintain a workarea for the project. The default value "null" is matched
-   * to "true"
+   * Maintain a workarea for the project. The default value "null" is matched to "true"
    */
   private Boolean maintainWorkarea;
 
   /**
-   * The CCM_HOME location on UNIX systems. This is used to locate ccm
-   * executable and set the remote UNIX environment.
+   * The CCM_HOME location on UNIX systems. This is used to locate ccm executable and set the remote UNIX environment.
    */
   private String ccmHome;
 
@@ -290,9 +285,9 @@ public class SynergySCM extends SCM implements Serializable {
    * @param checkForUpdateWarnings
    * @param leaveSessionOpen
    * @param maintainWorkarea
-   * @param checkTaskModifiedObjects 
-   * @param maxQueryLength 
-   * @param insignificantChangePatterns 
+   * @param checkTaskModifiedObjects
+   * @param maxQueryLength
+   * @param insignificantChangePatterns
    */
   @DataBoundConstructor
   public SynergySCM(String project, String database, String release, String updateReleases, String purpose, String username,
@@ -400,8 +395,8 @@ public class SynergySCM extends SCM implements Serializable {
    */
   private CheckoutResult
       checkoutProjectGrouping(FilePath path, File changeLogFile, String release, String purpose, boolean p_afterReconcile)
-          throws IOException,
-          InterruptedException, SynergyException {
+      throws IOException,
+      InterruptedException, SynergyException {
     // Find project grouping.
     FindProjectGroupingCommand findCommand = new FindProjectGroupingCommand(release, purpose);
     getCommands().executeSynergyCommand(path, findCommand);
@@ -469,8 +464,7 @@ public class SynergySCM extends SCM implements Serializable {
    * @param path	Hudson workarea path
    * @param changeLogFile	Hudson changelog file
    * @param baselineName	The name of the baseline to checkout
-   * @param oldBaselineName	The name of the old baseline (for differential
-   * delivery)
+   * @param oldBaselineName	The name of the old baseline (for differential delivery)
    *
    * @throws IOException
    * @throws InterruptedException
@@ -561,8 +555,7 @@ public class SynergySCM extends SCM implements Serializable {
    * @param path	Hudson workarea path
    * @param changeLogFile	Hudson changelog file
    * @param projectName	The name of the project to checkout
-   * @param oldProjectName	The name of the old project (for differential
-   * delivery)
+   * @param oldProjectName	The name of the old project (for differential delivery)
    *
    * @throws IOException
    * @throws InterruptedException
@@ -600,8 +593,7 @@ public class SynergySCM extends SCM implements Serializable {
    * @param path Hudson workarea path
    * @param changeLogFile	Hudson changelog file
    * @param projectName	The name of the project to checkout
-   * @param oldProjectName	The name of the old project (for differential
-   * delivery)
+   * @param oldProjectName	The name of the old project (for differential delivery)
    *
    * @throws IOException
    * @throws InterruptedException
@@ -702,8 +694,7 @@ public class SynergySCM extends SCM implements Serializable {
   }
 
   /**
-   * Replace an expression in the form ${name} in the given String by the
-   * value of the matching environment variable.
+   * Replace an expression in the form ${name} in the given String by the value of the matching environment variable.
    */
   private String computeDynamicValue(AbstractBuild build, String parameterizedValue)
       throws IllegalStateException, InterruptedException, IOException {
@@ -711,7 +702,7 @@ public class SynergySCM extends SCM implements Serializable {
       int start = parameterizedValue.indexOf("${");
       int end = parameterizedValue.indexOf("}", start);
       String parameter = parameterizedValue.substring(start + 2, end);
-      String value = (String)build.getEnvironment(TaskListener.NULL).get(parameter);
+      String value = (String) build.getEnvironment(TaskListener.NULL).get(parameter);
       if (value == null) {
         throw new IllegalStateException(parameter);
       }
@@ -765,8 +756,8 @@ public class SynergySCM extends SCM implements Serializable {
   private void configureWorkarea(String project, boolean relative, FilePath workspace)
       throws IOException, InterruptedException, SynergyException {
     // Check maintain workarea.
-    GetProjectAttributeCommand getProjectAttributeCommand =
-        new GetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA);
+    GetProjectAttributeCommand getProjectAttributeCommand
+        = new GetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA);
     getCommands().executeSynergyCommand(workspace, getProjectAttributeCommand);
     String maintainWorkArea = getProjectAttributeCommand.getValue();
     boolean changeMaintain = false;
@@ -779,8 +770,8 @@ public class SynergySCM extends SCM implements Serializable {
 
       if (relative && !"TRUE".equals(relativeWorkArea)) {
         // If asked for relative workarea, and workarea is not relative, set relative workarea.
-        SetProjectAttributeCommand setProjectAttributeCommand =
-            new SetProjectAttributeCommand(project, GetProjectAttributeCommand.RELATIVE, relative ? "TRUE" : "FALSE");
+        SetProjectAttributeCommand setProjectAttributeCommand
+            = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.RELATIVE, relative ? "TRUE" : "FALSE");
         getCommands().executeSynergyCommand(workspace, setProjectAttributeCommand);
       }
     }
@@ -793,15 +784,15 @@ public class SynergySCM extends SCM implements Serializable {
     String desiredWorkArea = relative ? currentWorkArea : getCleanWorkareaPath(workspace);
     if (!currentWorkArea.equals(desiredWorkArea) || changeMaintain) {
       // If current workarea location is not the desired one, change it.
-      SetProjectAttributeCommand setProjectAttributeCommand =
-          new SetProjectAttributeCommand(project, GetProjectAttributeCommand.WORKAREA_PATH, desiredWorkArea);
+      SetProjectAttributeCommand setProjectAttributeCommand
+          = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.WORKAREA_PATH, desiredWorkArea);
       getCommands().executeSynergyCommand(workspace, setProjectAttributeCommand);
     }
 
     if (!"TRUE".equals(maintainWorkArea)) {
       // If workarea is not maintain, maintain it.
-      SetProjectAttributeCommand setProjectAttributeCommand =
-          new SetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA, "TRUE");
+      SetProjectAttributeCommand setProjectAttributeCommand
+          = new SetProjectAttributeCommand(project, GetProjectAttributeCommand.MAINTAIN_WORKAREA, "TRUE");
       getCommands().executeSynergyCommand(workspace, setProjectAttributeCommand);
       changeMaintain = true;
     }
@@ -890,8 +881,7 @@ public class SynergySCM extends SCM implements Serializable {
    * Generate the changelog.
    *
    * @param names	Names of the elements that have changed
-   * @param projects	Name of the Synergy project being build and that may
-   * contain changes
+   * @param projects	Name of the Synergy project being build and that may contain changes
    * @param changeLogFile	File to write the changelog into
    * @param workarea	The Workarea path
    * @return
@@ -908,12 +898,10 @@ public class SynergySCM extends SCM implements Serializable {
    * Generate the changelog.
    *
    * @param names	Names of the elements that have changed
-   * @param projects	Name of the Synergy project being build and that may
-   * contain changes
+   * @param projects	Name of the Synergy project being build and that may contain changes
    * @param changeLogFile	File to write the changelog into
    * @param workarea	The Workarea path
-   * @param pgName	Optional name of the project grouping to which the project
-   * belongs
+   * @param pgName	Optional name of the project grouping to which the project belongs
    * @return
    * @throws IOException
    * @throws InterruptedException
@@ -936,9 +924,9 @@ public class SynergySCM extends SCM implements Serializable {
       SynergyQueryService queryService = null;
 
       // Get project grouping object
-      QueryCommand queryCommand =
-          new QueryCommand("is_project_grouping_of('" + projectName + "')", Arrays.asList(new String[] { "objectname", "release",
-              "member_status", "status" }));
+      QueryCommand queryCommand
+          = new QueryCommand("is_project_grouping_of('" + projectName + "')", Arrays.asList(new String[]{"objectname", "release",
+        "member_status", "status"}));
       getCommands().executeSynergyCommand(workarea, queryCommand);
       if (queryCommand.getQueryResult().size() == 0) {
         return logs.values();
@@ -960,7 +948,7 @@ public class SynergySCM extends SCM implements Serializable {
         baseline = queryCommand.getQueryResult().get(0).get("objectname");
       } else {
         queryCommand = new QueryCommand("cvtype='process_rule' and release='" + release + "' and member_status='" + memberStatus + "'",
-            Arrays.asList(new String[] { "baseline_version_matching" }));
+            Arrays.asList(new String[]{"baseline_version_matching"}));
         getCommands().executeSynergyCommand(workarea, queryCommand);
         if (queryCommand.getQueryResult().size() == 1) {
           matching = queryCommand.getQueryResult().get(0).get("baseline_version_matching");
@@ -976,14 +964,14 @@ public class SynergySCM extends SCM implements Serializable {
       }
       taskquery = "status != 'task_automatic' and (" + taskquery + ")";
       String objectquery = "cvtype != 'jar' and is_associated_cv_of(" + taskquery + ")";
-      queryCommand = new QueryCommand(objectquery, Arrays.asList(new String[] { "objectname", "task" }));
+      queryCommand = new QueryCommand(objectquery, Arrays.asList(new String[]{"objectname", "task"}));
       getCommands().executeSynergyCommand(workarea, queryCommand);
       Map<String, String> objects = new HashMap<String, String>();
       for (Map<String, String> object : queryCommand.getQueryResult()) {
         objects.put(object.get("objectname"), object.get("task"));
       }
-      queryCommand =
-          new QueryCommand(taskquery, Arrays.asList(new String[] { "displayname", "task_synopsis", "resolver", "completion_date" }));
+      queryCommand
+          = new QueryCommand(taskquery, Arrays.asList(new String[]{"displayname", "task_synopsis", "resolver", "completion_date"}));
       getCommands().executeSynergyCommand(workarea, queryCommand);
       Map<String, Map<String, String>> tasks = new HashMap<String, Map<String, String>>();
       for (Map<String, String> task : queryCommand.getQueryResult()) {
@@ -991,8 +979,8 @@ public class SynergySCM extends SCM implements Serializable {
       }
 
       for (String project : names.keySet()) {
-        Map<String, String> projectMembers =
-            queryService != null ? queryService.getProjectMembers(project, false) : new HashMap<String, String>();
+        Map<String, String> projectMembers
+            = queryService != null ? queryService.getProjectMembers(project, false) : new HashMap<String, String>();
         for (String name : names.get(project)) {
           SynergyChangeLogSet.LogEntry log = null;
           Path l_path = new Path();
@@ -1135,7 +1123,7 @@ public class SynergySCM extends SCM implements Serializable {
       setCommands(SessionUtils.openSession(path, this, listener, launcher));
 
       // Find completed tasks.
-      FindCompletedSinceDateCommand findCommand = new FindCompletedSinceDateCommand(((SynergyRevisionState)baseline).date, updateReleases);
+      FindCompletedSinceDateCommand findCommand = new FindCompletedSinceDateCommand(((SynergyRevisionState) baseline).date, updateReleases);
       getCommands().executeSynergyCommand(path, findCommand);
       List<String> result = findCommand.getTasks();
 
@@ -1164,8 +1152,7 @@ public class SynergySCM extends SCM implements Serializable {
    * @param tasks	A list of task number
    * @param path	The current project path.
    * @param p_listener to log
-   * @return	If a task in the list modify the current project and what kind of
-   * change
+   * @return	If a task in the list modify the current project and what kind of change
    * @throws SynergyException
    * @throws InterruptedException
    * @throws IOException
@@ -1250,8 +1237,7 @@ public class SynergySCM extends SCM implements Serializable {
   }
 
   /**
-   * Returns the raw project name. If the project name contains variable, they
-   * are not substituted here.
+   * Returns the raw project name. If the project name contains variable, they are not substituted here.
    *
    * @return	The raw project name
    */

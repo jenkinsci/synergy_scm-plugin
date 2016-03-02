@@ -22,7 +22,6 @@ import java.util.List;
  */
 public class QueryUtils {
 
-
   public static List<List<String>> createOptimizedSubLists(HashSet<String> l_hashSet, String maxQueryLength) {
     int parseInt = 512;
     try {
