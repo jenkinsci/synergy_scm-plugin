@@ -9,16 +9,20 @@ public abstract class Command {
 	/**
 	 * Return the Synergy command line to execute as an array.
 	 * The line must start with the ccmExe location, which is given as the first method parameter. 
+     * @param ccmExe 
+     * @return String[]
 	 */
 	public abstract String[] buildCommand(String ccmExe);
 	
 	/**
 	 * Parse the command result.
+     * @param result 
 	 */
 	public abstract void parseResult(String result);
 	
 	/**
 	 * Build a mask of values in the command line that should not be logged.
+     * @return boolean[]
 	 */
 	public boolean[] buildMask() {
 		return new boolean[buildCommand(null).length];
@@ -33,6 +37,7 @@ public abstract class Command {
 	 * 
 	 *  @param status	The ccm process return code
 	 *  @param output	The ccm process output
+     * @return boolean
 	 */
 	public boolean isStatusOK(int status, String output) {
 		return status==0 || ((status==1 || status==6) && (output==null || output.length()==0));

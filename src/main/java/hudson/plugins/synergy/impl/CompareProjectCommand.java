@@ -45,6 +45,7 @@ public class CompareProjectCommand extends Command {
 
   /**
    * Returns the objectname of the objects that are members of the newProject but not of the oldProject.
+   * @return List of String
    */
   public List<String> getDifferences() {
     return differences;

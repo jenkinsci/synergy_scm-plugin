@@ -32,10 +32,12 @@ public class StartCommand extends Command {
    * Builds a start session command. A start session command returns the CCM_ADDR to use for the following commands.
    *
    * @param database	The database path
+   * @param engine the engine
    * @param login	The user login
    * @param password	The user password
    * @param remoteClient	Use remote client flag
    * @param pathName The path name
+   * @param isUnix boolean if environment is unix
    */
   public StartCommand(String database, String engine, String login, String password, boolean remoteClient, String pathName, boolean isUnix) {
     this.database = database;

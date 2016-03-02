@@ -332,6 +332,7 @@ public class SynergySCM extends SCM implements Serializable {
 
       // Compute dynamic names (replace variable by their values).
       String projectName = computeDynamicValue(build, project);
+      listener.getLogger().println("project: " + projectName);
       String oldProjectName = computeDynamicValue(build, oldProject);
       String baselineName = computeDynamicValue(build, baseline);
       String oldBaselineName = computeDynamicValue(build, oldBaseline);
@@ -720,6 +721,7 @@ public class SynergySCM extends SCM implements Serializable {
    */
   private boolean isStaticProject(String project, FilePath workspace) throws IOException, InterruptedException, SynergyException {
     // Get project state.
+    // FIXME: dynamic Value
     GetProjectStateCommand command = new GetProjectStateCommand(project);
     getCommands().executeSynergyCommand(workspace, command);
     String state = command.getState();

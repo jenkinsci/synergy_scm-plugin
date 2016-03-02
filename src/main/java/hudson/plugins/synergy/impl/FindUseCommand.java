@@ -32,6 +32,7 @@ public class FindUseCommand extends Command {
    * Is the object a project.
    */
   private boolean project;
+  
   protected Map<String, String> path = new HashMap<String, String>();
 
   /**
@@ -89,6 +90,7 @@ public class FindUseCommand extends Command {
 
   /**
    * Returns the path of the object in the project. The path begins with the project name and ends with the object name.
+   * @return Map of String,String 
    */
   public Map<String, String> getPath() {
     return path;

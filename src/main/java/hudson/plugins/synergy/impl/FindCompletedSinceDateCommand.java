@@ -40,8 +40,8 @@ public class FindCompletedSinceDateCommand extends Command {
 
   /**
    * ccm query -t task -u -f %objectname 
-   *    "(excluded_time  >= time('2014/10/07 13:51:42') 
-   *    or  completion_date >= time('2014/10/07 13:51:42'))
+   *    "(excluded_time  &gt;= time('2014/10/07 13:51:42') 
+   *    or  completion_date &gt;= time('2014/10/07 13:51:42'))
    *    and (release='BT9.0.0' or release='BT8.0_COPY' 
    *    or release='BT8.1_COPY' or release='BT8.2_COPY' or release='BT9.0_COPY')"
    * {@inheritDoc}

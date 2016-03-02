@@ -49,14 +49,23 @@ public class Commands implements Serializable {
    */
   private TaskListener buildListener;
 
+  /**
+   * get for TaskListener
+   * @return TaskListener
+   */
   public TaskListener getTaskListener() {
     return buildListener;
   }
 
+  /**
+   * set for TaskListener
+   * @param buildListener 
+   */
   public void setTaskListener(TaskListener buildListener) {
     this.buildListener = buildListener;
   }
 
+  
   public String getCcmAddr() {
     return ccmAddr;
   }
@@ -107,6 +116,9 @@ public class Commands implements Serializable {
 
   /**
    * Builds a compare project command.
+   * @param newProject
+   * @param oldProject
+   * @return String[]
    */
   public String[] buildCompareProjectCommand(String newProject, String oldProject) {
     String[] query = new String[]{
@@ -125,6 +137,7 @@ public class Commands implements Serializable {
    * @param command	Command and arguments
    * @throws IOException
    * @throws InterruptedException
+   * @throws SynergyException
    */
   public void executeSynergyCommand(FilePath path, Command command) throws IOException, InterruptedException, SynergyException {
     Map<String, String> system = System.getenv();
@@ -205,6 +218,7 @@ public class Commands implements Serializable {
    * @param command	Command and arguments
    * @throws IOException
    * @throws InterruptedException
+   * @throws SynergyException
    */
   public void executeSynergyCommand(FilePath path, StreamCommand command) throws IOException, InterruptedException, SynergyException {
     Map<String, String> system = System.getenv();
@@ -258,6 +272,9 @@ public class Commands implements Serializable {
 
   /**
    * Prints out the command line to the listener so that users know what we are doing.
+   * @param cmd
+   * @param workDir
+   * @param mask 
    */
   protected final void printCommandLine(String[] cmd, FilePath workDir, boolean[] mask) {
     StringBuilder buf = new StringBuilder();

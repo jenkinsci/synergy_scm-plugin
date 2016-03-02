@@ -14,7 +14,6 @@ public class CheckSessionCommand extends Command {
   /**
    * Checks if a session allready exists. return's the CCM addr if the session allready exists
    *
-   * @param filePath
    */
   public CheckSessionCommand() {
   }
@@ -31,6 +30,13 @@ public class CheckSessionCommand extends Command {
     allSessions = result;
   }
 
+  /**
+   * Return ccm session
+   * @param ccmSessionMapFile
+   * @return
+   * @throws IOException
+   * @throws InterruptedException 
+   */
   public String getCcmAddr(FilePath ccmSessionMapFile) throws IOException, InterruptedException {
     if (!ccmSessionMapFile.exists()) {
       return SESSION_NOT_FOUND;
