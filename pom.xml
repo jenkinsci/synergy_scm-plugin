@@ -8,7 +8,7 @@
   
   <artifactId>synergy</artifactId>
   <packaging>hpi</packaging>
-  <version>1.8_20160302_PHOENICS</version>
+  <version>1.8-SNAPSHOT</version>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Synergy+Plugin</url>
   <description>This plug-in provides integration with CM/Synergy Version Manager SCM</description>
   <name>Synergy Plugin</name>
