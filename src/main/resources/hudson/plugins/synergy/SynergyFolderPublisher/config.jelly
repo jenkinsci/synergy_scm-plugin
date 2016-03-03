@@ -4,8 +4,10 @@
 	</f:entry>
 	<f:entry field="sourceFolder" title="source folder">
 		<f:textbox/>
+                <f:description>four-part-name</f:description>
 	</f:entry>
 	<f:entry field="targetFolder" title="target folder">
 		<f:textbox/>
+                <f:description>four-part-name</f:description>
 	</f:entry>
 </j:jelly>

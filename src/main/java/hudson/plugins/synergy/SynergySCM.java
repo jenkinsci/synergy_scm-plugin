@@ -299,7 +299,7 @@ public class SynergySCM extends SCM implements Serializable {
     this.project = project;
     this.database = database;
     this.release = release;
-    if (updateReleases == null) {
+    if (StringUtils.isEmpty(updateReleases)) {
       this.updateReleases = release;
     } else {
       this.updateReleases = updateReleases;
@@ -319,7 +319,7 @@ public class SynergySCM extends SCM implements Serializable {
     this.leaveSessionOpen = leaveSessionOpen;
     this.maintainWorkarea = maintainWorkarea;
     this.checkTaskModifiedObjects = checkTaskModifiedObjects;
-    this.maxQueryLength = maxQueryLength;
+    this.maxQueryLength = StringUtils.defaultIfEmpty(maxQueryLength, "300");
     this.insignificantChangePatterns = insignificantChangePatterns;
   }
 
@@ -439,7 +439,7 @@ public class SynergySCM extends SCM implements Serializable {
       }
     }
 
-    // TODO: prÃ¼fen ob sinnvoll ....
+    // TODO: prüfen ob sinnvoll ....
     if (reconcile && updateCommand.isUpdateWarningsExists() && !p_afterReconcile) {
       // Find the project to detect conflicts into.
       FindProjectInProjectGrouping findProjectCommand = new FindProjectInProjectGrouping(projectGrouping);

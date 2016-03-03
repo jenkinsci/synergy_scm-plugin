@@ -6,6 +6,7 @@ import hudson.model.TaskListener;
 import hudson.plugins.synergy.SynergySCM;
 import hudson.plugins.synergy.impl.CheckSessionCommand;
 import hudson.plugins.synergy.impl.Commands;
+import hudson.plugins.synergy.impl.GetDelimiterCommand;
 import hudson.plugins.synergy.impl.StartCommand;
 import hudson.plugins.synergy.impl.StopCommand;
 import hudson.plugins.synergy.impl.SynergyException;
@@ -56,7 +57,7 @@ public class SessionUtils {
     } else {
       commands.setCcmExe(ccmExe);
     }
-//		commands.setCcmExe(synergySCM.getDescriptor().getCcmExe());
+
     commands.setCcmUiLog(synergySCM.getDescriptor().getCcmUiLog());
     commands.setCcmEngLog(synergySCM.getDescriptor().getCcmEngLog());
 
@@ -91,6 +92,15 @@ public class SessionUtils {
       ccmAddr = startSession(path, synergySCM, commands, ccmSessionMapFile);
     }
     commands.setCcmAddr(ccmAddr);
+
+    // check if Session is alive
+    GetDelimiterCommand l_command = new GetDelimiterCommand();
+    try {
+      commands.executeSynergyCommand(path, l_command);
+    } catch (SynergyException l_synEx) {
+      ccmAddr = startSession(path, synergySCM, commands, ccmSessionMapFile);
+      commands.setCcmAddr(ccmAddr);
+    }
 
     return commands;
   }

@@ -1,4 +1,3 @@
-
 package hudson.plugins.synergy.impl;
 
 import java.io.BufferedReader;
@@ -36,8 +35,8 @@ public class GetFolderIDCommand extends Command {
   @Override
   public String[] buildCommand(String ccmExe) {
     // Construct Folder Name
-    String folderName = release + " : " +getFolderDescription();
-    String[] commands = new String[] { ccmExe, "query", "-u", "-f", "%objectname", "description = '" + folderName + "'" };
+    String folderName = release + getFolderDescription();
+    String[] commands = new String[]{ccmExe, "query", "-u", "-f", "%objectname", "description = '" + folderName + "'"};
     return commands;
   }
 
@@ -67,4 +66,3 @@ public class GetFolderIDCommand extends Command {
     this.folderDescription = folderDescription;
   }
 }
-

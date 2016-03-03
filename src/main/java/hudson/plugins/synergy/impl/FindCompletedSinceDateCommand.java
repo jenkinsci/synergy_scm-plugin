@@ -10,10 +10,9 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Kommando sucht nach Tasks, die fÃ¼r eine Menge an definierten Releases
- * und einem Zeitpunkt completed bzw. auch excluded wurden, 
- * da diese Menge potentiell das Projekt Ã¤ndern.
- * 
+ * Kommando sucht nach Tasks, die fuer eine Menge an definierten Releases und einem Zeitpunkt completed bzw. auch
+ * excluded wurden, da diese Menge potentiell das Projekt ändern.
+ *
  * @author u48jfe
  *
  */
@@ -39,12 +38,9 @@ public class FindCompletedSinceDateCommand extends Command {
   }
 
   /**
-   * ccm query -t task -u -f %objectname 
-   *    "(excluded_time  &gt;= time('2014/10/07 13:51:42') 
-   *    or  completion_date &gt;= time('2014/10/07 13:51:42'))
-   *    and (release='BT9.0.0' or release='BT8.0_COPY' 
-   *    or release='BT8.1_COPY' or release='BT8.2_COPY' or release='BT9.0_COPY')"
-   * {@inheritDoc}
+   * ccm query -t task -u -f %objectname "(excluded_time &gt;= time('2014/10/07 13:51:42') or completion_date &gt;=
+   * time('2014/10/07 13:51:42')) and (release='BT9.0.0' or release='BT8.0_COPY' or release='BT8.1_COPY' or
+   * release='BT8.2_COPY' or release='BT9.0_COPY')" {@inheritDoc}
    */
   @Override
   public String[] buildCommand(String ccmExe) {
@@ -53,7 +49,7 @@ public class FindCompletedSinceDateCommand extends Command {
     String releaseString = "";
     for (String rel : release) {
       if (releaseString.length() == 0) {
-        releaseString = "and (";
+        releaseString = " and (";
       }
       if (releaseString.indexOf("release") > 0) {
         releaseString = releaseString + " or ";
@@ -61,8 +57,8 @@ public class FindCompletedSinceDateCommand extends Command {
       releaseString = releaseString + "release='" + rel + "'";
     }
     releaseString = releaseString + ")";
-    return new String[] { ccmExe, "query", "-t", "task", "-u", "-f", "%objectname",
-        "(excluded_time  >= time('" + dateAsString + "') or  completion_date >= time('" + dateAsString + "'))" + releaseString };
+    return new String[]{ccmExe, "query", "-t", "task", "-u", "-f", "%objectname",
+      "(excluded_time >= time('" + dateAsString + "') or completion_date >= time('" + dateAsString + "'))" + releaseString};
   }
 
   @Override
