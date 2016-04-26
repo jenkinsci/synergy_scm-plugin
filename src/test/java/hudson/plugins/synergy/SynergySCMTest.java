@@ -78,7 +78,7 @@ public class SynergySCMTest {
 
     SynergySCM l_synergySCM
         = new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
-            false, null, ".dbx;.xmi");
+            false, null, ".dbx;.xmi", null, false, false);
 
     Map<String, String> l_map = new HashMap<String, String>();
     l_map.put("FWK.xmi", "BatchFwk_Maven" + _I + "xmi" + _I + "FWK.xmi");
@@ -97,7 +97,7 @@ public class SynergySCMTest {
 
     SynergySCM l_synergySCM
         = new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
-            false, null, ".dbx;.xmi");
+            false, null, ".dbx;.xmi", null, false, false);
 
     Map<String, String> l_map = new HashMap<String, String>();
     l_map.put("FWK.xmi", "BatchFwk_Maven" + _I + "xmi" + _I + "FWK.xmi");
@@ -118,7 +118,7 @@ public class SynergySCMTest {
 
     SynergySCM l_synergySCM
         = new SynergySCM(null, null, null, null, null, null, null, null, null, null, null, null, false, false, true, false, false, null,
-            false, null, null);
+            false, null, null, null, false, false);
 
     Map<String, String> l_map = new HashMap<String, String>();
     l_map.put("FWK.xmi", "BatchFwk_Maven" + _I + "xmi" + _I + "FWK.xmi");

@@ -131,7 +131,7 @@ public class Commands implements Serializable {
   }
 
   /**
-   * Executes a Synergy command.
+   * Executes a Synergy command. Logs environment if command fails.
    *
    * @param path	Current directory
    * @param command	Command and arguments
@@ -140,6 +140,20 @@ public class Commands implements Serializable {
    * @throws SynergyException
    */
   public void executeSynergyCommand(FilePath path, Command command) throws IOException, InterruptedException, SynergyException {
+      executeSynergyCommand(path, command, true);
+  }
+  
+  /**
+   * Executes a Synergy command.
+   *
+   * @param path	Current directory
+   * @param command	Command and arguments
+   * @param p_logFailureEnvironment true means logging environment in case of failure
+   * @throws IOException
+   * @throws InterruptedException
+   * @throws SynergyException
+   */
+  public void executeSynergyCommand(FilePath path, Command command, boolean p_logFailureEnvironment) throws IOException, InterruptedException, SynergyException {
     Map<String, String> system = System.getenv();
     List<String> param = new ArrayList<String>();
     if (!launcher.isUnix() || ccmHome == null || ccmHome.length() == 0) {
@@ -179,9 +193,11 @@ public class Commands implements Serializable {
     if (!command.isStatusOK(result, output)) {
       buildListener.getLogger().println("ccm command failed");
       buildListener.getLogger().println(output);
-      buildListener.getLogger().println("Command: The environment was :");
-      for (String s : param) {
-        buildListener.getLogger().println(s);
+      if (p_logFailureEnvironment) {
+        buildListener.getLogger().println("Command: The environment was :");
+        for (String s : param) {
+            buildListener.getLogger().println(s);
+        }
       }
       throw new SynergyException(result);
     } else if (command instanceof QueryCommand) {
@@ -212,7 +228,7 @@ public class Commands implements Serializable {
   }
 
   /**
-   * Executes a Synergy command.
+   * Executes a Synergy command. Logs environment if command fails.
    *
    * @param path	Current directory
    * @param command	Command and arguments
@@ -221,6 +237,20 @@ public class Commands implements Serializable {
    * @throws SynergyException
    */
   public void executeSynergyCommand(FilePath path, StreamCommand command) throws IOException, InterruptedException, SynergyException {
+      executeSynergyCommand(path, command, true);
+  }
+  
+  /**
+   * Executes a Synergy command.
+   *
+   * @param path	Current directory
+   * @param command	Command and arguments
+   * @param p_logFailureEnvironment true means logging environment in case of failure
+   * @throws IOException
+   * @throws InterruptedException
+   * @throws SynergyException
+   */
+  public void executeSynergyCommand(FilePath path, StreamCommand command, boolean p_logFailureEnvironment) throws IOException, InterruptedException, SynergyException {
     Map<String, String> system = System.getenv();
     List<String> param = new ArrayList<String>();
     if (!launcher.isUnix() || ccmHome == null || ccmHome.length() != 0) {
@@ -262,9 +292,11 @@ public class Commands implements Serializable {
 
     if (result != 0 && result != 1) {
       buildListener.getLogger().println("ccm command failed");
-      buildListener.getLogger().println("StreamCommand : The environment was :");
-      for (String s : param) {
-        buildListener.getLogger().println(s);
+      if (p_logFailureEnvironment) {
+        buildListener.getLogger().println("StreamCommand : The environment was :");
+        for (String s : param) {
+            buildListener.getLogger().println(s);
+        }
       }
       throw new SynergyException(result);
     }

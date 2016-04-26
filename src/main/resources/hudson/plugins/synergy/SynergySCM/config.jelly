@@ -32,6 +32,12 @@
 	<f:entry field="checkTaskModifiedObjects">
 		<f:checkbox title="Check for modifications"/>
 	</f:entry>
+	<f:entry field="checkoutProjectIfNotExists">
+		<f:checkbox title="Checkout project if it is not existing"/>
+	</f:entry>
+        <f:entry field="buildEmptyChangeLog">
+		<f:checkbox title="Build project even if it is triggered by time or scm and there is no change"/>
+	</f:entry>
 	<f:entry field="insignificantChangePatterns" title="Insignificant change patterns">
 		<f:textbox/>
 	</f:entry>
@@ -45,6 +51,9 @@
 		<f:textbox/>
 	</f:entry>
 	<f:entry field="updateReleases" title="Update-Releases">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="updateFolders" title="Update-Folders">
 		<f:textbox/>
 	</f:entry>
 	<f:entry field="purpose" title="Purpose">

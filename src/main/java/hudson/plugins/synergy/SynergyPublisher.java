@@ -498,13 +498,13 @@ public class SynergyPublisher extends Notifier {
       String project = synergySCM.getProject().trim();
       String purpose = synergySCM.getPurpose().trim();
       String release = synergySCM.getRelease().trim();
-      String baselineName = computeDynamicValue(build, this.baselineName).trim();
-      String phoenicsRelease = computeDynamicValue(build, this.phoenicsRelease).trim();
+      String l_baselineName = computeDynamicValue(build, this.baselineName).trim();
+      String l_phoenicsRelease = computeDynamicValue(build, this.phoenicsRelease).trim();
       FilePath path = build.getWorkspace();
 
       Commands commands = null;
       boolean bugfix = Pattern.matches("BT\\d+\\.\\d+\\.\\d+(?:_CR_.*?){0,1}(?:_PRE){0,1}", release);
-      boolean pre = Pattern.matches(".*_PRE", phoenicsRelease);
+      boolean pre = Pattern.matches(".*_PRE", l_phoenicsRelease);
 
       try {
         // Open Session.
@@ -514,7 +514,7 @@ public class SynergyPublisher extends Notifier {
         SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
         commands.executeSynergyCommand(path, setRoleCommand);
 
-        if (phoenicsRelease.length() > 0) {
+        if (l_phoenicsRelease.length() > 0) {
           // Release aus Projekt bestimmen
           if (release.length() == 0) {
             GetProjectAttributeCommand getProjectAttributeCommand = new GetProjectAttributeCommand(project, "release");
@@ -524,23 +524,23 @@ public class SynergyPublisher extends Notifier {
 
           // neue BT Lieferung anhand der letzten Baseline bestimmen
           // falls keine letzte Baseline vorhanden ist, wird release + ".1" verwendet 
-          if (baselineName.length() == 0) {
+          if (l_baselineName.length() == 0) {
             QueryCommand baselineQueryCommand = new QueryCommand("cvtype='baseline' and release='" + release + "' and (status='published_baseline' or status='test_baseline')", Arrays.asList(new String[]{"name", "objectname"}), "-create_time");
             commands.executeSynergyCommand(path, baselineQueryCommand);
             if (baselineQueryCommand.getQueryResult().size() > 0) {
               Matcher m = patternBaseline.matcher(baselineQueryCommand.getQueryResult().get(0).get("name"));
               if (m.matches()) {
-                baselineName = m.group(1) + "." + (Integer.parseInt(m.group(2)) + 1) + m.group(3);
+                l_baselineName = m.group(1) + "." + (Integer.parseInt(m.group(2)) + 1) + m.group(3);
               }
             } else {
               Matcher m = patternRelease.matcher(release);
               if (m.matches()) {
-                baselineName = m.group(1) + ".1" + m.group(2);
+                l_baselineName = m.group(1) + ".1" + m.group(2);
               }
             }
           }
 
-          // btversion.txt Ã¼berprÃ¼fen
+          // btversion.txt ueberpruefen
           String btversion = null;
           QueryCommand btversionQueryCommand = new QueryCommand("name='btversion.txt' and recursive_is_member_of('" + project + "', '')", Arrays.asList(new String[]{"objectname"}));
           commands.executeSynergyCommand(path, btversionQueryCommand);
@@ -549,47 +549,47 @@ public class SynergyPublisher extends Notifier {
             commands.executeSynergyCommand(path, catCommand);
             btversion = catCommand.getSource().trim();
           }
-          if (!baselineName.equals(btversion)) {
-            listener.getLogger().println("BT Version (" + btversion + ") passt nicht zur Auslieferung (" + baselineName + ").");
+          if (!l_baselineName.equals(btversion)) {
+            listener.getLogger().println("BT Version (" + btversion + ") passt nicht zur Auslieferung (" + l_baselineName + ").");
             return false;
           }
         }
 
         // Compute baseline name.
-        if (baselineName.length() == 0) {
+        if (l_baselineName.length() == 0) {
           Date date = build.getTimestamp().getTime();
           DateFormat format = new SimpleDateFormat("yyyyMMdd-hhmm");
-          baselineName = build.getProject().getName() + "-" + format.format(date);
+          l_baselineName = build.getProject().getName() + "-" + format.format(date);
         }
 
         // Create baseline.
         if (createBaseline) {
-          CreateProjectBaselineCommand createCommand = new CreateProjectBaselineCommand(baselineName, baselineTemplate, project, release, purpose);
+          CreateProjectBaselineCommand createCommand = new CreateProjectBaselineCommand(l_baselineName, baselineTemplate, project, release, purpose);
           commands.executeSynergyCommand(path, createCommand);
           // zusaetzlich Baseline fuer Hotfix Release erstellen
-          if (phoenicsRelease.length() > 0 && bugfix) {
+          if (l_phoenicsRelease.length() > 0 && bugfix) {
             SynergyObject projectObject = new SynergyObject(project);
-            String newProjectVersion = projectObject.version.indexOf(release) != -1 ? projectObject.version.replace(release, baselineName) : baselineName + "_Delivery";
+            String newProjectVersion = projectObject.version.indexOf(release) != -1 ? projectObject.version.replace(release, l_baselineName) : l_baselineName + "_Delivery";
             SynergyObject newProjectObject = new SynergyObject(projectObject.name, newProjectVersion, projectObject.type, projectObject.instance);
-            SynergyObject baselineObject = new SynergyObject(projectObject.name, baselineName, projectObject.type, projectObject.instance);
-            CopyProjectCommand copyProjectCommand = new CopyProjectCommand(baselineObject.objectname, newProjectObject.version, purpose, baselineName);
+            SynergyObject baselineObject = new SynergyObject(projectObject.name, l_baselineName, projectObject.type, projectObject.instance);
+            CopyProjectCommand copyProjectCommand = new CopyProjectCommand(baselineObject.objectname, newProjectObject.version, purpose, l_baselineName);
             commands.executeSynergyCommand(path, copyProjectCommand);
             UpdateCommand updateCommand = new UpdateCommand(UpdateCommand.PROJECT, newProjectObject.objectname, false);
             commands.executeSynergyCommand(path, updateCommand);
-            // Neue Baseline fÃ¼r Hotfix Release erstellen
-            Matcher m = patternBaseline.matcher(baselineName);
+            // Neue Baseline fuer Hotfix Release erstellen
+            Matcher m = patternBaseline.matcher(l_baselineName);
             if (m.matches()) {
-              createCommand = new CreateProjectBaselineCommand(m.group(1) + "." + m.group(2) + ".0" + m.group(3), baselineTemplate, newProjectObject.objectname, baselineName, purpose);
+              createCommand = new CreateProjectBaselineCommand(m.group(1) + "." + m.group(2) + ".0" + m.group(3), baselineTemplate, newProjectObject.objectname, l_baselineName, purpose);
               commands.executeSynergyCommand(path, createCommand);
             }
           }
 
           // Publish baseline.
           if (publishBaseline) {
-            PublishBaselineCommand publishCommand = new PublishBaselineCommand(baselineName);
+            PublishBaselineCommand publishCommand = new PublishBaselineCommand(l_baselineName);
             commands.executeSynergyCommand(path, publishCommand);
-            if (phoenicsRelease.length() > 0 && bugfix) {
-              Matcher m = patternBaseline.matcher(baselineName);
+            if (l_phoenicsRelease.length() > 0 && bugfix) {
+              Matcher m = patternBaseline.matcher(l_baselineName);
               if (m.matches()) {
                 publishCommand = new PublishBaselineCommand(m.group(1) + "." + m.group(2) + ".0" + m.group(3));
                 commands.executeSynergyCommand(path, publishCommand);
@@ -598,9 +598,9 @@ public class SynergyPublisher extends Notifier {
           }
 
           // create Phoenics Delivery
-          if (phoenicsRelease.length() > 0) {
+          if (l_phoenicsRelease.length() > 0) {
             // Art der Auslieferung bestimmen
-            GetFolderQueryCommand getFolderQueryCommand = new GetFolderQueryCommand(phoenicsRelease + " Quellfolder");
+            GetFolderQueryCommand getFolderQueryCommand = new GetFolderQueryCommand(l_phoenicsRelease + " Quellfolder");
             commands.executeSynergyCommand(path, getFolderQueryCommand);
             boolean hc = Pattern.compile("%HC%").matcher(getFolderQueryCommand.getQuery()).find();
             boolean qf = Pattern.compile("%QF%").matcher(getFolderQueryCommand.getQuery()).find();
@@ -609,7 +609,7 @@ public class SynergyPublisher extends Notifier {
             // PrÃ¼fen, ob noch anderer Bugfix in der PRE ist
             if (pre) {
               Pattern p = Pattern.compile("(BT\\d+\\.\\d+\\.\\d+)(\\.\\d+)");
-              Matcher m = p.matcher(baselineName);
+              Matcher m = p.matcher(l_baselineName);
               if (m.find()) {
                 QueryCommand preQueryCommand = new QueryCommand("cvtype='task' and status='completed' and release match 'a" + m.group(1) + "*_PRE' and task_synopsis match 'Bugfix Lieferung*'", Arrays.asList(new String[]{"task_synopsis"}));
                 commands.executeSynergyCommand(path, preQueryCommand);
@@ -660,7 +660,7 @@ public class SynergyPublisher extends Notifier {
             } else {
               type = hc ? "EC" : "Hotfix";
             }
-            CreateTaskCommand createTaskCommand = new CreateTaskCommand(deliveryRelease, type + " Lieferung " + baselineName);
+            CreateTaskCommand createTaskCommand = new CreateTaskCommand(deliveryRelease, type + " Lieferung " + l_baselineName);
             commands.executeSynergyCommand(path, createTaskCommand);
             String task = createTaskCommand.getTaskNumber();
 
@@ -669,7 +669,7 @@ public class SynergyPublisher extends Notifier {
             }
             listener.getLogger().println("Release: " + release);
             listener.getLogger().println("Typ: " + type);
-            listener.getLogger().println("BT-Lieferung: " + baselineName);
+            listener.getLogger().println("BT-Lieferung: " + l_baselineName);
             listener.getLogger().println("Auslieferungstask: " + task);
 
             // alle neuen Objekte an die Auslieferungstask hÃ¤ngen
@@ -704,7 +704,7 @@ public class SynergyPublisher extends Notifier {
 
             if (bugfix) {
               // Hotfix Release fÃ¼r nÃ¤chste BF Lieferung anlegen
-              Matcher m = patternBaseline.matcher(baselineName);
+              Matcher m = patternBaseline.matcher(l_baselineName);
               if (!m.matches()) {
                 listener.error("Hotfix Release fÃ¼r nÃ¤chste BF Lieferung kann nicht bestimmt werden");
                 return false;
@@ -715,10 +715,10 @@ public class SynergyPublisher extends Notifier {
               createRelease(commands, path, nextBaselineName, previousBaselineName, release);
               // Process Rules kopieren
               for (String purpose2 : Arrays.asList(new String[]{"Collaborative Development", "Integration Testing"})) {
-                CopyProcessRuleCommand copyProcessRuleCommand = new CopyProcessRuleCommand(baselineName + ":" + purpose2, nextBaselineName + ":" + purpose2);
+                CopyProcessRuleCommand copyProcessRuleCommand = new CopyProcessRuleCommand(l_baselineName + ":" + purpose2, nextBaselineName + ":" + purpose2);
                 commands.executeSynergyCommand(path, copyProcessRuleCommand);
                 if (previousBaselineName != null) {
-                  copyProcessRuleCommand = new CopyProcessRuleCommand(previousBaselineName + ":" + purpose2, baselineName + ":" + purpose2);
+                  copyProcessRuleCommand = new CopyProcessRuleCommand(previousBaselineName + ":" + purpose2, l_baselineName + ":" + purpose2);
                   commands.executeSynergyCommand(path, copyProcessRuleCommand);
                 }
               }
@@ -729,9 +729,9 @@ public class SynergyPublisher extends Notifier {
                 releases.add(deliveryRelease);
                 if (pre) {
                   releases.add(deliveryRelease.replace("_PRE", ""));
-                  releases.add("a" + baselineName + "_PRE");
+                  releases.add("a" + l_baselineName + "_PRE");
                 } else {
-                  releases.add("a" + baselineName);
+                  releases.add("a" + l_baselineName);
                 }
                 SetFolderQueryCommand setFolderQueryCommand = new SetFolderQueryCommand("Completed (and included) tasks for release " + deliveryRelease, "all_completed", releases);
                 commands.executeSynergyCommand(path, setFolderQueryCommand);
@@ -747,11 +747,11 @@ public class SynergyPublisher extends Notifier {
             WritableCellFormat wrapFormat = new WritableCellFormat(new WritableFont(WritableFont.ARIAL));
             wrapFormat.setWrap(true);
 
-            Label label = new Label(0, 0, "Liste der neuen Tasks fÃ¼r " + baselineName, headingformat);
+            Label label = new Label(0, 0, "Liste der neuen Tasks fÃ¼r " + l_baselineName, headingformat);
             sheet1.addCell(label);
             label = new Label(0, 2, "BT-Auslieferung", headingformat);
             sheet1.addCell(label);
-            label = new Label(1, 2, baselineName);
+            label = new Label(1, 2, l_baselineName);
             sheet1.addCell(label);
             label = new Label(0, 3, "Differenz zu", headingformat);
             sheet1.addCell(label);
