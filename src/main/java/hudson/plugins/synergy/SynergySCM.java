@@ -34,6 +34,7 @@ import hudson.plugins.synergy.impl.ReconcileCommand.PARAMS;
 import hudson.plugins.synergy.impl.RecursiveProjectQueryCommand;
 import hudson.plugins.synergy.impl.SetProjectAttributeCommand;
 import hudson.plugins.synergy.impl.SetRoleCommand;
+import hudson.plugins.synergy.impl.SetSessionPropertyCommand;
 import hudson.plugins.synergy.impl.SubProjectQueryCommand;
 import hudson.plugins.synergy.impl.SyncCommand;
 import hudson.plugins.synergy.impl.SynergyException;
@@ -642,8 +643,18 @@ public class SynergySCM extends SCM implements Serializable {
                 SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
                 getCommands().executeSynergyCommand(path, setRoleCommand);
             }
+            // get old value of property
+            SetSessionPropertyCommand l_setSessionPropertyCommand = new SetSessionPropertyCommand("project_subdir_template", "");
+            getCommands().executeSynergyCommand(path, l_setSessionPropertyCommand);
+            String l_oldValue = l_setSessionPropertyCommand.getValue();
+            // set value
+             l_setSessionPropertyCommand = new SetSessionPropertyCommand("project_subdir_template", "\"\"");
+            getCommands().executeSynergyCommand(path, l_setSessionPropertyCommand);
             CopyProjectCommand copy = new CopyProjectCommand(purpose, release, StringUtils.chop(StringUtils.removeEnd(path.getRemote(),StringUtils.substringBefore(projectName, "~"))), StringUtils.substringBefore(StringUtils.substringAfter(projectName, "~"), ":"), projects.get(0));
             getCommands().executeSynergyCommand(path, copy);
+            // reset value
+             l_setSessionPropertyCommand = new SetSessionPropertyCommand("project_subdir_template", l_oldValue);
+            getCommands().executeSynergyCommand(path, l_setSessionPropertyCommand);
         }
         
         if (isStaticProject(projectName, path)) {

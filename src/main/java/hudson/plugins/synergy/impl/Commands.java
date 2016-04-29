@@ -185,7 +185,7 @@ public class Commands implements Serializable {
     if (launcher.isUnix()) {
       // Print Synergy command otherwise does not get printed
       // by launcher
-      printCommandLine(commands, null, mask);
+      printCommandLine(commands, null, mask); 
     }
     int result = launcher.launch().cmds(commands).masks(mask).envs(env).stdout(out).pwd(path).join();
     String output = out.toString("ISO-8859-1");
