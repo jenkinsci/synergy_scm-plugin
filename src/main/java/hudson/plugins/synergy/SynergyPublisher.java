@@ -495,7 +495,7 @@ public class SynergyPublisher extends Notifier {
     if (createBaseline || publishBaseline) {
       // Get Synergy parameters.
       SynergySCM synergySCM = (SynergySCM) scm;
-      String project = synergySCM.getProject().trim();
+      String project = computeDynamicValue(build, synergySCM.getProject()).trim();
       String purpose = synergySCM.getPurpose().trim();
       String release = synergySCM.getRelease().trim();
       String l_baselineName = computeDynamicValue(build, this.baselineName).trim();
