@@ -1,8 +1,10 @@
 package hudson.plugins.synergy;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
@@ -142,8 +144,9 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
         String folderID = getFolderIDCommand.getFolderID();
 
         //Ermittle zu beruecksichtigende Tasks
+        String l_projectName = Util.replaceMacro(synergySCM.getProject(), EnvVars.getRemote(launcher.getChannel()));
         TaskCompletedInFolderCommand taskCompletedInFolderCommand
-            = new TaskCompletedInFolderCommand(synergySCM.getProject(), folderID);
+            = new TaskCompletedInFolderCommand(l_projectName, folderID);
         commands.executeSynergyCommand(path, taskCompletedInFolderCommand);
         List<String> tasks = taskCompletedInFolderCommand.getInformations();
 

@@ -36,6 +36,7 @@ public class TaskCompletedInFolderCommand extends Command {
   @Override
   public void parseResult(String result) {
     informations = new ArrayList<String>();
+    if (result != null) {
     String line;
     try {
       BufferedReader reader = new BufferedReader(new StringReader(result));
@@ -46,6 +47,7 @@ public class TaskCompletedInFolderCommand extends Command {
     } catch (IOException e) {
       // TODO: log parsing problems to hudson logfile
       // Will not happen on a StringReader.
+      }
     }
   }
 
