@@ -36,16 +36,18 @@ public class TaskCompletedInSourceFolderAndNotInTargetFolderCommand extends Comm
   @Override
   public void parseResult(String result) {
     informations = new ArrayList<String>();
-    String line;
-    try {
-      BufferedReader reader = new BufferedReader(new StringReader(result));
-      while ((line = reader.readLine()) != null) {
-        informations.add(line);
-      }
+    if (result != null) {
+      String line;
+      try {
+        BufferedReader reader = new BufferedReader(new StringReader(result));
+        while ((line = reader.readLine()) != null) {
+          informations.add(line);
+        }
 
-    } catch (IOException e) {
-      // TODO: log parsing problems to hudson logfile
-      // Will not happen on a StringReader.
+      } catch (IOException e) {
+        // TODO: log parsing problems to hudson logfile
+        // Will not happen on a StringReader.
+      }
     }
   }
 

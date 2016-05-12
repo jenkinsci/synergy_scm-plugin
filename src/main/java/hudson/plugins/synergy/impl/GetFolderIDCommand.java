@@ -42,14 +42,15 @@ public class GetFolderIDCommand extends Command {
 
   @Override
   public void parseResult(String result) {
-    try {
-      BufferedReader reader = new BufferedReader(new StringReader(result));
-      folderID = reader.readLine();
+    if (result != null) {
+      try {
+        BufferedReader reader = new BufferedReader(new StringReader(result));
+        folderID = reader.readLine();
 
-    } catch (IOException e) {
-      // Will not happen on a StringReader.
+      } catch (IOException e) {
+        // Will not happen on a StringReader.
+      }
     }
-
   }
 
   /**
