@@ -1050,7 +1050,7 @@ public class SynergySCM extends SCM implements Serializable {
                 objects.put(object.get("objectname"), object.get("task"));
             }
             queryCommand
-                    = new QueryCommand(taskquery, Arrays.asList(new String[]{"displayname", "task_synopsis", "resolver", "completion_date"}));
+                    = new QueryCommand(taskquery, Arrays.asList(new String[]{"displayname", "task_synopsis", "resolver", "completion_date", "release"}));
             getCommands().executeSynergyCommand(workarea, queryCommand);
             Map<String, Map<String, String>> tasks = new HashMap<String, Map<String, String>>();
             for (Map<String, String> task : queryCommand.getQueryResult()) {
@@ -1078,6 +1078,8 @@ public class SynergySCM extends SCM implements Serializable {
                                     log.setUser(task.get("resolver"));
                                     log.setTaskId(task.get("displayname"));
                                     log.setDate(task.get("completion_date"));
+                                    // Erweiterung Task-Release
+                                    log.setVersion(task.get("release"));
                                     logs.put(taskId, log);
                                 }
                             }
@@ -1113,6 +1115,7 @@ public class SynergySCM extends SCM implements Serializable {
                     writer.println(String.format("\t\t<task>%s</task>", log.getTaskId()));
                     writer.println(String.format("\t\t<author>%s</author>", log.getUser()));
                     writer.println(String.format("\t\t<date>%s</date>", log.getDate()));
+                    writer.println(String.format("\t\t<version>%s</version>", log.getVersion()));
                     writer.println(String.format("\t\t<msg><![CDATA[%s]]></msg>", log.getMsg()));
 
                     writer.println("\t\t<paths>");

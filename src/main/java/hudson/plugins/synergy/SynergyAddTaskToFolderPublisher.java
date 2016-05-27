@@ -104,7 +104,7 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
 
   @Override
   public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
-      BuildListener listener) throws InterruptedException, IOException {
+          BuildListener listener) throws InterruptedException, IOException {
     // Check SCM used.
     SCM scm = build.getProject().getScm();
     if (!(scm instanceof SynergySCM)) {
@@ -146,22 +146,23 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
         //Ermittle zu beruecksichtigende Tasks
         String l_projectName = Util.replaceMacro(synergySCM.getProject(), EnvVars.getRemote(launcher.getChannel()));
         TaskCompletedInFolderCommand taskCompletedInFolderCommand
-            = new TaskCompletedInFolderCommand(l_projectName, folderID);
+                = new TaskCompletedInFolderCommand(l_projectName, folderID);
         commands.executeSynergyCommand(path, taskCompletedInFolderCommand);
         List<String> tasks = taskCompletedInFolderCommand.getInformations();
 
         // optimize for max querylength
         String maxQueryLength = synergySCM.getMaxQueryLength();
-        List<List<String>> optimizedSubLists = QueryUtils.createOptimizedSubLists(new HashSet<String>(tasks), maxQueryLength);
-        for (List<String> optimizedSubList : optimizedSubLists) {
-          AddTasksToFolderCommand addTaskToFolderCommand = new AddTasksToFolderCommand(optimizedSubList, folderID);
-          if (isSimulateOnly()) {
-            listener.getLogger().println("Command to execute: " + addTaskToFolderCommand.toString());
-          } else {
-            commands.executeSynergyCommand(path, addTaskToFolderCommand);
+        if (!tasks.isEmpty()) {
+          List<List<String>> optimizedSubLists = QueryUtils.createOptimizedSubLists(new HashSet<String>(tasks), maxQueryLength);
+          for (List<String> optimizedSubList : optimizedSubLists) {
+            AddTasksToFolderCommand addTaskToFolderCommand = new AddTasksToFolderCommand(optimizedSubList, folderID);
+            if (isSimulateOnly()) {
+              listener.getLogger().println("Command to execute: " + addTaskToFolderCommand.toString());
+            } else {
+              commands.executeSynergyCommand(path, addTaskToFolderCommand);
+            }
           }
         }
-
       } catch (SynergyException e) {
         return false;
       } finally {

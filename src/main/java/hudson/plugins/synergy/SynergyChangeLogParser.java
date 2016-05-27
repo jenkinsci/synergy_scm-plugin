@@ -28,6 +28,7 @@ public class SynergyChangeLogParser extends ChangeLogParser {
     digester.addBeanPropertySetter("*/logentry/author", "user");
     digester.addBeanPropertySetter("*/logentry/date");
     digester.addBeanPropertySetter("*/logentry/msg");
+    digester.addBeanPropertySetter("*/logentry/version", "version");
     digester.addSetNext("*/logentry", "add");
 
     digester.addObjectCreate("*/logentry/paths/path", Path.class);

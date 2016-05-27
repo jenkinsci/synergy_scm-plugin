@@ -93,7 +93,7 @@ public final class SynergyChangeLogSet extends ChangeLogSet<SynergyChangeLogSet.
   public static class LogEntry extends ChangeLogSet.Entry {
 
     private String taskId;
-    private int version;
+    private String version;
     private User author;
     private String date;
     private String msg;
@@ -189,12 +189,12 @@ public final class SynergyChangeLogSet extends ChangeLogSet<SynergyChangeLogSet.
     }
 
     @Exported
-    public int getVersion() {
+    public String getVersion() {
       return version;
     }
 
     @Exported
-    public void setVersion(int version) {
+    public void setVersion(String version) {
       this.version = version;
     }
   }

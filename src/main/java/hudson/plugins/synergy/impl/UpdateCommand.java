@@ -31,6 +31,8 @@ public class UpdateCommand extends Command {
 	 * The list of members that have been added to the workarea.
 	 */
 	private HashMap<String, List<String>> names;
+        
+        private Map<String, UpdateType> tasks;
 
 	/**
 	 * The displayname of the project grouping.
@@ -59,6 +61,8 @@ public class UpdateCommand extends Command {
 		Pattern pReplaces = Pattern.compile("'([^']+)'\\sreplaces\\s'([^']+)'\\sunder\\s'([^']+)'");
 		Pattern pBoundUnder = Pattern.compile("'([^']+)'\\sis\\snow\\sbound\\sunder\\s'([^']+)'");
 		Pattern pUpdateComplete = Pattern.compile("Update for '([^']+)' complete");
+                Pattern pTasksRemovedStart = Pattern.compile("Removed the following tasks from .*");
+                Pattern pTasksAddedStart = Pattern.compile("Added the following tasks to .*");
 
 		Matcher mUpdateComplete = pUpdateComplete.matcher(result);
 		int start = 0;
@@ -88,6 +92,18 @@ public class UpdateCommand extends Command {
 				String elementParent = mBound.group(2);
 				pnames.add(newElement);
 			}
+                        Matcher mTaskRemoved = pTasksRemovedStart.matcher(subresult);
+                        List<Integer> l_removedStarts = new ArrayList<Integer>();
+                        while(mTaskRemoved.find()) {
+                            l_removedStarts.add(mTaskRemoved.start());
+                        }
+                        Matcher mTaskAdded = pTasksAddedStart.matcher(subresult);
+                        List<Integer> l_addedStarts = new ArrayList<Integer>();
+                        while(mTaskAdded.find()) {
+                            l_addedStarts.add(mTaskAdded.start());
+                        }
+                        // jetzt die zwischen den ersten beiden Treffern liegenden Zeilen durchsuchen
+                        
 		}
 		
 		Pattern updateWarningPattern = Pattern.compile("Warning:\\s.*");
