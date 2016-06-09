@@ -41,7 +41,7 @@ public class SynergySCMListener extends SCMListener {
             }
             if (changelog.isEmptySet() && l_automaticTriggered) {
                 listener.getLogger().println("No change on project and build started on SCMTrigger or TimerTrigger, nothing to do.");
-                build.getExecutor().interrupt(Result.ABORTED);
+                build.getExecutor().interrupt(Result.SUCCESS);
             }
         }
         }
