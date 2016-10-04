@@ -13,10 +13,12 @@ public class GetBaselineMatchingCommand extends Command {
 		this.purpose = purpose;
 	}
 	
+  @Override
 	public String[] buildCommand(String ccmExe) {
 		return new String[] { ccmExe, "process_rule", "-show", "matching", release + ":" + purpose};
 	}
 	
+  @Override
 	public void parseResult(String result) {
 		Matcher m = Pattern.compile("Process Rule " + release + ":" + purpose + ": " + "(\\S*)").matcher(result);
 		if(m.find()) baseline = m.group(1);

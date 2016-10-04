@@ -38,7 +38,8 @@ public class CheckFolderModifiedSinceDateCommand extends Command {
   }
 
   /**
-   * ccm query -f %name;%modify_time "(folder('39527') or folder('39033')) and (modify_time >= time('2016/04/19 13:51:42'))"
+   * 
+   * ccm query -f %name;%modify_time "(folder('39527') or folder('39033')) and (modify_time &gt;= time('2016/04/19 13:51:42'))"
    * 
    * Output: 
    * 1) 39033;19.04.16 16:52

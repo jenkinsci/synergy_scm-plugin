@@ -1,5 +1,6 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-        <f:entry field="simulateOnly" title="do not execute command, just log">
+  <f:entry field="simulateOnly" title="do not execute command, just log">
 		<f:checkbox/>
 	</f:entry>
         <f:entry field="sourceFolderDescription" title="source folder">

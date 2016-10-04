@@ -32,10 +32,10 @@ public class CheckSessionCommand extends Command {
 
   /**
    * Return ccm session
-   * @param ccmSessionMapFile
-   * @return
-   * @throws IOException
-   * @throws InterruptedException 
+   * @param ccmSessionMapFile FilePath
+   * @return String
+   * @throws IOException in case of problems reading propertiesfile
+   * @throws InterruptedException in case of problems reading propertiesfile
    */
   public String getCcmAddr(FilePath ccmSessionMapFile) throws IOException, InterruptedException {
     if (!ccmSessionMapFile.exists()) {
@@ -56,14 +56,10 @@ public class CheckSessionCommand extends Command {
       }
     }
 
-    if (allSessions.indexOf(ccmAddr) < 0) {
+    if (ccmAddr == null || allSessions == null || !allSessions.contains(ccmAddr)) {
       return SESSION_NOT_FOUND;
     }
-
-    if (ccmAddr == null) {
-      return SESSION_NOT_FOUND;
-    }
-
+    
     return ccmAddr;
   }
 

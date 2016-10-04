@@ -13,31 +13,27 @@ import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
-import hudson.plugins.synergy.impl.AddTasksToFolderCommand;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.plugins.synergy.impl.Commands;
 import hudson.plugins.synergy.impl.CopyFolderCommand;
-import hudson.plugins.synergy.impl.GetFolderIDCommand;
 import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.SynergyException;
-import hudson.plugins.synergy.impl.TaskCompletedInSourceFolderAndNotInTargetFolderCommand;
-import hudson.plugins.synergy.util.QueryUtils;
 import hudson.plugins.synergy.util.SessionUtils;
 import hudson.scm.SCM;
-import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import jenkins.tasks.SimpleBuildStep;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  *
  * @author u48jfe
  */
-public class CopyFolderBuildStep implements BuildStep, Describable<CopyFolderBuildStep> {
+public class CopyFolderBuildStep implements SimpleBuildStep, Describable<CopyFolderBuildStep> {
 
   /**
    * the source folder
@@ -52,8 +48,8 @@ public class CopyFolderBuildStep implements BuildStep, Describable<CopyFolderBui
   /**
    * Konstruktor
    *
-   * @param sourceFolder
-   * @param targetFolder
+   * @param sourceFolder source folder
+   * @param targetFolder target folder
    */
   @DataBoundConstructor
   public CopyFolderBuildStep(String sourceFolder, String targetFolder) {
@@ -61,12 +57,14 @@ public class CopyFolderBuildStep implements BuildStep, Describable<CopyFolderBui
     this.targetFolder = targetFolder;
   }
 
+  @Override
   public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
     return true;
   }
 
+  @Override
   public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-    SCM scm = build.getProject().getScm();
+    SCM scm = build.getParent().getScm();
     if (!(scm instanceof SynergySCM)) {
       listener.getLogger().println("No add task to folder for non Synergy project");
       return false;
@@ -96,7 +94,7 @@ public class CopyFolderBuildStep implements BuildStep, Describable<CopyFolderBui
       // Stop Synergy.
       try {
         if (commands != null) {
-          SessionUtils.closeSession(path, synergySCM, commands);
+          SessionUtils.closeSession(path, commands, synergySCM.isLeaveSessionOpen());
         }
       } catch (SynergyException e) {
         // do nothing
@@ -105,18 +103,23 @@ public class CopyFolderBuildStep implements BuildStep, Describable<CopyFolderBui
     return true;
   }
 
+  @Override
+  @Deprecated
   public Action getProjectAction(AbstractProject<?, ?> project) {
     return null;
   }
 
+  @Override
   public Collection<? extends Action> getProjectActions(AbstractProject<?, ?> project) {
     return Collections.emptyList();
   }
 
+  @Override
   public BuildStepMonitor getRequiredMonitorService() {
     return BuildStepMonitor.NONE;
   }
 
+  @Override
   public Descriptor<CopyFolderBuildStep> getDescriptor() {
     return new DescriptorImpl();
   }
@@ -149,6 +152,50 @@ public class CopyFolderBuildStep implements BuildStep, Describable<CopyFolderBui
     this.targetFolder = targetFolder;
   }
 
+  @Override
+  public void perform(Run<?, ?> run, FilePath path, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
+    
+    if (run instanceof AbstractBuild) {
+      AbstractBuild<?, ?> build = (AbstractBuild<?, ?>) run;
+    SCM scm = build.getParent().getScm();
+    if (!(scm instanceof SynergySCM)) {
+      listener.getLogger().println("No add task to folder for non Synergy project");
+    }
+
+    // Get Synergy parameters.
+    SynergySCM synergySCM = (SynergySCM) scm;
+
+    Commands commands = null;
+
+    try {
+      // Start Synergy.
+      commands = SessionUtils.openSession(path, synergySCM, listener, launcher);
+
+      // Become build manager.
+      SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
+      commands.executeSynergyCommand(path, setRoleCommand);
+
+      // Copy tasks.
+      CopyFolderCommand copyFolderCommand = new CopyFolderCommand(getSourceFolder(), getTargetFolder());
+      commands.executeSynergyCommand(path, copyFolderCommand);
+
+    } catch (SynergyException e) {
+      
+    } finally {
+      // Stop Synergy.
+      try {
+        if (commands != null) {
+          SessionUtils.closeSession(path, commands, synergySCM.isLeaveSessionOpen());
+        }
+      } catch (SynergyException e) {
+        // do nothing
+      }
+    }
+    }
+    
+  }
+
+  
   public static final class DescriptorImpl extends BuildStepDescriptor<CopyFolderBuildStep> {
 
     @Override

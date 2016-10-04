@@ -1,6 +1,6 @@
 package hudson.plugins.synergy.impl;
 
-import hudson.plugins.synergy.SynergyChangeLogSet.LogEntry;
+import hudson.plugins.synergy.SynergyLogEntry;
 import java.util.Collection;
 
 /**
@@ -8,15 +8,15 @@ import java.util.Collection;
  */
 public class CheckoutResult {
 
-  private Collection<LogEntry> logs;
+  private Collection<SynergyLogEntry> logs;
   private Collection<Conflict> conflicts;
 
-  public CheckoutResult(Collection<Conflict> conflicts, Collection<LogEntry> logs) {
+  public CheckoutResult(Collection<Conflict> conflicts, Collection<SynergyLogEntry> logs) {
     this.conflicts = conflicts;
     this.logs = logs;
   }
 
-  public Collection<LogEntry> getLogs() {
+  public Collection<SynergyLogEntry> getLogs() {
     return logs;
   }
 

@@ -1,0 +1,17 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <f:entry field="whenToAdd" title="Add tasks to folder only if build is better or equal than ">
+    <f:select />
+  </f:entry>  
+  <f:entry field="simulateOnly">
+    <f:checkbox title="do not execute command, just log"/>
+  </f:entry>
+  <f:entry field="queryStringDestinationFolder" title="query target folder">
+    <f:textbox/>
+    <f:description>query target folder</f:description>
+  </f:entry>
+  <f:entry field="queryStringTasks" title="query tasks">
+    <f:textbox/>
+    <f:description>query tasks</f:description>
+  </f:entry>
+</j:jelly>

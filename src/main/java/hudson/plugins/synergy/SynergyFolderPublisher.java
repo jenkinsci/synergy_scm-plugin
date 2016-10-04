@@ -66,6 +66,7 @@ public class SynergyFolderPublisher extends Notifier {
     this.targetFolder = targetFolder;
   }
 
+  @Override
   public BuildStepMonitor getRequiredMonitorService() {
     return BuildStepMonitor.STEP;
   }
@@ -73,7 +74,7 @@ public class SynergyFolderPublisher extends Notifier {
   @Override
   public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
     // Check SCM used.
-    SCM scm = build.getProject().getScm();
+    SCM scm = build.getParent().getScm();
     if (!(scm instanceof SynergySCM)) {
       listener.getLogger().println("No Folder copy for non Synergy project");
       return false;
@@ -138,7 +139,7 @@ public class SynergyFolderPublisher extends Notifier {
         // Stop Synergy.				
         try {
           if (commands != null) {
-            SessionUtils.closeSession(path, synergySCM, commands);
+            SessionUtils.closeSession(path, commands, synergySCM.isLeaveSessionOpen());
           }
         } catch (SynergyException e) {
           return false;

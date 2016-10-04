@@ -1,22 +1,43 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <h2>${%Summary}</h2>
+  
+  <h3>Added Tasks</h3>
   <ol>
-    <j:forEach var="cs" items="${it.logs}">
-      <li><st:out value="${cs.msg}"/></li>
+    <j:forEach var="cs" items="${it.logs}">     
+      <j:if test="${cs.isAddedTask()}">
+          <li>
+            <st:out value="${cs.msg} "/>
+            <a href='#detail${cs.taskId}'>(Task ${cs.taskId})</a>
+          </li>
+      </j:if>
     </j:forEach>
   </ol>
+  <h3>Removed Tasks</h3>
+  <ol>
+    <j:forEach var="cs" items="${it.logs}">      
+      <j:if test="${cs.isRemovedTask()}">
+          <li>
+            <st:out value="${cs.msg} "/>
+            <a href='#detail${cs.taskId}'>(Task ${cs.taskId})</a>
+          </li>
+      </j:if>
+    </j:forEach>
+  </ol>
+  <h3>Taskliste</h3>
   <table class="pane" style="border:none">
     <j:forEach var="cs" items="${it.items}" varStatus="loop">
       <j:invokeStatic var="encodedName" className="hudson.Util" method="rawEncode">
-		<j:arg value="${cs.taskId}" />
-	  </j:invokeStatic>
+        <j:arg value="${cs.taskId}" />
+      </j:invokeStatic>
       <tr class="pane">
         <td colspan="2" class="changeset">
-          <a name="detail${loop.index}"></a>
+          <a name="detail${cs.taskId}"></a>
           <div class="changeset-message">
             <b>
               Task <a href="https://phoenicspt.ms.bgnet.de/phoenics/PTweb?ACTION_FLAG=frameset_form&amp;TEMPLATE_FLAG=TaskDetailsView&amp;database=%2Fccmdb%2Fphoenics&amp;from_db_path=%2Fccmdb%2Fphoenics&amp;role=User&amp;task_number=${encodedName}">${cs.taskId}</a> by <a href="${rootURL}/${cs.author.url}/">${cs.author}</a>:
-            </b><br/>
+            </b>
+            <br/>
             Synopsis: ${cs.msgAnnotated}<br/>
             Release: ${cs.version}<br/>
             Completed on: ${cs.date}
@@ -25,7 +46,9 @@
       </tr>
       <j:forEach var="item" items="${cs.paths}">
         <tr>
-          <td><t:editTypeIcon type="${item.editType}" /></td>
+          <td>
+            <t:editTypeIcon type="${item.editType}" />
+          </td>
           <td>${item.value}</td>
         </tr>
       </j:forEach>

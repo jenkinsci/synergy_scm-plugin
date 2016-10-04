@@ -16,7 +16,7 @@ public class WorkareaSnapshotCommand extends Command {
 
 	/**
 	 * Builds a workarea snapshot command.
-	 * @param ccmExe
+	 * @param ccmExe executable
 	 * @return String[]
 	 */
 	@Override

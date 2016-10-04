@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <div>
   This plugin integrates <a href="http://www-01.ibm.com/support/knowledgecenter/SSRNYG/synergy_family_welcome.html">IBM Rational Synergy SCM</a> to Jenkins.
 </div>

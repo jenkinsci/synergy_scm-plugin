@@ -37,33 +37,40 @@ public class SynergySCMTest {
    */
   private final class TaskListenerImplementation implements TaskListener {
 
+    @Override
     public void hyperlink(String p_url, String p_text) throws IOException {
     }
 
+    @Override
     public PrintStream getLogger() {
       return System.out;
     }
 
+    @Override
     public PrintWriter fatalError(String p_format, Object... p_args) {
       return fatalError(String.format(p_format, p_args));
     }
 
+    @Override
     public PrintWriter fatalError(String p_msg) {
       System.out.print("FATAL: ");
       System.out.println(p_msg);
       return new PrintWriter(System.out);
     }
 
+    @Override
     public PrintWriter error(String p_format, Object... p_args) {
       return error(String.format(p_format, p_args));
     }
 
+    @Override
     public PrintWriter error(String p_msg) {
       System.out.print("ERROR: ");
       System.out.println(p_msg);
       return new PrintWriter(System.out);
     }
 
+    @Override
     public void annotate(ConsoleNote p_ann) throws IOException {
       p_ann.encodeTo(System.out);
 

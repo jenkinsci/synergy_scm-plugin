@@ -13,7 +13,7 @@ public class ReadUpdateLogTest extends AbstractLogTest {
     UpdateCommand update = new UpdateCommand(UpdateCommand.PROJECT, "project", false);
     String log = readLog("logs/updates/update1.log.txt");
     update.parseResult(log);
-    List<String> updates = update.getUpdates().get("HS_Restruct~BT7.1.0_Delivery:project:HBT#1");
+    List<List<String>> updates = update.getUpdates().get("HS_Restruct~BT7.1.0_Delivery:project:HBT#1");
 
     // Parsing of the log should not be null.
     assertNotNull(updates);
@@ -22,6 +22,6 @@ public class ReadUpdateLogTest extends AbstractLogTest {
     assertEquals(1, updates.size());
 
     // Check the name of updated elements.
-    assertEquals("OrgModelAdminFacade.java~129:java:HBT#1", updates.get(0));
+    assertEquals("OrgModelAdminFacade.java~129:java:HBT#1", updates.get(0).get(0));
   }
 }

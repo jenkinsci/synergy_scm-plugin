@@ -2,6 +2,7 @@ package hudson.plugins.synergy.impl;
 
 import hudson.scm.EditType;
 import java.util.List;
+import java.util.Objects;
 
 public class FileVersion {
 
@@ -37,7 +38,7 @@ public class FileVersion {
   }
 
   public FileVersion(String name, String version, String type,
-      String instance, String projectPath, String resolver, int task) {
+          String instance, String projectPath, String resolver, int task) {
     this.name = name;
     this.version = version;
     this.type = type;
@@ -47,36 +48,58 @@ public class FileVersion {
     this.task = task;
   }
 
-  public boolean equals(FileVersion file) {
-    if (file != null) {
-      super.equals(file);
-      if ((this.name != null) && ((file.name == null) || (!file.name.equals(this.name)))) {
-        return false;
-      }
-      if ((this.version != null) && ((file.version == null) || (!file.version.equals(this.version)))) {
-        return false;
-      }
-      if ((this.type != null) && ((file.type == null) || (!file.type.equals(this.type)))) {
-        return false;
-      }
-      if ((this.instance != null) && ((file.instance == null) || (!file.instance.equals(this.instance)))) {
-        return false;
-      }
-      if ((this.projectPath != null) && ((file.projectPath == null) || (!file.projectPath.equals(this.projectPath)))) {
-        return false;
-      }
-      if ((this.resolver != null) && ((file.resolver == null) || (!file.resolver.equals(this.resolver)))) {
-        return false;
-      }
-      if ((this.task > 0) && ((file.task == 0) || (!(file.task == this.task)))) {
-        return false;
-      }
-      if ((this.action != null) && ((file.action == null) || (!file.action.equals(this.action)))) {
-        return false;
-      }
+  @Override
+  public boolean equals(Object object) {
+
+    if (this == object) {
       return true;
     }
-    return false;
+    if (!(object instanceof FileVersion)) {
+      return false;
+    }
+
+    FileVersion file = (FileVersion) object;
+
+    if ((this.name != null) && ((file.name == null) || (!file.name.equals(this.name)))) {
+      return false;
+    }
+    if ((this.version != null) && ((file.version == null) || (!file.version.equals(this.version)))) {
+      return false;
+    }
+    if ((this.type != null) && ((file.type == null) || (!file.type.equals(this.type)))) {
+      return false;
+    }
+    if ((this.instance != null) && ((file.instance == null) || (!file.instance.equals(this.instance)))) {
+      return false;
+    }
+    if ((this.projectPath != null) && ((file.projectPath == null) || (!file.projectPath.equals(this.projectPath)))) {
+      return false;
+    }
+    if ((this.resolver != null) && ((file.resolver == null) || (!file.resolver.equals(this.resolver)))) {
+      return false;
+    }
+    if ((this.task > 0) && ((file.task == 0) || (!(file.task == this.task)))) {
+      return false;
+    }
+    if ((this.action != null) && ((file.action == null) || (!file.action.equals(this.action)))) {
+      return false;
+    }
+    return true;
+
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 59 * hash + Objects.hashCode(this.name);
+    hash = 59 * hash + Objects.hashCode(this.version);
+    hash = 59 * hash + Objects.hashCode(this.type);
+    hash = 59 * hash + Objects.hashCode(this.instance);
+    hash = 59 * hash + Objects.hashCode(this.projectPath);
+    hash = 59 * hash + Objects.hashCode(this.resolver);
+    hash = 59 * hash + this.task;
+    hash = 59 * hash + Objects.hashCode(this.action);
+    return hash;
   }
 
   public boolean equalsTask(FileVersion file) {

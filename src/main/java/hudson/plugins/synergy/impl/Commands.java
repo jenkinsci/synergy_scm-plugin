@@ -14,6 +14,8 @@ import org.apache.commons.lang.StringUtils;
 
 public class Commands implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+  
   /**
    * Path to ccm executable.
    */
@@ -37,7 +39,7 @@ public class Commands implements Serializable {
   /**
    * Launcher.
    */
-  private Launcher launcher;
+  private transient Launcher launcher;
 
   /**
    * Address.
@@ -59,13 +61,17 @@ public class Commands implements Serializable {
 
   /**
    * set for TaskListener
-   * @param buildListener 
+   * @param buildListener TaskListener
    */
   public void setTaskListener(TaskListener buildListener) {
     this.buildListener = buildListener;
   }
 
   
+  /**
+   * CCM adress
+   * @return String
+   */
   public String getCcmAddr() {
     return ccmAddr;
   }
@@ -116,9 +122,9 @@ public class Commands implements Serializable {
 
   /**
    * Builds a compare project command.
-   * @param newProject
-   * @param oldProject
-   * @return String[]
+   * @param newProject new project
+   * @param oldProject old project
+   * @return String[] String[]
    */
   public String[] buildCompareProjectCommand(String newProject, String oldProject) {
     String[] query = new String[]{
@@ -135,9 +141,9 @@ public class Commands implements Serializable {
    *
    * @param path	Current directory
    * @param command	Command and arguments
-   * @throws IOException
-   * @throws InterruptedException
-   * @throws SynergyException
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws SynergyException SynergyException
    */
   public void executeSynergyCommand(FilePath path, Command command) throws IOException, InterruptedException, SynergyException {
       executeSynergyCommand(path, command, true);
@@ -149,9 +155,9 @@ public class Commands implements Serializable {
    * @param path	Current directory
    * @param command	Command and arguments
    * @param p_logFailureEnvironment true means logging environment in case of failure
-   * @throws IOException
-   * @throws InterruptedException
-   * @throws SynergyException
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws SynergyException SynergyException
    */
   public void executeSynergyCommand(FilePath path, Command command, boolean p_logFailureEnvironment) throws IOException, InterruptedException, SynergyException {
     Map<String, String> system = System.getenv();
@@ -232,9 +238,9 @@ public class Commands implements Serializable {
    *
    * @param path	Current directory
    * @param command	Command and arguments
-   * @throws IOException
-   * @throws InterruptedException
-   * @throws SynergyException
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws SynergyException SynergyException
    */
   public void executeSynergyCommand(FilePath path, StreamCommand command) throws IOException, InterruptedException, SynergyException {
       executeSynergyCommand(path, command, true);
@@ -246,9 +252,9 @@ public class Commands implements Serializable {
    * @param path	Current directory
    * @param command	Command and arguments
    * @param p_logFailureEnvironment true means logging environment in case of failure
-   * @throws IOException
-   * @throws InterruptedException
-   * @throws SynergyException
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws SynergyException SynergyException
    */
   public void executeSynergyCommand(FilePath path, StreamCommand command, boolean p_logFailureEnvironment) throws IOException, InterruptedException, SynergyException {
     Map<String, String> system = System.getenv();
@@ -304,9 +310,9 @@ public class Commands implements Serializable {
 
   /**
    * Prints out the command line to the listener so that users know what we are doing.
-   * @param cmd
-   * @param workDir
-   * @param mask 
+   * @param cmd cmd
+   * @param workDir dir
+   * @param mask mask
    */
   protected final void printCommandLine(String[] cmd, FilePath workDir, boolean[] mask) {
     StringBuilder buf = new StringBuilder();

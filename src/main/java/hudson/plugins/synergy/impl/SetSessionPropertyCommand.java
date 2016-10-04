@@ -3,7 +3,6 @@ package hudson.plugins.synergy.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
 
 public class SetSessionPropertyCommand extends Command {

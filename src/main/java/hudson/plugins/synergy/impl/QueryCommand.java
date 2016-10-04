@@ -28,6 +28,7 @@ public class QueryCommand extends Command {
     this.sortBy = sortBy;
   }
 
+  @Override
   public String[] buildCommand(String ccmExe) {
     StringBuffer format = new StringBuffer();
     for (String attr : attrs) {

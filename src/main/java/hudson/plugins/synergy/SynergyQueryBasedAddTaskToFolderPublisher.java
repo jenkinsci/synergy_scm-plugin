@@ -1,17 +1,16 @@
 package hudson.plugins.synergy;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
-import hudson.model.ParameterValue;
 import hudson.model.Result;
-import hudson.model.StringParameterValue;
 import hudson.plugins.synergy.impl.AddTasksToFolderCommand;
 import hudson.plugins.synergy.impl.Commands;
-import hudson.plugins.synergy.impl.GetFolderIDCommand;
 import hudson.plugins.synergy.impl.QueryCommand;
 import hudson.plugins.synergy.impl.SetRoleCommand;
 import hudson.plugins.synergy.impl.SynergyException;
@@ -29,10 +28,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class SynergyAddTaskToFolderPublisher extends Notifier {
+public class SynergyQueryBasedAddTaskToFolderPublisher extends Notifier {
+
+  private String queryStringDestinationFolder;
+  private String queryStringTasks;
 
   /**
    * @return the simulateOnly
@@ -49,29 +50,44 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
   }
 
   /**
-   * @return the folderDescription
+   * @return the queryStringDestinationFolder
    */
-  public String getFolderDescription() {
-    return folderDescription;
+  public String getQueryStringDestinationFolder() {
+    return queryStringDestinationFolder;
   }
 
   /**
-   * @param folderDescription the folderDescription to set
+   * @param queryStringDestinationFolder the queryStringDestinationFolder to set
    */
-  public void setFolderDescription(String folderDescription) {
-    this.folderDescription = folderDescription;
+  public void setQueryStringDestinationFolder(String queryStringDestinationFolder) {
+    this.queryStringDestinationFolder = queryStringDestinationFolder;
   }
+
+  /**
+   * @return the queryStringTasks
+   */
+  public String getQueryStringTasks() {
+    return queryStringTasks;
+  }
+
+  /**
+   * @param queryStringTasks the queryStringTasks to set
+   */
+  public void setQueryStringTasks(String queryStringTasks) {
+    this.queryStringTasks = queryStringTasks;
+  }
+
 
   @Extension
   public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     public DescriptorImpl() {
-      super(SynergyAddTaskToFolderPublisher.class);
+      super(SynergyQueryBasedAddTaskToFolderPublisher.class);
     }
 
     @Override
     public String getDisplayName() {
-      return "Synergy add task to folder";
+      return "Synergy query based add task to folder";
     }
 
     @Override
@@ -99,16 +115,12 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
    */
   private boolean simulateOnly;
 
-  /**
-   * description of folder for query
-   */
-  private String folderDescription;
-
   @DataBoundConstructor
-  public SynergyAddTaskToFolderPublisher(String whenToAdd, Boolean simulateOnly, String folderDescription) {
+  public SynergyQueryBasedAddTaskToFolderPublisher(String whenToAdd, Boolean simulateOnly, String queryStringDestinationFolder, String queryStringTasks ) {
     this.whenToAdd = whenToAdd;
     this.simulateOnly = simulateOnly;
-    this.folderDescription = folderDescription;
+    this.queryStringDestinationFolder = queryStringDestinationFolder;
+    this.queryStringTasks = queryStringTasks;
   }
 
   @Override
@@ -133,7 +145,7 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
 
     // Check if we need to go on.
     if (buildSucess) {
-      listener.getLogger().println(buildResult + " is better or equal than " + resultWhenToAdd);
+      listener.getLogger().println(build.getResult() + " is better or equal than " + resultWhenToAdd);
 
       // Get Synergy parameters.
       SynergySCM synergySCM = (SynergySCM) scm;
@@ -150,36 +162,30 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
         commands.executeSynergyCommand(path, setRoleCommand);
 
         //Hole Folder-ID des Zielfolders
-        GetFolderIDCommand getFolderIDCommand = new GetFolderIDCommand(synergySCM.getRelease(), getFolderDescription());
-        commands.executeSynergyCommand(path, getFolderIDCommand);
-        String folderID = getFolderIDCommand.getFolderID();
+        String folderIdQuery = getQueryStringDestinationFolder();
+        QueryCommand folderQueryCommand = new QueryCommand(folderIdQuery, Arrays.asList(new String[]{FORMAT_STRING_OBJECTNAME}));
+        commands.executeSynergyCommand(path, folderQueryCommand);
 
-        //Ermittle zu beruecksichtigende Tasks
-        // String l_projectName = Util.replaceMacro(synergySCM.getProject(), EnvVars.getRemote(launcher.getChannel()));
-        // TaskCompletedInFolderCommand taskCompletedInFolderCommand
-        //         = new TaskCompletedInFolderCommand(l_projectName, folderID);
-        // commands.executeSynergyCommand(path, taskCompletedInFolderCommand);
-        // List<String> tasks = taskCompletedInFolderCommand.getInformations();
-        List<String> tasks = new ArrayList<String>();
-        List<TaskOnTopOfBaselineAction> actions = build.getActions(TaskOnTopOfBaselineAction.class);
-        for (TaskOnTopOfBaselineAction action : actions) {
-          if (action.getParameter().getName().equals(SynergySCM.PARAM_TASK_ON_TOP_OF_BASELINE)) {
-            ParameterValue parameter = action.getParameter();
-            tasks = new ArrayList(Arrays.asList(StringUtils.split(((StringParameterValue) parameter).value, ";")));
-          }
+        List<Map<String, String>> l_resultFolder = folderQueryCommand.getQueryResult();
+        if (l_resultFolder.size() != 1) {
+          listener.getLogger().println("Folder query: '" + getQueryStringDestinationFolder() + "' liefert kein eindeutiges Ergebnis.");
+          return false;
         }
+        Map<String, String> firstResult = l_resultFolder.get(0);
+        String folderID = firstResult.get(FORMAT_STRING_OBJECTNAME);
+        listener.getLogger().println("Folder: "+folderID);
 
-        // alle tasks die schon im Folder drin sind
-        List<String> l_folderTasks = new ArrayList<>();
-        QueryCommand taskQueryCommand = new QueryCommand("is_task_in_folder_of('" + folderID + "')",
-                Arrays.asList(new String[]{"task_number"}));
+                String l_projectName = Util.replaceMacro(synergySCM.getProject(), EnvVars.getRemote(launcher.getChannel()));
+        String taskQuery = getQueryStringTasks() + " and is_task_in_folder_of(is_folder_in_rp_of('"+l_projectName+"')) and not is_task_in_folder_of('"+folderID+"')";
+
+        List<String> tasks = new ArrayList<String>();
+        QueryCommand taskQueryCommand = new QueryCommand(taskQuery, Arrays.asList(new String[]{"task_number", "task_synopsis", "task_description", "resolver", "status", "release"}));
         commands.executeSynergyCommand(path, taskQueryCommand);
         for (final Map<String, String> t : taskQueryCommand.getQueryResult()) {
-          l_folderTasks.add(t.get("task_number"));
+          listener.getLogger().println(t.toString());
+          tasks.add(t.get("task_number"));
+          listener.getLogger().println("Task: "+t.toString());
         }
-
-        // nur Tasks die noch nicht drin waren müssen noch hinzugefügt werden
-        tasks.removeAll(l_folderTasks);
 
         // optimize for max querylength
         String maxQueryLength = synergySCM.getMaxQueryLength();
@@ -207,10 +213,11 @@ public class SynergyAddTaskToFolderPublisher extends Notifier {
         }
       }
     } else {
-      listener.getLogger().println(buildResult + " is worse than " + resultWhenToAdd);
+      listener.getLogger().println(build.getResult() + " is worse than " + resultWhenToAdd);
     }
     return true;
   }
+  public static final String FORMAT_STRING_OBJECTNAME = "objectname";
 
   public void setwhenToAdd(String whenToAdd) {
     this.whenToAdd = whenToAdd;

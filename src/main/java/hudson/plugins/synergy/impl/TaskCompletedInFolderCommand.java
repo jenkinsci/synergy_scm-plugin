@@ -40,8 +40,11 @@ public class TaskCompletedInFolderCommand extends Command {
     String line;
     try {
       BufferedReader reader = new BufferedReader(new StringReader(result));
+      // alle Zeilen ignorieren die keiner Nummer entsprechen
       while ((line = reader.readLine()) != null) {
-        informations.add(line);
+        if (line.matches("[0-9]*")) {
+          informations.add(line);
+        }
       }
 
     } catch (IOException e) {

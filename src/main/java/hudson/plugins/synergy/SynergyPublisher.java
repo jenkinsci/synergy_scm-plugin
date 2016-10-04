@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -114,10 +115,12 @@ public class SynergyPublisher extends Notifier {
       this.dest = dest;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "process_rule", "-copy", source, dest};
     }
 
+    @Override
     public void parseResult(String result) {
     }
   }
@@ -131,10 +134,12 @@ public class SynergyPublisher extends Notifier {
       this.matching = matching;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "process_rule", "-modify", "-matching", matching, prRule};
     }
 
+    @Override
     public void parseResult(String result) {
     }
   }
@@ -148,10 +153,12 @@ public class SynergyPublisher extends Notifier {
       this.folderName = folderName;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "folder_temp", "-show", "query", folderName};
     }
 
+    @Override
     public void parseResult(String result) {
       query = result.replace("Folder Template " + folderName + ": ", "");
       Matcher m = p.matcher(query);
@@ -181,6 +188,7 @@ public class SynergyPublisher extends Notifier {
       this.query = query;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       List<String> cmd = new ArrayList<String>();
       cmd.add(ccmExe);
@@ -202,6 +210,7 @@ public class SynergyPublisher extends Notifier {
       return cmd.toArray(new String[0]);
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
@@ -216,6 +225,7 @@ public class SynergyPublisher extends Notifier {
       this.baseline = baseline;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       Vector<String> commands = new Vector<String>(Arrays.asList(new String[]{ccmExe, "release", "-create"}));
       if (from != null) {
@@ -230,6 +240,7 @@ public class SynergyPublisher extends Notifier {
       return commands.toArray(new String[]{});
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
@@ -242,10 +253,12 @@ public class SynergyPublisher extends Notifier {
       this.release = release;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "release", "-modify", "-active", release};
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
@@ -258,10 +271,12 @@ public class SynergyPublisher extends Notifier {
       this.release = release;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "release", "-modify", "-inactive", release};
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
@@ -275,10 +290,12 @@ public class SynergyPublisher extends Notifier {
       this.synopsis = synopsis;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "task", "-create", "-resolver", System.getProperty("user.name"), "-release", release, "-synopsis", synopsis, "-default"};
     }
 
+    @Override
     public void parseResult(String result) {
       Matcher m = Pattern.compile("Task (.*) created").matcher(result);
       if (m.find()) {
@@ -300,20 +317,24 @@ public class SynergyPublisher extends Notifier {
       this.project = project;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "task", "-relate", taskNumber, "-object", project, "@"};
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
 
   private static class CheckinTaskCommand extends Command {
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "task", "-checkin", "default"};
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
@@ -326,10 +347,12 @@ public class SynergyPublisher extends Notifier {
       this.taskNumber = taskNumber;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "task", "-state", "excluded", taskNumber};
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
@@ -345,6 +368,7 @@ public class SynergyPublisher extends Notifier {
       this.release = release;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       Vector<String> commands = new Vector<String>(Arrays.asList(new String[]{ccmExe, "copy_project", "-subprojects", "-to", toVersion, "-no_wa"}));
       if (release != null && release.length() > 0) {
@@ -359,6 +383,7 @@ public class SynergyPublisher extends Notifier {
       return commands.toArray(new String[]{});
     }
 
+    @Override
     public void parseResult(String result) {
     }
   };
@@ -371,10 +396,12 @@ public class SynergyPublisher extends Notifier {
       this.objectName = objectName;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "cat", objectName};
     }
 
+    @Override
     public void parseResult(String result) {
       source = result;
     }
@@ -392,10 +419,12 @@ public class SynergyPublisher extends Notifier {
       this.release = release;
     }
 
+    @Override
     public String[] buildCommand(String ccmExe) {
       return new String[]{ccmExe, "release", "-show", "information", release};
     }
 
+    @Override
     public void parseResult(String result) {
       Matcher m = Pattern.compile("Baseline:\\s*(\\S+)").matcher(result);
       if (m.find()) {
@@ -446,6 +475,7 @@ public class SynergyPublisher extends Notifier {
     this.phoenicsRelease = phoenicsRelease;
   }
 
+  @Override
   public BuildStepMonitor getRequiredMonitorService() {
     return BuildStepMonitor.STEP;
   }
@@ -466,7 +496,7 @@ public class SynergyPublisher extends Notifier {
   @Override
   public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
     // Check SCM used.
-    SCM scm = build.getProject().getScm();
+    SCM scm = build.getParent().getScm();
     if (!(scm instanceof SynergySCM)) {
       listener.getLogger().println("No baseline publishing for non Synergy project");
       return false;
@@ -626,7 +656,7 @@ public class SynergyPublisher extends Notifier {
             }
 
             // aktuelle und vorherige Baseline bestimmen
-            Map<String, String> baseline = null;
+            Map<String, String> baseline = new HashMap<>();
             Map<String, String> oldBaseline = null;
             QueryCommand baselineQueryCommand = new QueryCommand("cvtype='baseline' and release='" + release + "' and (status='published_baseline' or status='test_baseline')", Arrays.asList(new String[]{"name", "objectname"}), "-create_time");
             commands.executeSynergyCommand(path, baselineQueryCommand);
@@ -672,7 +702,7 @@ public class SynergyPublisher extends Notifier {
             listener.getLogger().println("BT-Lieferung: " + l_baselineName);
             listener.getLogger().println("Auslieferungstask: " + task);
 
-            // alle neuen Objekte an die Auslieferungstask hÃ¤ngen
+            // alle neuen Objekte an die Auslieferungstask haengen
             String query = "is_project_in_baseline_of('" + baseline.get("objectname") + "') and name='aus_BT'";
             query = "(" + query + ") or (cvtype='project' and name!='Doktyp-Printserver' and name!='Doktyp-RTF' and is_member_of(" + query + "))";
             QueryCommand recursiveProjectQueryCommand = new QueryCommand(query, Arrays.asList(new String[]{"objectname", "name", "displayname"}));
@@ -841,7 +871,7 @@ public class SynergyPublisher extends Notifier {
       } finally {
         // Stop Synergy.
         try {
-          SessionUtils.closeSession(path, synergySCM, commands);
+          SessionUtils.closeSession(path, commands, synergySCM.isLeaveSessionOpen());
         } catch (SynergyException e) {
           return false;
         }

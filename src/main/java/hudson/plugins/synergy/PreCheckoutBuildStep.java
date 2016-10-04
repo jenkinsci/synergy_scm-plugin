@@ -35,9 +35,9 @@ public class PreCheckoutBuildStep extends BuildWrapper {
   /**
    * Constructor
    *
-   * @param simulateOnly
-   * @param sourceFolderDescription
-   * @param targetFolderDescription
+   * @param simulateOnly if true only simulates step
+   * @param sourceFolderDescription description of source folder
+   * @param targetFolderDescription description of target forlder
    */
   @DataBoundConstructor
   public PreCheckoutBuildStep(boolean simulateOnly, String sourceFolderDescription, String targetFolderDescription) {
@@ -102,7 +102,7 @@ public class PreCheckoutBuildStep extends BuildWrapper {
       // Stop Synergy.
       try {
         if (commands != null) {
-          SessionUtils.closeSession(path, synergySCM, commands);
+          SessionUtils.closeSession(path, commands, synergySCM.isLeaveSessionOpen());
         }
       } catch (SynergyException e) {
         // do nothing

@@ -1,15 +1,29 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <j:choose>
     <j:when test="${it.emptySet}">
-      ${%No changes.}
+      <h2>${%No changes.}</h2>
     </j:when>
     <j:otherwise>
-      Changes
+      <h2>Changes</h2>
+      <h3>Added Tasks</h3>
       <ol>
         <j:forEach var="cs" items="${it.items}" varStatus="loop">
-          <li>
-            ${cs.taskId} ${cs.msgAnnotated} (<a href="changes#detail${loop.index}">detail</a>) ${cs.author} (Release: ${cs.version})
-          </li>
+          <j:if test="${cs.isAddedTask()}">
+            <li>
+              ${cs.taskId} ${cs.msgAnnotated} (<a href="changes#detail${loop.index}">detail</a>) ${cs.author} (Release: ${cs.version})
+            </li>
+          </j:if>
+        </j:forEach>
+      </ol>
+      <h3>Removed Tasks</h3>
+      <ol>
+        <j:forEach var="cs" items="${it.items}" varStatus="loop">
+          <j:if test="${cs.isRemovedTask()}">
+            <li>
+              ${cs.taskId} ${cs.msgAnnotated} (<a href="changes#detail${loop.index}">detail</a>) ${cs.author} (Release: ${cs.version})
+            </li>
+          </j:if>
         </j:forEach>
       </ol>
     </j:otherwise>

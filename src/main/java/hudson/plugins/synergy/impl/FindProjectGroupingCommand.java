@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,11 +36,21 @@ public class FindProjectGroupingCommand extends Command {
 		this.release = release;
 		this.purpose = purpose;
 	}
+  
+  public FindProjectGroupingCommand(String release, String purpose, String owner) {
+		this.release = release;
+		this.purpose = purpose;
+    this.owner = owner;
+	}
 	
 	@Override
 	public String[] buildCommand(String ccmExe) {
-		String[] commands = new String[] { ccmExe, "pg", "-l", "-u", "-f", "%objectname", "-r", release, "-purpose", purpose };
-		return commands;
+		List<String> commands = new ArrayList(Arrays.asList(ccmExe, "pg", "-l", "-u", "-f", "%objectname", "-r", release, "-purpose", purpose ));
+    if (owner != null) {
+      commands.add("-owner");
+      commands.add(owner);
+    }
+		return commands.toArray(new String[0]);
 	}
 	@Override
 	public void parseResult(String result) {

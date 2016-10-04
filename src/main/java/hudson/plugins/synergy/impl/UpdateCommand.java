@@ -1,156 +1,164 @@
 package hudson.plugins.synergy.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Builds an update workarea command.
- * 
+ *
  * @author jrbe
  */
 public class UpdateCommand extends Command {
-	public static final String PROJECT = "-p";
-	public static final String PROJECT_GROUPING = "-pg";
-	
-	/**
-	 * The type of element to update
-	 */
-	private String type;
-	
-	/**
-	 * The spec of the project to update.
-	 */
-	private String project;
 
-	/**
-	 * The list of members that have been added to the workarea.
-	 */
-	private HashMap<String, List<String>> names;
-        
-        private Map<String, UpdateType> tasks;
+  public static final String PROJECT = "-p";
+  public static final String PROJECT_GROUPING = "-pg";
 
-	/**
-	 * The displayname of the project grouping.
-	 */
-	private String pgName;
+  /**
+   * The type of element to update
+   */
+  private String type;
 
-	/**
-	 * Should the subprojects be replaced?
-	 */
-	private boolean replaceSubprojects;
+  /**
+   * The spec of the project to update.
+   */
+  private String project;
 
-	private List<Conflict> conflicts = new ArrayList<Conflict>();
+  /**
+   * The list of members that have been added to the workarea.
+   * Mapping new objectname , oldobjectname
+   */
+  private HashMap<String, List<List<String>>> names;
 
-	public UpdateCommand(String type, String project, boolean replaceSubprojects) {
-		this.type = type;
-		this.project = project;
-		this.replaceSubprojects = replaceSubprojects;
-	}
+  private Set<String> addedTasks = new HashSet<>();
 
-	@Override
-	public void parseResult(String result) {
-		// List of elements found.
-		names = new HashMap<String, List<String>>();
+  private Set<String> removedTasks = new HashSet<>();
 
-		// Creates regexps for what we are looking for in the log.
-		Pattern pReplaces = Pattern.compile("'([^']+)'\\sreplaces\\s'([^']+)'\\sunder\\s'([^']+)'");
-		Pattern pBoundUnder = Pattern.compile("'([^']+)'\\sis\\snow\\sbound\\sunder\\s'([^']+)'");
-		Pattern pUpdateComplete = Pattern.compile("Update for '([^']+)' complete");
-                Pattern pTasksRemovedStart = Pattern.compile("Removed the following tasks from .*");
-                Pattern pTasksAddedStart = Pattern.compile("Added the following tasks to .*");
+  /**
+   * The displayname of the project grouping.
+   */
+  private String pgName;
 
-		Matcher mUpdateComplete = pUpdateComplete.matcher(result);
-		int start = 0;
-		while (mUpdateComplete.find()) {
-			List<String> pnames = new ArrayList<String>();
-			String project = mUpdateComplete.group(1);
-			names.put(project, pnames);
-			int end = mUpdateComplete.end();
-			String subresult = result.substring(start, end);
-			start = end;
+  /**
+   * Should the subprojects be replaced?
+   */
+  private boolean replaceSubprojects;
 
-			// Look for updates.
-			Matcher mReplaces = pReplaces.matcher(subresult);
-			while (mReplaces.find()) {
-				String group = mReplaces.group();
-				String newElement = mReplaces.group(1);
-				String oldElement = mReplaces.group(2);
-				String elementParent = mReplaces.group(3);
-				pnames.add(newElement);
-			}
+  private List<Conflict> conflicts = new ArrayList<Conflict>();
 
-			// Look for new elements.
-			Matcher mBound = pBoundUnder.matcher(subresult);
-			while (mBound.find()) {
-				String group = mBound.group();
-				String newElement = mBound.group(1);
-				String elementParent = mBound.group(2);
-				pnames.add(newElement);
-			}
-                        Matcher mTaskRemoved = pTasksRemovedStart.matcher(subresult);
-                        List<Integer> l_removedStarts = new ArrayList<Integer>();
-                        while(mTaskRemoved.find()) {
-                            l_removedStarts.add(mTaskRemoved.start());
-                        }
-                        Matcher mTaskAdded = pTasksAddedStart.matcher(subresult);
-                        List<Integer> l_addedStarts = new ArrayList<Integer>();
-                        while(mTaskAdded.find()) {
-                            l_addedStarts.add(mTaskAdded.start());
-                        }
-                        // jetzt die zwischen den ersten beiden Treffern liegenden Zeilen durchsuchen
-                        
-		}
-		
-		Pattern updateWarningPattern = Pattern.compile("Warning:\\s.*");
-		Matcher mUpdateWarningPattern = updateWarningPattern.matcher(result);
-		boolean foundWarning = mUpdateWarningPattern.find();
-		if (foundWarning) {
-			String objectname = "Update Warning found!";
-			String task = "No Task";
-			String type = "";
-			String message = mUpdateWarningPattern.group();
+  public UpdateCommand(String type, String project, boolean replaceSubprojects) {
+    this.type = type;
+    this.project = project;
+    this.replaceSubprojects = replaceSubprojects;
+  }
 
-			Conflict conflict = new Conflict(objectname, task, type, message);
-			conflicts.add(conflict);
-		}
+  @Override
+  public void parseResult(String result) {
+    // List of elements found.
+    names = new HashMap<String, List<List<String>>>();
 
-		// Look for project grouping name
-		Pattern pgNamePattern = Pattern.compile("Refreshing baseline and tasks for project grouping '([^']+)'");
-		Matcher mPgNamePattern = pgNamePattern.matcher(result);
-		pgName = mPgNamePattern.find() ? mPgNamePattern.group(1) : null;
-}
+    // Creates regexps for what we are looking for in the log.
+    Pattern pReplaces = Pattern.compile("'([^']+)'\\sreplaces\\s'([^']+)'\\sunder\\s'([^']+)'");
+    Pattern pBoundUnder = Pattern.compile("'([^']+)'\\sis\\snow\\sbound\\sunder\\s'([^']+)'");
+    Pattern pUpdateComplete = Pattern.compile("Update for '([^']+)' complete");
 
-	@Override
-	public String[] buildCommand(String ccmExe) {
-		String subprojectUpdateRule = replaceSubprojects ? "-replace_subprojects" :  "-keep_subprojects";		
+    Matcher mUpdateComplete = pUpdateComplete.matcher(result);
+    int start = 0;
+    while (mUpdateComplete.find()) {
+      List<List<String>> pnames = new ArrayList<List<String>>();
+      String l_project = mUpdateComplete.group(1);
+      names.put(l_project, pnames);
+      int end = mUpdateComplete.end();
+      String subresult = result.substring(start, end);
+      start = end;
 
-		String[] commands = new String[] { ccmExe, "update", "-r", subprojectUpdateRule, type, project };
-		return commands;
-	}
+      // Look for updates.
+      Matcher mReplaces = pReplaces.matcher(subresult);
+      while (mReplaces.find()) {
+        String group = mReplaces.group();
+        String newElement = mReplaces.group(1);
+        String oldElement = mReplaces.group(2);
+        String elementParent = mReplaces.group(3);
+        pnames.add(Arrays.asList(newElement, oldElement));
+      }
 
-	public Map<String, List<String>> getUpdates() {
-		return names;
-	}
+      // Look for new elements.
+      Matcher mBound = pBoundUnder.matcher(subresult);
+      while (mBound.find()) {
+        String group = mBound.group();
+        String newElement = mBound.group(1);
+        String elementParent = mBound.group(2);
+        pnames.add(Arrays.asList(newElement, newElement));
+      }
 
-	public boolean isStatusOK(int status) {
-		return status == 0;
-	}
+    }
 
-	public Collection<Conflict> getConflicts() {
-		return conflicts;
-	}
+    Pattern updateWarningPattern = Pattern.compile("Warning:\\s.*");
+    Matcher mUpdateWarningPattern = updateWarningPattern.matcher(result);
+    boolean foundWarning = mUpdateWarningPattern.find();
+    if (foundWarning) {
+      String objectname = "Update Warning found!";
+      String task = "No Task";
+      String type = "";
+      String message = mUpdateWarningPattern.group();
 
-	public boolean isUpdateWarningsExists() {
-		return !getConflicts().isEmpty();
-	}
-	
-	public String getPgName() {
-		return pgName;
-	}
+      Conflict conflict = new Conflict(objectname, task, type, message);
+      conflicts.add(conflict);
+    }
+
+    // Look for project grouping name
+    Pattern pgNamePattern = Pattern.compile("Refreshing baseline and tasks for project grouping '([^']+)'");
+    Matcher mPgNamePattern = pgNamePattern.matcher(result);
+    pgName = mPgNamePattern.find() ? mPgNamePattern.group(1) : null;
+  }
+
+  @Override
+  public String[] buildCommand(String ccmExe) {
+    String subprojectUpdateRule = replaceSubprojects ? "-replace_subprojects" : "-keep_subprojects";
+
+    String[] commands = new String[]{ccmExe, "update", "-r", subprojectUpdateRule, type, project};
+    return commands;
+  }
+
+  public Map<String, List<List<String>>> getUpdates() {
+    return names;
+  }
+
+  public boolean isStatusOK(int status) {
+    return status == 0;
+  }
+
+  public Collection<Conflict> getConflicts() {
+    return conflicts;
+  }
+
+  public boolean isUpdateWarningsExists() {
+    return !getConflicts().isEmpty();
+  }
+
+  public String getPgName() {
+    return pgName;
+  }
+
+  /**
+   * @return the addedTasks
+   */
+  public Set<String> getAddedTasks() {
+    return addedTasks;
+  }
+
+  /**
+   * @return the removedTasks
+   */
+  public Set<String> getRemovedTasks() {
+    return removedTasks;
+  }
 
 }

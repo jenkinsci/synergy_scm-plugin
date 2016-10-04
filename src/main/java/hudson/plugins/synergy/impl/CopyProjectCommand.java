@@ -24,7 +24,7 @@ public class CopyProjectCommand extends Command {
      *
      *
      *
-     * @param ccmExe
+     * @param ccmExe  executable
      * @return String[]
      */
     @Override

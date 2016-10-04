@@ -30,15 +30,13 @@ public class SessionUtils {
    * @param launcher	The command launcher
    * @return	A Synergy command launcher
    */
-  private static Commands configureCommands(SynergySCM synergySCM, TaskListener listener, Launcher launcher) {
+  private static Commands configureCommands(String ccmExe, String ccmHome, String ccmUiLog, String ccmEngLog, TaskListener listener, Launcher launcher) {
     Commands commands = new Commands();
-    String ccmExe = synergySCM.getDescriptor().getCcmExe();
-    String ccmHome = synergySCM.getCcmHome();
     if (launcher.isUnix() && ccmHome != null && ccmHome.length() != 0) {
-      if (((ccmHome == null) || (ccmHome.length() <= 0)) && ccmExe.startsWith("/")) {
+      if (((ccmHome.length() <= 0)) && ccmExe.startsWith("/")) {
         commands.setCcmHome(System.getenv("CCM_HOME"));
         commands.setCcmExe(ccmExe);
-      } else if ((ccmHome == null) || (ccmHome.length() <= 0)) {
+      } else if ((ccmHome.length() <= 0)) {
         StringTokenizer tokenizer = new StringTokenizer(System.getenv("PATH"), ":");
         while (tokenizer.hasMoreTokens()) {
           String path = tokenizer.nextToken();
@@ -58,8 +56,8 @@ public class SessionUtils {
       commands.setCcmExe(ccmExe);
     }
 
-    commands.setCcmUiLog(synergySCM.getDescriptor().getCcmUiLog());
-    commands.setCcmEngLog(synergySCM.getDescriptor().getCcmEngLog());
+    commands.setCcmUiLog(ccmUiLog);
+    commands.setCcmEngLog(ccmEngLog);
 
     commands.setTaskListener(listener);
     commands.setLauncher(launcher);
@@ -75,12 +73,12 @@ public class SessionUtils {
    * @param listener	The build listener
    * @param launcher	The command launcher
    * @return	A Synergy command launcher
-   * @throws IOException
-   * @throws InterruptedException
-   * @throws SynergyException
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws SynergyException SynergyException
    */
   public static Commands openSession(FilePath path, SynergySCM synergySCM, TaskListener listener, Launcher launcher) throws IOException, InterruptedException, SynergyException {
-    Commands commands = configureCommands(synergySCM, listener, launcher);
+    Commands commands = configureCommands(synergySCM.getDescriptor().getCcmExe(), synergySCM.getCcmHome(), synergySCM.getDescriptor().getCcmUiLog(), synergySCM.getDescriptor().getCcmEngLog(), listener, launcher);
     String ccmAddr = CheckSessionCommand.SESSION_NOT_FOUND;
     FilePath ccmSessionMapFile = new FilePath(path, SynergySCM.CCM_SESSION_MAP_FILE_NAME);
     if (synergySCM.isLeaveSessionOpen()) {
@@ -89,7 +87,7 @@ public class SessionUtils {
       ccmAddr = checkSessionCommand.getCcmAddr(ccmSessionMapFile);
     }
     if (CheckSessionCommand.SESSION_NOT_FOUND.equals(ccmAddr)) {
-      ccmAddr = startSession(path, synergySCM, commands, ccmSessionMapFile);
+      ccmAddr = startSession(path,  commands, ccmSessionMapFile, synergySCM.getDatabase(), synergySCM.getUsername(), Secret.toString(synergySCM.getPassword()), synergySCM.isRemoteClient(), synergySCM.getDescriptor().getPathName(), synergySCM.getEngine());
     }
     commands.setCcmAddr(ccmAddr);
 
@@ -98,22 +96,64 @@ public class SessionUtils {
     try {
       commands.executeSynergyCommand(path, l_command);
     } catch (SynergyException l_synEx) {
-      ccmAddr = startSession(path, synergySCM, commands, ccmSessionMapFile);
+      ccmAddr = startSession(path,  commands, ccmSessionMapFile, synergySCM.getDatabase(), synergySCM.getUsername(), Secret.toString(synergySCM.getPassword()), synergySCM.isRemoteClient(), synergySCM.getDescriptor().getPathName(), synergySCM.getEngine());
       commands.setCcmAddr(ccmAddr);
     }
 
     return commands;
   }
 
-  private static String startSession(FilePath path, SynergySCM synergySCM, Commands commands, FilePath ccmSessionMapFile) throws IOException, InterruptedException, SynergyException {
+  /**
+   * Open or resuse a Synergy session.
+   *
+   * @param path	The workarea path
+   * @param listener	The build listener
+   * @param launcher	The command launcher
+   * @param ccmExe ccmExe
+   * @param ccmHome ccmHome
+   * @param ccmUiLog ccmUiLog
+   * @param ccmEngLog ccmEngLog
+   * @param leaveSessionOpen leaveSessionOpen
+   * @param database database
+   * @param username username
+   * @param password password
+   * @param remoteClient remoteClient
+   * @param pathName pathName
+   * @param engine engine
+   * 
+   * @return	A Synergy command launcher
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws SynergyException SynergyException
+   */
+  public static Commands openSession(FilePath path, TaskListener listener, Launcher launcher, String ccmExe, String ccmHome, String ccmUiLog, String ccmEngLog, boolean leaveSessionOpen, String database,String  username,String  password,boolean  remoteClient,String  pathName, String engine) throws IOException, InterruptedException, SynergyException {
+    Commands commands = configureCommands(ccmExe, ccmHome, ccmUiLog, ccmEngLog, listener, launcher);
+    String ccmAddr = CheckSessionCommand.SESSION_NOT_FOUND;
+    FilePath ccmSessionMapFile = new FilePath(path, SynergySCM.CCM_SESSION_MAP_FILE_NAME);
+    if (leaveSessionOpen) {
+      CheckSessionCommand checkSessionCommand = new CheckSessionCommand();
+      commands.executeSynergyCommand(path, checkSessionCommand);
+      ccmAddr = checkSessionCommand.getCcmAddr(ccmSessionMapFile);
+    }
+    if (CheckSessionCommand.SESSION_NOT_FOUND.equals(ccmAddr)) {
+      ccmAddr = startSession(path, commands, ccmSessionMapFile, database, username, password, remoteClient, pathName, engine);
+    }
+    commands.setCcmAddr(ccmAddr);
+
+    // check if Session is alive
+    GetDelimiterCommand l_command = new GetDelimiterCommand();
+    try {
+      commands.executeSynergyCommand(path, l_command);
+    } catch (SynergyException l_synEx) {
+      ccmAddr = startSession(path, commands, ccmSessionMapFile, database, username, password, remoteClient, pathName, engine);
+      commands.setCcmAddr(ccmAddr);
+    }
+
+    return commands;
+  }
+  
+  private static String startSession(FilePath path, Commands commands, FilePath ccmSessionMapFile, String database, String username, String password, boolean remoteClient, String pathName, String engine) throws IOException, InterruptedException, SynergyException {
     String ccmAddr;
-    // Get Synergy parameters.
-    String database = synergySCM.getDatabase();
-    String username = synergySCM.getUsername();
-    String password = Secret.toString(synergySCM.getPassword());
-    boolean remoteClient = synergySCM.isRemoteClient();
-    String pathName = synergySCM.getDescriptor().getPathName();
-    String engine = synergySCM.getEngine();
 
     // Start Synergy.		
     StartCommand startCommand = new StartCommand(database, engine, username, password, remoteClient, pathName, commands.getLauncher().isUnix());
@@ -127,14 +167,14 @@ public class SessionUtils {
    * Close the Synergy session, if configured too.
    *
    * @param path	The workarea path.
-   * @param synergySCM	The Synergy SCM configuration
    * @param commands	The Synergy command launcher
-   * @throws IOException
-   * @throws InterruptedException
-   * @throws SynergyException
+   * @param leaveSessionOpen leave session open
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws SynergyException SynergyException
    */
-  public static void closeSession(FilePath path, SynergySCM synergySCM, Commands commands) throws IOException, InterruptedException, SynergyException {
-    if (!synergySCM.isLeaveSessionOpen()) {
+  public static void closeSession(FilePath path, Commands commands, boolean leaveSessionOpen) throws IOException, InterruptedException, SynergyException {
+    if (!leaveSessionOpen) {
       if (commands != null) {
         StopCommand stopCommand = new StopCommand();
         commands.executeSynergyCommand(path, stopCommand);
