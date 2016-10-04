@@ -1159,82 +1159,88 @@ public class SynergySCM extends SCM implements Serializable {
 
       for (Entry<String, List<List<String>>> entry : names.entrySet()) {
         for (List<String> name : entry.getValue()) {
-          SynergyLogEntry log;
-          Path l_path = new Path();
           String l_newName = name.get(0);
-          l_path.setId(l_newName);
-          // geändertes Object "name" nicht in der Object-Manege - dann kommt es aus der Baseline oder die Task wurde aus dem Projekt entfernt ..... 
-          if (objects.containsKey(l_newName) || isObjectInBaseline(timeLastBuild, l_newName, l_baseline, workarea, objects, tasks)) {
-            l_path.setValue(l_newName);
-            if (l_newName.equals(name.get(1))) {
-              l_path.setAction("A");
-            } else {
-              l_path.setAction("E");
-            }
-            List<String> taskIds = objects.get(l_newName) != null ? Arrays.asList(objects.get(l_newName).split(",")) : null;
-            if (taskIds != null && !taskIds.isEmpty()) {
-              for (String taskId : taskIds) {
-                log = logs.get(taskId);
-                if (log == null) {
-                  // only add changes associated to tasks in pg
-                  Map<String, String> task = tasks.get(taskId);
-                  if (task != null) {
-                    log = new SynergyLogEntry();
-                    log.setMsg(task.get("task_synopsis"));
-                    log.setUser(task.get("resolver"));
-                    log.setTaskId(task.get("displayname"));
-                    log.setDate(task.get("completion_date"));
-                    log.setAction("A");
-                    // Erweiterung Task-Release
-                    log.setVersion(task.get("release"));
-                    logs.put(taskId, log);
+          if (!isOfTypeJar(l_newName)) {
+            SynergyLogEntry log;
+            Path l_path = new Path();
+            l_path.setId(l_newName);
+            // geändertes Object "name" nicht in der Object-Manege - dann kommt es aus der Baseline oder die Task wurde aus dem Projekt entfernt ..... 
+            if (objects.containsKey(l_newName) || isObjectInBaseline(timeLastBuild, l_newName, l_baseline, workarea, objects, tasks)) {
+              l_path.setValue(l_newName);
+              if (l_newName.equals(name.get(1))) {
+                l_path.setAction("A");
+              } else {
+                l_path.setAction("E");
+              }
+              List<String> taskIds = objects.get(l_newName) != null ? Arrays.asList(objects.get(l_newName).split(",")) : null;
+              if (taskIds != null && !taskIds.isEmpty()) {
+                for (String taskId : taskIds) {
+                  log = logs.get(taskId);
+                  if (log == null) {
+                    // only add changes associated to tasks in pg
+                    Map<String, String> task = tasks.get(taskId);
+                    if (task != null) {
+                      log = new SynergyLogEntry();
+                      log.setMsg(task.get("task_synopsis"));
+                      log.setUser(task.get("resolver"));
+                      log.setTaskId(task.get("displayname"));
+                      log.setDate(task.get("completion_date"));
+                      log.setAction("A");
+                      // Erweiterung Task-Release
+                      log.setVersion(task.get("release"));
+                      logs.put(taskId, log);
+                    }
+                  }
+                  if (log != null) {
+                    log.addPath(l_path);
                   }
                 }
-                if (log != null) {
-                  log.addPath(l_path);
+              }
+
+            } else {
+
+              // was tun, wenn das Objekt schon länger in der Baseline ist .... ?
+              // suche die Tasks die zu dem nicht bekannten Object gehören -> die also zu dem Old-Name gehören
+              String oldName = name.get(1);
+              l_path.setValue(oldName);
+              l_path.setAction("D");
+
+              String l_query = "type = 'task' and has_associated_object('" + oldName + "')";
+              queryCommand
+                      = new QueryCommand(l_query, Arrays.asList(new String[]{"displayname", "task_synopsis", "resolver", "completion_date", "release"}));
+              getCommands().executeSynergyCommand(workarea, queryCommand);
+              // Alle tasks wurden entfernt ..... 
+              for (Map<String, String> task : queryCommand.getQueryResult()) {
+
+                String taskId = task.get("displayname");
+                log = logs.get(taskId);
+                if (log == null) {
+                  log = new SynergyLogEntry();
+                  log.setMsg(task.get("task_synopsis"));
+                  log.setUser(task.get("resolver"));
+                  log.setTaskId(task.get("displayname"));
+                  log.setDate(task.get("completion_date"));
+                  log.setAction("D");
+                  // Erweiterung Task-Release
+                  log.setVersion(task.get("release"));
+                  logs.put(taskId, log);
                 }
+                log.addPath(l_path);
               }
             }
-
-          } else {
-
-            // was tun, wenn das Objekt schon länger in der Baseline ist .... ?
-            // suche die Tasks die zu dem nicht bekannten Object gehören -> die also zu dem Old-Name gehören
-            String oldName = name.get(1);
-            l_path.setValue(oldName);
-            l_path.setAction("D");
-
-            String l_query = "type = 'task' and has_associated_object('" + oldName + "')";
-            queryCommand
-                    = new QueryCommand(l_query, Arrays.asList(new String[]{"displayname", "task_synopsis", "resolver", "completion_date", "release"}));
-            getCommands().executeSynergyCommand(workarea, queryCommand);
-            // Alle tasks wurden entfernt ..... 
-            for (Map<String, String> task : queryCommand.getQueryResult()) {
-
-              String taskId = task.get("displayname");
-              log = logs.get(taskId);
-              if (log == null) {
-                log = new SynergyLogEntry();
-                log.setMsg(task.get("task_synopsis"));
-                log.setUser(task.get("resolver"));
-                log.setTaskId(task.get("displayname"));
-                log.setDate(task.get("completion_date"));
-                log.setAction("D");
-                // Erweiterung Task-Release
-                log.setVersion(task.get("release"));
-                logs.put(taskId, log);
-              }
-              log.addPath(l_path);
-            }
-
           }
-
         }
       }
     }
 
     return logs.values();
 
+  }
+
+  private boolean isOfTypeJar(String p_4partName) {
+    SynergyPublisher.SynergyObject synergyObject = new SynergyPublisher.SynergyObject(p_4partName);
+
+    return "jar".equals(synergyObject.type);
   }
 
   private boolean isObjectInBaseline(Calendar timeLastBuild, String l_newName, String l_baseline, FilePath l_path, Map<String, String> objects, Map<String, Map<String, String>> tasks) throws IOException, InterruptedException, SynergyException {
