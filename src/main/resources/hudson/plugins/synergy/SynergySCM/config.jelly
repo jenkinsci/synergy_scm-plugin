@@ -37,7 +37,7 @@
 		<f:checkbox title="Checkout project if it is not existing"/>
 	</f:entry>
         <f:entry field="buildEmptyChangeLog">
-		<f:checkbox title="Build project even if it is triggered by time or scm and there is no change"/>
+		<f:checkbox title="Build project even if it is triggered by time or scm and there is no change" checked="true"/>
 	</f:entry>
 	<f:entry field="insignificantChangePatterns" title="Insignificant change patterns">
 		<f:textbox/>
