@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Builds an update workarea command.
@@ -32,12 +33,10 @@ public class UpdateCommand extends Command {
   private String project;
 
   /**
-   * The list of members that have been added to the workarea.
-   * Mapping new objectname , oldobjectname
+   * The list of members that have been added to the workarea. Mapping new
+   * objectname , oldobjectname
    */
   private HashMap<String, List<List<String>>> names;
-
-  private Set<String> addedTasks = new HashSet<>();
 
   private Set<String> removedTasks = new HashSet<>();
 
@@ -68,6 +67,7 @@ public class UpdateCommand extends Command {
     Pattern pReplaces = Pattern.compile("'([^']+)'\\sreplaces\\s'([^']+)'\\sunder\\s'([^']+)'");
     Pattern pBoundUnder = Pattern.compile("'([^']+)'\\sis\\snow\\sbound\\sunder\\s'([^']+)'");
     Pattern pUpdateComplete = Pattern.compile("Update for '([^']+)' complete");
+    Pattern pRemovedTasks = Pattern.compile("\\sRemoved the following tasks\\s");
 
     Matcher mUpdateComplete = pUpdateComplete.matcher(result);
     int start = 0;
@@ -117,6 +117,23 @@ public class UpdateCommand extends Command {
     Pattern pgNamePattern = Pattern.compile("Refreshing baseline and tasks for project grouping '([^']+)'");
     Matcher mPgNamePattern = pgNamePattern.matcher(result);
     pgName = mPgNamePattern.find() ? mPgNamePattern.group(1) : null;
+
+    Matcher removedTasksMatcher = pRemovedTasks.matcher(result);
+    while (removedTasksMatcher.find()) {
+      int end = removedTasksMatcher.end();
+      String substringRemovedLine = result.substring(end, result.indexOf("\r\n",end));
+      if (!substringRemovedLine.contains("because they are in the baseline")) {
+        String substring = result.substring(result.indexOf("\r\n", end) + 2);
+        String[] split = StringUtils.splitPreserveAllTokens(substring, "\r\n");
+        for (String line : split) {
+          if (StringUtils.isEmpty(line)) {
+            break;
+          } else if (line.contains("Task MPH#")) {
+            removedTasks.add(line.substring(line.indexOf("MPH#"), line.indexOf(":")));
+          }
+        }
+      }
+    }
   }
 
   @Override
@@ -145,13 +162,6 @@ public class UpdateCommand extends Command {
 
   public String getPgName() {
     return pgName;
-  }
-
-  /**
-   * @return the addedTasks
-   */
-  public Set<String> getAddedTasks() {
-    return addedTasks;
   }
 
   /**

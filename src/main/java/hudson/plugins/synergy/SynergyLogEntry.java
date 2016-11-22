@@ -96,12 +96,15 @@ public class SynergyLogEntry extends ChangeLogSet.Entry {
   }
 
   public void setUser(String author) {
+    if (author == null) {
+      this.author = User.getUnknown();
+    }
     this.author = User.get(author);
   }
 
   @Exported
   public String getUser() {
-    return author == null ? null : author.getId();
+    return author == null ? User.getUnknown().getId() : author.getId();
   }
 
   @Exported

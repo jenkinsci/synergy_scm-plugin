@@ -12,17 +12,20 @@ public class TaskCompleted {
   private String resolver;
 
   private Date dateCompleted;
+  
+  private String release;
 
   public TaskCompleted() {
     super();
   }
 
-  public TaskCompleted(String id, String synopsis, String resolver, Date dateCompleted) {
+  public TaskCompleted(String id, String synopsis, String resolver, Date dateCompleted, String release) {
     super();
     this.id = id;
     this.synopsis = synopsis;
     this.resolver = resolver;
     this.dateCompleted = new Date(dateCompleted.getTime());
+    this.release = release;
 
   }
 
@@ -87,5 +90,19 @@ public class TaskCompleted {
 
   public void setDateCompleted(Date dateCompleted) {
     this.dateCompleted = new Date(dateCompleted.getTime());
+  }
+
+  /**
+   * @return the release
+   */
+  public String getRelease() {
+    return release;
+  }
+
+  /**
+   * @param release the release to set
+   */
+  public void setRelease(String release) {
+    this.release = release;
   }
 }

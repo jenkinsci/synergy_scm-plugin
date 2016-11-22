@@ -39,6 +39,8 @@ import hudson.plugins.synergy.impl.SetSessionPropertyCommand;
 import hudson.plugins.synergy.impl.SubProjectQueryCommand;
 import hudson.plugins.synergy.impl.SyncCommand;
 import hudson.plugins.synergy.impl.SynergyException;
+import hudson.plugins.synergy.impl.TaskCompleted;
+import hudson.plugins.synergy.impl.TaskInfoCommand;
 import hudson.plugins.synergy.impl.TaskShowObjectsCommand;
 import hudson.plugins.synergy.impl.UpdateCommand;
 import hudson.plugins.synergy.impl.WorkareaSnapshotCommand;
@@ -70,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -514,11 +517,9 @@ public class SynergySCM extends SCM implements Serializable {
     UpdateCommand updateCommand = new UpdateCommand(UpdateCommand.PROJECT_GROUPING, projectGrouping, isReplaceSubprojects());
     getCommands().executeSynergyCommand(path, updateCommand);
     Map<String, List<List<String>>> updates = updateCommand.getUpdates();
-    Run<?, ?> previousBuild = build.getPreviousBuild();
-    Calendar timestamp = previousBuild != null ? previousBuild.getTimestamp() : null;
 
     // Generate changelog
-    Collection<SynergyLogEntry> logs = generateChangeLog(timestamp, updates, projectGrouping, changeLogFile, path);
+    Collection<SynergyLogEntry> logs = generateChangeLog(updates, updateCommand.getRemovedTasks(), projectGrouping, changeLogFile, path);
 
     // Check update warnings.
     if (isCheckForUpdateWarnings() && updateCommand.isUpdateWarningsExists()) {
@@ -685,10 +686,9 @@ public class SynergySCM extends SCM implements Serializable {
 
       Map<String, List<List<String>>> names = new HashMap<String, List<List<String>>>();
       names.put(projectName, l_newResult);
-      Run<?, ?> previousBuild = build.getPreviousBuild();
-      Calendar timestamp = previousBuild != null ? previousBuild.getTimestamp() : null;
+      Set<String> emptySet = Collections.emptySet();
 
-      Collection<SynergyLogEntry> entries = generateChangeLog(timestamp, names, projectName, changeLogFile, path);
+      Collection<SynergyLogEntry> entries = generateChangeLog(names, emptySet, projectName, changeLogFile, path);
       copyEntries(path, entries);
       return new CheckoutResult(null, entries);
     } else {
@@ -788,10 +788,8 @@ public class SynergySCM extends SCM implements Serializable {
 
     // Generate changelog
     String pgName = updateCommand.getPgName();
-    Run<?, ?> previousBuild = build.getPreviousBuild();
-    Calendar timestamp = previousBuild != null ? previousBuild.getTimestamp() : null;
 
-    Collection<SynergyLogEntry> logs = generateChangeLog(timestamp, updates, projectName, changeLogFile, path, pgName);
+    Collection<SynergyLogEntry> logs = generateChangeLog(updates, updateCommand.getRemovedTasks(), projectName, changeLogFile, path, pgName);
 
     // Check update warnings.
     if (isCheckForUpdateWarnings() && updateCommand.isUpdateWarningsExists()) {
@@ -1066,9 +1064,9 @@ public class SynergySCM extends SCM implements Serializable {
    * @throws InterruptedException
    * @throws SynergyException
    */
-  private Collection<SynergyLogEntry> generateChangeLog(Calendar timeLastBuild, Map<String, List<List<String>>> names, String projectName, File changeLogFile, FilePath workarea)
+  private Collection<SynergyLogEntry> generateChangeLog(Map<String, List<List<String>>> names, Set<String> removedTasks, String projectName, File changeLogFile, FilePath workarea)
           throws IOException, InterruptedException, SynergyException {
-    return generateChangeLog(timeLastBuild, names, projectName, changeLogFile, workarea, null);
+    return generateChangeLog(names, removedTasks, projectName, changeLogFile, workarea, null);
   }
 
   /**
@@ -1086,7 +1084,7 @@ public class SynergySCM extends SCM implements Serializable {
    * @throws InterruptedException
    * @throws SynergyException
    */
-  private Collection<SynergyLogEntry> generateChangeLog(Calendar timeLastBuild, Map<String, List<List<String>>> names, String projectName, File changeLogFile, FilePath workarea,
+  private Collection<SynergyLogEntry> generateChangeLog(Map<String, List<List<String>>> names, Set<String> removedtasks, String projectName, File changeLogFile, FilePath workarea,
           String pgName) throws IOException, InterruptedException, SynergyException {
     // Find information about the element.
     Map<String, SynergyLogEntry> logs = new HashMap<String, SynergyLogEntry>();
@@ -1165,7 +1163,7 @@ public class SynergySCM extends SCM implements Serializable {
             Path l_path = new Path();
             l_path.setId(l_newName);
             // geändertes Object "name" nicht in der Object-Manege - dann kommt es aus der Baseline oder die Task wurde aus dem Projekt entfernt ..... 
-            if (objects.containsKey(l_newName) || isObjectInBaseline(timeLastBuild, l_newName, l_baseline, workarea, objects, tasks)) {
+            if (objects.containsKey(l_newName) || isObjectInBaseline(l_newName, l_baseline, workarea, objects, tasks)) {
               l_path.setValue(l_newName);
               if (l_newName.equals(name.get(1))) {
                 l_path.setAction("A");
@@ -1196,39 +1194,32 @@ public class SynergySCM extends SCM implements Serializable {
                   }
                 }
               }
-
-            } else {
-
-              // was tun, wenn das Objekt schon länger in der Baseline ist .... ?
-              // suche die Tasks die zu dem nicht bekannten Object gehören -> die also zu dem Old-Name gehören
-              String oldName = name.get(1);
-              l_path.setValue(oldName);
-              l_path.setAction("D");
-
-              String l_query = "type = 'task' and has_associated_object('" + oldName + "')";
-              queryCommand
-                      = new QueryCommand(l_query, Arrays.asList(new String[]{"displayname", "task_synopsis", "resolver", "completion_date", "release"}));
-              getCommands().executeSynergyCommand(workarea, queryCommand);
-              // Alle tasks wurden entfernt ..... 
-              for (Map<String, String> task : queryCommand.getQueryResult()) {
-
-                String taskId = task.get("displayname");
-                log = logs.get(taskId);
-                if (log == null) {
-                  log = new SynergyLogEntry();
-                  log.setMsg(task.get("task_synopsis"));
-                  log.setUser(task.get("resolver"));
-                  log.setTaskId(task.get("displayname"));
-                  log.setDate(task.get("completion_date"));
-                  log.setAction("D");
-                  // Erweiterung Task-Release
-                  log.setVersion(task.get("release"));
-                  logs.put(taskId, log);
-                }
-                log.addPath(l_path);
-              }
             }
           }
+        }
+      }
+
+      // removed Tasks
+      if (!removedtasks.isEmpty()) {
+
+        TaskInfoCommand taskInfoCommand = new TaskInfoCommand(new ArrayList(removedtasks));
+                
+        getCommands().executeSynergyCommand(workarea, taskInfoCommand);
+        // Alle tasks wurden entfernt ..... 
+        for (TaskCompleted task : taskInfoCommand.getInformations()) {
+
+          String taskId = task.getId();
+          SynergyLogEntry log = logs.get(taskId);
+
+          log = new SynergyLogEntry();
+          log.setMsg(task.getSynopsis());
+          log.setUser(task.getResolver());
+          log.setTaskId(task.getId());
+          log.setDate(task.getDateCompleted().toString());
+          log.setAction("D");
+          // Erweiterung Task-Release
+          log.setVersion(task.getRelease());
+          logs.put(taskId, log);
         }
       }
     }
@@ -1243,16 +1234,11 @@ public class SynergySCM extends SCM implements Serializable {
     return "jar".equals(synergyObject.type);
   }
 
-  private boolean isObjectInBaseline(Calendar timeLastBuild, String l_newName, String l_baseline, FilePath l_path, Map<String, String> objects, Map<String, Map<String, String>> tasks) throws IOException, InterruptedException, SynergyException {
+  private boolean isObjectInBaseline(String l_newName, String l_baseline, FilePath l_path, Map<String, String> objects, Map<String, Map<String, String>> tasks) throws IOException, InterruptedException, SynergyException {
     // prüfen ob Object in der Baseline
 
     String l_query = "type = 'task' and has_associated_object('" + l_newName + "') "
             + " and (is_task_in_baseline_of('" + l_baseline + "') or is_dirty_task_in_baseline_of('" + l_baseline + "'))";
-    if (timeLastBuild != null) {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-      String dateAsString = format.format(timeLastBuild.getTime());
-      l_query = l_query + " and completion_date > time('" + dateAsString + "')";
-    }
     QueryCommand queryCommand = new QueryCommand(l_query, Arrays.asList(new String[]{"displayname", "task_synopsis", "resolver", "completion_date", "release"}));
     getCommands().executeSynergyCommand(l_path, queryCommand);
 

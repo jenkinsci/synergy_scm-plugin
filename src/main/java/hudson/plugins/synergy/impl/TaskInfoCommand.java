@@ -47,6 +47,7 @@ public class TaskInfoCommand extends Command {
       TaskCompleted task = null;
       Pattern re_taskid = Pattern.compile("^\\s*Task.+?([0-9]+)[^\\d]*$");
       Pattern re_resolver = Pattern.compile("^\\s*Resolver:\\s*(.*)\\s*$");
+      Pattern re_release = Pattern.compile("^\\s*Release:\\s*(.*)\\s*$");
       Pattern re_completiondate = Pattern.compile("^\\s*Actual Completion Date:\\s*(.*)\\s*$");
       try {
         BufferedReader reader = new BufferedReader(new StringReader(result));
@@ -55,6 +56,7 @@ public class TaskInfoCommand extends Command {
           // TODO: check the format of the taskid-line in releases < 7.1
           Matcher m_taskid = re_taskid.matcher(line);
           Matcher m_resolver = re_resolver.matcher(line);
+          Matcher m_release = re_release.matcher(line);
           Matcher m_completiondate = re_completiondate.matcher(line);
 
           if (m_taskid.matches()) {
@@ -70,6 +72,8 @@ public class TaskInfoCommand extends Command {
             }
           } else if (m_resolver.matches()) {
             task.setResolver(m_resolver.group(1));
+          }else if (m_release.matches()) {
+            task.setRelease(m_release.group(1));
           } else if (line.indexOf("Status set to 'completed'") != -1) {
             try {
               String dateAsString = line.substring(0, line.lastIndexOf(':'));

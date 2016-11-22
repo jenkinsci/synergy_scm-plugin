@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
 import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 /**
  *
  * @author u48jfe
@@ -46,6 +46,7 @@ class SynergyBuildStepExecution extends AbstractSynchronousNonBlockingStepExecut
   private transient SynergyBuildStep step;
 
   @Override
+  @SuppressFBWarnings("DE_MIGHT_IGNORE")
   protected List<List<String>> run() throws Exception {
 
     List<List<String>> l_return = new ArrayList<>();
