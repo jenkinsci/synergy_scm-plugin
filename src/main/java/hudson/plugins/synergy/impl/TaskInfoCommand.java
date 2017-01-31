@@ -36,8 +36,13 @@ public class TaskInfoCommand extends Command {
 	
 	@Override
 	public String[] buildCommand(String ccmExe) {
-		String[] commands = new String[]{ccmExe, "task", "-show", "info", tasks.get(0)};
-		return commands;
+		ArrayList<String> commands=new ArrayList<String>(4+tasks.size());
+		commands.add(ccmExe);
+		commands.add("task");
+		commands.add("-show");
+		commands.add("info");
+		commands.addAll(tasks);
+		return commands.toArray(new String[0]);
 	}
 	
 	@Override
@@ -49,27 +54,39 @@ public class TaskInfoCommand extends Command {
 		Pattern re_completiondate = Pattern.compile("^\\s*Actual Completion Date:\\s*(.*)\\s*$");
 		try {
 			BufferedReader reader = new BufferedReader(new StringReader(result));
-			String line = reader.readLine();
-			while (line!=null) {
-			   // TODO: check the format of the taskid-line in releases < 7.1
-			   Matcher m_taskid = re_taskid.matcher(line);
-			   Matcher m_resolver = re_resolver.matcher(line);
-			   Matcher m_completiondate = re_completiondate.matcher(line);
-
+			boolean synopsis_in_progress=false;
+			String line;
+			while ((line=reader.readLine())!=null) {
+			    // TODO: check the format of the taskid-line in releases < 7.1
+			    Matcher m_taskid = re_taskid.matcher(line);
+			    Matcher m_resolver = re_resolver.matcher(line);
+			    Matcher m_completiondate = re_completiondate.matcher(line);
+			   
+			    if (synopsis_in_progress && (line.trim().length()==0 || line.trim().startsWith("State:"))){
+			    	synopsis_in_progress=false;
+			    }
+			    
+			    if (line.trim().length()==0){
+			    	continue;
+			    }
+			    
 				if (m_taskid.matches()){
 					task = new TaskCompleted();
 					informations.add(task);
 					task.setId(m_taskid.group(1));
+					synopsis_in_progress=false;
 				}else if (line.indexOf("Synopsis:")!=-1) {
 					// Check whether we have already stored task synopsis
 					// (in case task description also contains 'Synopsis:')
 					if (task.getSynopsis() == null){
-						// TODO multiline synopsis
 						task.setSynopsis(line.substring(line.indexOf(':')+1).trim());
+						synopsis_in_progress=true;
 					}
 				}else if (m_resolver.matches()){
 					task.setResolver(m_resolver.group(1));
+					synopsis_in_progress=false;
 				}else if (line.indexOf("Status set to 'completed'")!=-1){
+					synopsis_in_progress=false;
 					try {
 						String dateAsString = line.substring(0, line.lastIndexOf(':')); 
 						Date date = synergyDateFormat65.parse(dateAsString);
@@ -80,6 +97,7 @@ public class TaskInfoCommand extends Command {
 					  System.out.println("ParseException: '"+line+"'");
 					}
 				}else if (m_completiondate.matches()){
+					synopsis_in_progress=false;
 					String dateAsString = m_completiondate.group(1);
 					try {
 						Date date = synergyDateFormat71.parse(dateAsString);
@@ -89,9 +107,9 @@ public class TaskInfoCommand extends Command {
 						// TODO: log parsing problems to hudson logfile
 					  System.out.println("ParseException: '"+dateAsString+"'");
 					}
-			   }
-
-				line = reader.readLine();				
+			    }else if (synopsis_in_progress){
+				   task.setSynopsis(task.getSynopsis()+'\n'+line.trim());
+			    }
 			}
 		} catch (IOException e) {
 			// TODO: log parsing problems to hudson logfile
