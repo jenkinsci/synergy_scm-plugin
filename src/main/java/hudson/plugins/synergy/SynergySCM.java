@@ -60,14 +60,11 @@ import hudson.util.Secret;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -97,6 +94,73 @@ import org.kohsuke.stapler.StaplerRequest;
 public class SynergySCM extends SCM implements Serializable {
 
   private static final long serialVersionUID = 1L;
+
+  private Collection<? extends String> getOtherProjectMappings(Set<String> projects) {
+
+    Set<String> result = new HashSet<>();
+
+    if (projects.contains("Doktyp") || projects.contains("Doktyp-Root")) {
+      result.add("Doktyp");
+      result.add("Doktyp-Root");
+    }
+
+    if (projects.contains("Doktyp-Maven") || projects.contains("Doktyp")) {
+      result.add("Doktyp");
+      result.add("Doktyp-Maven");
+    }
+
+    if (projects.contains("AT") || projects.contains("AP")) {
+      result.add("AT");
+      result.add("AP");
+    }
+
+    if (projects.contains("EAkte_Maven") || projects.contains("EAkte")) {
+      result.add("EAkte_Maven");
+      result.add("EAkte");
+    }
+
+    if (projects.contains("Avantis_Maven") || projects.contains("Avantis")) {
+      result.add("Avantis_Maven");
+      result.add("Avantis");
+    }
+
+    if (projects.contains("FF_Maven") || projects.contains("FF")) {
+      result.add("FF_Maven");
+      result.add("FF");
+    }
+
+    if (projects.contains("FwkKern_Maven") || projects.contains("FwkKern")) {
+      result.add("FwkKern_Maven");
+      result.add("FwkKern");
+    }
+
+    if (projects.contains("HS_Maven") || projects.contains("HS")) {
+      result.add("HS_Maven");
+      result.add("HS");
+    }
+
+    if (projects.contains("Lib_Maven") || projects.contains("Lib")) {
+      result.add("Lib_Maven");
+      result.add("Lib");
+    }
+
+    if (projects.contains("SE_Maven") || projects.contains("SE")) {
+      result.add("SE_Maven");
+      result.add("SE");
+    }
+
+    if (projects.contains("TDT_Maven") || projects.contains("TDT")) {
+      result.add("TDT_Maven");
+      result.add("TDT");
+    }
+
+    if (projects.contains("TestFwk_Maven") || projects.contains("TestFwk")) {
+      result.add("TestFwk_Maven");
+      result.add("TestFwk");
+    }
+
+    return result;
+  }
 
   @Extension
   public static final class DescriptorImpl extends SCMDescriptor<SynergySCM> {
@@ -725,6 +789,14 @@ public class SynergySCM extends SCM implements Serializable {
         FindProjectWithReleaseAndState findProject = new FindProjectWithReleaseAndState(release, "prep", projectName);
         getCommands().executeSynergyCommand(path, findProject);
         List<String> projects = findProject.getProjects();
+        if (projects.isEmpty()) {
+          // find ProcessRule
+          // FindProcessRulesByReleaseAndPurpose findProcessRulesByPurpose = new FindProcessRulesByReleaseAndPurpose(release, purpose);
+          // List<String> processRules = findProcessRulesByPurpose.getProcessRules();
+          // find baseline Projects
+          // FindBaselineProjectByProcessRule findBaselineProjectByProcessRule = new FindBaselineProjectByProcessRule(processRules.get(0), projectName);
+          // projects = findBaselineProjectByProcessRule.getProjects();
+        }
 
         if (!"Collaborative Development".equals(purpose)) {
           SetRoleCommand setRoleCommand = new SetRoleCommand(SetRoleCommand.BUILD_MANAGER);
@@ -1203,7 +1275,7 @@ public class SynergySCM extends SCM implements Serializable {
       if (!removedtasks.isEmpty()) {
 
         TaskInfoCommand taskInfoCommand = new TaskInfoCommand(new ArrayList(removedtasks));
-                
+
         getCommands().executeSynergyCommand(workarea, taskInfoCommand);
         // Alle tasks wurden entfernt ..... 
         for (TaskCompleted task : taskInfoCommand.getInformations()) {
@@ -1457,6 +1529,9 @@ public class SynergySCM extends SCM implements Serializable {
       getCommands().executeSynergyCommand(path, recursiveProjectCommand);
       List<String> l_subProjects = recursiveProjectCommand.getSubProjects();
       projects.addAll(l_subProjects);
+
+      // add additional projectname mapping
+      projects.addAll(getOtherProjectMappings(projects));
 
       // performanceoptimierung wegen zusammenfassung der Anfragen
       // Sublisten erzeugen

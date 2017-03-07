@@ -9,7 +9,7 @@
   
   <artifactId>synergy</artifactId>
   <packaging>hpi</packaging>
-  <version>1.8-20161019-PHOENICS</version>
+  <version>1.8-20170310-PHOENICS</version>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Synergy+Plugin</url>
   <description>This plug-in provides integration with CM/Synergy Version Manager SCM</description>
   <name>Synergy Plugin</name>
@@ -47,9 +47,9 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
-        <configuration>
-          <showDeprecation>true</showDeprecation>
-        </configuration>
+            <configuration>
+              <showDeprecation>true</showDeprecation>
+            </configuration>
       </plugin>
     </plugins>
   </build>
