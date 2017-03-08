@@ -95,10 +95,21 @@ public class SynergySCM extends SCM implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  private Collection<? extends String> getOtherProjectMappings(Set<String> projects) {
+  private Collection<? extends String> getOtherProjectMappings(Set<String> fromProjects, String delimiter) {
 
     Set<String> result = new HashSet<>();
 
+    Set<String> projects = new HashSet<>();
+    for (String fromProject : fromProjects) {
+      int versionDelimIndex = fromProject.indexOf(delimiter);
+        if (versionDelimIndex != -1) {
+          projects.add(fromProject.substring(0, versionDelimIndex));
+        } else {
+          projects.add(fromProject);
+        }
+    }
+    
+    
     if (projects.contains("Doktyp") || projects.contains("Doktyp-Root")) {
       result.add("Doktyp");
       result.add("Doktyp-Root");
@@ -1531,8 +1542,9 @@ public class SynergySCM extends SCM implements Serializable {
       projects.addAll(l_subProjects);
 
       // add additional projectname mapping
-      projects.addAll(getOtherProjectMappings(projects));
-
+      projects.addAll(getOtherProjectMappings(projects, delimiter));
+      p_listener.getLogger().println("used projects: "+ projects);
+      
       // performanceoptimierung wegen zusammenfassung der Anfragen
       // Sublisten erzeugen
       List<List<String>> l_optimizedQueryObjects = QueryUtils.createOptimizedSubLists(new HashSet<String>(modifiedObjects), maxQueryLength);
