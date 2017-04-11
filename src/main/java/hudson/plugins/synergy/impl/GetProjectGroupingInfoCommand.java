@@ -3,8 +3,8 @@ package hudson.plugins.synergy.impl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Get project grouping information.
@@ -27,6 +27,7 @@ public class GetProjectGroupingInfoCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		try {
 			BufferedReader reader = new BufferedReader(new StringReader(result));
 			String line = reader.readLine();
@@ -62,6 +63,7 @@ public class GetProjectGroupingInfoCommand extends Command {
 		} catch (IOException e) {
 			// Should not happen with a StringReader.
 		}
+	}
 	}
 
 	public String getRelease() {

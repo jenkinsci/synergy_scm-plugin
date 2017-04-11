@@ -1,196 +1,219 @@
 package hudson.plugins.synergy.impl;
 
-import java.util.List;
-
 import hudson.scm.EditType;
+import java.util.List;
+import java.util.Objects;
 
 public class FileVersion {
-	final public static String EDIT = "Edit";
-	final public static String DELETE = "Delete";
-	final public static String ADD = "Add";
-	
-	private String name;
 
-	private String version;
+  final public static String EDIT = "Edit";
+  final public static String DELETE = "Delete";
+  final public static String ADD = "Add";
 
-	private String type;
+  private String name;
 
-	private String instance;
+  private String version;
 
-	private String projectPath;
+  private String type;
 
-	private String resolver;
+  private String instance;
 
-	private int task;
+  private String projectPath;
 
-	private String  action;
+  private String resolver;
 
-	public FileVersion() {
+  private int task;
 
-	}
+  private String action;
 
-	public FileVersion(String name, String version, String type, String instance) {
-		this.name = name;
-		this.version = version;
-		this.type = type;
-		this.instance = instance;
-	}
+  public FileVersion() {
 
-	public FileVersion(String name, String version, String type,
-			String instance, String projectPath, String resolver, int task) {
-		this.name = name;
-		this.version = version;
-		this.type = type;
-		this.instance = instance;
-		this.projectPath = projectPath;
-		this.resolver = resolver;
-		this.task = task;
-	}
+  }
 
-	public boolean equals(FileVersion file) {
-		if (file != null) {
-			super.equals(file);
-			if ((this.name!=null) && ((file.name == null) || (!file.name.equals(this.name)))) {
-				return false;
-			}
-			if ((this.version!=null) && ((file.version == null) || (!file.version.equals(this.version)))) {
-				return false;
-			}
-			if ((this.type!=null) && ((file.type == null) || (!file.type.equals(this.type)))) {
-				return false;
-			}
-			if ((this.instance!=null) && ((file.instance == null) || (!file.instance.equals(this.instance)))) {
-				return false;
-			}
-			if ((this.projectPath!=null) && ((file.projectPath == null) || (!file.projectPath.equals(this.projectPath)))) {
-				return false;
-			}
-			if ((this.resolver!=null) && ((file.resolver == null) || (!file.resolver.equals(this.resolver)))) {
-				return false;
-			}
-			if ((this.task>0) && ((file.task == 0) || (!(file.task == this.task)))) {
-				return false;
-			}
-			if ((this.action!=null) && ((file.action == null) || (!file.action.equals(this.action)))) {
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
-	public boolean equalsTask(FileVersion file) {
-		if (file != null) {
-			super.equals(file);
-			if ((this.name!=null) && ((file.name == null) || (!file.name.equals(this.name)))) {
-				return false;
-			}
-			if ((this.version!=null) && ((file.version == null) || (!file.version.equals(this.version)))) {
-				return false;
-			}
-			if ((this.type!=null) && ((file.type == null) || (!file.type.equals(this.type)))) {
-				return false;
-			}
-			if ((this.instance!=null) && ((file.instance == null) || (!file.instance.equals(this.instance)))) {
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
-	public boolean searchInList(List<FileVersion> files) {
-		for (FileVersion fileSearch : files) {
-			if (fileSearch.equals(this)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	public FileVersion getSearchInList(List<FileVersion> files) {
-		for (FileVersion fileSearch : files) {
-			if (fileSearch.equalsTask(this)) {
-				return fileSearch;
-			}
-		}
-		return null;
-	}
-	public EditType fileToAdd() {
-		return EditType.ADD;
-	}
+  public FileVersion(String name, String version, String type, String instance) {
+    this.name = name;
+    this.version = version;
+    this.type = type;
+    this.instance = instance;
+  }
 
-	public EditType fileToModify() {
-		return EditType.EDIT;
-	}
+  public FileVersion(String name, String version, String type,
+          String instance, String projectPath, String resolver, int task) {
+    this.name = name;
+    this.version = version;
+    this.type = type;
+    this.instance = instance;
+    this.projectPath = projectPath;
+    this.resolver = resolver;
+    this.task = task;
+  }
 
-	public EditType fileToDelete() {
-		return EditType.DELETE;
-	}
+  @Override
+  public boolean equals(Object object) {
 
-	public String getName() {
-		return name;
-	}
+    if (this == object) {
+      return true;
+    }
+    if (!(object instanceof FileVersion)) {
+      return false;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    FileVersion file = (FileVersion) object;
 
-	public String getVersion() {
-		return version;
-	}
+    if ((this.name != null) && ((file.name == null) || (!file.name.equals(this.name)))) {
+      return false;
+    }
+    if ((this.version != null) && ((file.version == null) || (!file.version.equals(this.version)))) {
+      return false;
+    }
+    if ((this.type != null) && ((file.type == null) || (!file.type.equals(this.type)))) {
+      return false;
+    }
+    if ((this.instance != null) && ((file.instance == null) || (!file.instance.equals(this.instance)))) {
+      return false;
+    }
+    if ((this.projectPath != null) && ((file.projectPath == null) || (!file.projectPath.equals(this.projectPath)))) {
+      return false;
+    }
+    if ((this.resolver != null) && ((file.resolver == null) || (!file.resolver.equals(this.resolver)))) {
+      return false;
+    }
+    if ((this.task > 0) && ((file.task == 0) || (!(file.task == this.task)))) {
+      return false;
+    }
+    if ((this.action != null) && ((file.action == null) || (!file.action.equals(this.action)))) {
+      return false;
+    }
+    return true;
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+  }
 
-	public String getType() {
-		return type;
-	}
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 59 * hash + Objects.hashCode(this.name);
+    hash = 59 * hash + Objects.hashCode(this.version);
+    hash = 59 * hash + Objects.hashCode(this.type);
+    hash = 59 * hash + Objects.hashCode(this.instance);
+    hash = 59 * hash + Objects.hashCode(this.projectPath);
+    hash = 59 * hash + Objects.hashCode(this.resolver);
+    hash = 59 * hash + this.task;
+    hash = 59 * hash + Objects.hashCode(this.action);
+    return hash;
+  }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+  public boolean equalsTask(FileVersion file) {
+    if (file != null) {
+      super.equals(file);
+      if ((this.name != null) && ((file.name == null) || (!file.name.equals(this.name)))) {
+        return false;
+      }
+      if ((this.version != null) && ((file.version == null) || (!file.version.equals(this.version)))) {
+        return false;
+      }
+      if ((this.type != null) && ((file.type == null) || (!file.type.equals(this.type)))) {
+        return false;
+      }
+      if ((this.instance != null) && ((file.instance == null) || (!file.instance.equals(this.instance)))) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
 
-	public String getInstance() {
-		return instance;
-	}
+  public boolean searchInList(List<FileVersion> files) {
+    for (FileVersion fileSearch : files) {
+      if (fileSearch.equals(this)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-	public void setInstance(String instance) {
-		this.instance = instance;
-	}
+  public FileVersion getSearchInList(List<FileVersion> files) {
+    for (FileVersion fileSearch : files) {
+      if (fileSearch.equalsTask(this)) {
+        return fileSearch;
+      }
+    }
+    return null;
+  }
 
+  public EditType fileToAdd() {
+    return EditType.ADD;
+  }
 
+  public EditType fileToModify() {
+    return EditType.EDIT;
+  }
 
-	public String getResolver() {
-		return resolver;
-	}
+  public EditType fileToDelete() {
+    return EditType.DELETE;
+  }
 
-	public void setResolver(String resolver) {
-		this.resolver = resolver;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public int getTask() {
-		return task;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public void setTask(int task) {
-		this.task = task;
-	}
+  public String getVersion() {
+    return version;
+  }
 
+  public void setVersion(String version) {
+    this.version = version;
+  }
 
+  public String getType() {
+    return type;
+  }
 
-	public String getAction() {
-		return action;
-	}
+  public void setType(String type) {
+    this.type = type;
+  }
 
-	public void setAction(String action) {
-		this.action = action;
-	}
+  public String getInstance() {
+    return instance;
+  }
 
-	public String getProjectPath() {
-		return projectPath;
-	}
+  public void setInstance(String instance) {
+    this.instance = instance;
+  }
 
-	public void setProjectPath(String projectPath) {
-		this.projectPath = projectPath;
-	}
+  public String getResolver() {
+    return resolver;
+  }
+
+  public void setResolver(String resolver) {
+    this.resolver = resolver;
+  }
+
+  public int getTask() {
+    return task;
+  }
+
+  public void setTask(int task) {
+    this.task = task;
+  }
+
+  public String getAction() {
+    return action;
+  }
+
+  public void setAction(String action) {
+    this.action = action;
+  }
+
+  public String getProjectPath() {
+    return projectPath;
+  }
+
+  public void setProjectPath(String projectPath) {
+    this.projectPath = projectPath;
+  }
 
 }

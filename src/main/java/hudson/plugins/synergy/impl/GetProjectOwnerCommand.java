@@ -17,7 +17,9 @@ public class GetProjectOwnerCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		this.owner = result;
+	}
 	}
 	public String getOwner() {
 		return owner;

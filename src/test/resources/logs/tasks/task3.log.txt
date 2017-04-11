@@ -1,0 +1,28 @@
+Task MPH#402797:
+  Synopsis:                   PT107479: Log-Anpassung in Uniserv MailClient
+  State:                      completed
+  Resolver:                   u48jfe
+  Release:                    BT5.0.0
+  Priority:                   <void>
+  Subsystem:                  <void>
+  Platform:                   <void>
+  Estimated Time to Complete: <void>
+  Actual Duration of Task:    <void>
+  Estimated Completion Date:  <void>
+  Actual Completion Date:     17.01.11 14:22
+  Modifiable In:              MPH
+  Completed In:               MPH
+
+  Task Description:
+    <void>
+
+  Associated Change Requests:
+    No change request tool has been set up for this database.
+
+  Fixes Task:
+    None
+
+  Fixed By Tasks:
+    None
+
+

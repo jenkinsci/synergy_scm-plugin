@@ -1,11 +1,14 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-	<f:entry field="publish">
+	<f:entry field="onlyOnSuccess">
 		<f:checkbox title="Copy folder only if the build is successful"/>
 	</f:entry>
-	<f:entry field="intFolder" title="int folder">
+	<f:entry field="sourceFolder" title="source folder">
 		<f:textbox/>
+                <f:description>four-part-name</f:description>
 	</f:entry>
-	<f:entry field="devFolder" title="dev folder">
+	<f:entry field="targetFolder" title="target folder">
 		<f:textbox/>
+                <f:description>four-part-name</f:description>
 	</f:entry>
 </j:jelly>

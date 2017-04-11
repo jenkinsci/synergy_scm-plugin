@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 <f:entry field="time">
     <f:select/>
@@ -5,4 +6,13 @@
 <f:entry field="publish" title="Publish the baseline if the build is successful">
     <f:checkbox/>
 </f:entry>
+<f:entry field="baselineName" title="Baseline Name">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="baselineTemplate" title="Version template">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="phoenicsRelease" title="Phoenics Delivery Release">
+		<f:textbox/>
+	</f:entry>
 </j:jelly>

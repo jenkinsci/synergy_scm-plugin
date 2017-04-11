@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<f:entry field="database" title="Database">
 		<f:textbox/>
@@ -32,10 +33,28 @@
 	<f:entry field="checkTaskModifiedObjects">
 		<f:checkbox title="Check for modifications"/>
 	</f:entry>
+	<f:entry field="checkoutProjectIfNotExists">
+		<f:checkbox title="Checkout project if it is not existing"/>
+	</f:entry>
+        <f:entry field="buildEmptyChangeLog">
+		<f:checkbox title="Build project even if it is triggered by time or scm and there is no change" checked="true"/>
+	</f:entry>
+	<f:entry field="insignificantChangePatterns" title="Insignificant change patterns">
+		<f:textbox/>
+	</f:entry>
+        <f:entry field="maxQueryLength" title="Max query length for Check">
+		<f:textbox/>
+	</f:entry>
 	<f:entry field="replaceSubprojects">
 		<f:checkbox title="Replace Subprojects"/>
 	</f:entry>
 	<f:entry field="release" title="Release">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="updateReleases" title="Update-Releases">
+		<f:textbox/>
+	</f:entry>
+	<f:entry field="updateFolders" title="Update-Folders">
 		<f:textbox/>
 	</f:entry>
 	<f:entry field="purpose" title="Purpose">

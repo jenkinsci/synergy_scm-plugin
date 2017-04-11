@@ -23,7 +23,9 @@ public class RecursiveProjectQueryCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
+                
 		subProjects = new ArrayList<String>();
+                if (result != null) {
 		try {
 			BufferedReader reader = new BufferedReader(new StringReader(result));
 			String sousProjet = reader.readLine();
@@ -34,6 +36,7 @@ public class RecursiveProjectQueryCommand extends Command {
 		} catch (IOException e) {
 			// Ignore on StringReader.
 		}
+	}
 	}
 	
 	public List<String> getSubProjects() {

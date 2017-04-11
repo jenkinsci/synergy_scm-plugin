@@ -16,8 +16,8 @@ public class WorkareaSnapshotCommand extends Command {
 
 	/**
 	 * Builds a workarea snapshot command.
-	 * @param project
-	 * @return
+	 * @param ccmExe executable
+	 * @return String[]
 	 */
 	@Override
 	public String[] buildCommand(String ccmExe) {
@@ -27,7 +27,7 @@ public class WorkareaSnapshotCommand extends Command {
 	
 	@Override
 	public void parseResult(String result) {
-		// TODO Auto-generated method stub
+		// nothing to do
 		
 	}
 }

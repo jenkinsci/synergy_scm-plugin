@@ -21,8 +21,9 @@ public class GetProjectGroupingCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		projectGrouping = result.trim();
-	}
+	}}
 	public String getProjectGrouping() {
 		return projectGrouping;
 	}

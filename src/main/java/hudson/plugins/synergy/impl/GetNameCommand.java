@@ -17,7 +17,9 @@ public class GetNameCommand extends Command {
 	}
 	@Override
 	public void parseResult(String result) {
+                if (result != null) {
 		name = result;
+	}
 	}
 	
 	public String getName() {
