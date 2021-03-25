@@ -4,14 +4,13 @@ import hudson.model.AbstractBuild;
 import hudson.plugins.synergy.SynergyChangeLogSet.LogEntry;
 import hudson.plugins.synergy.SynergyChangeLogSet.Path;
 import hudson.scm.ChangeLogParser;
-import hudson.util.Digester2;
 import hudson.util.IOException2;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.commons.digester.Digester;
+import org.apache.commons.digester3.Digester;
 import org.xml.sax.SAXException;
 
 public class SynergyChangeLogParser extends ChangeLogParser {
@@ -19,7 +18,7 @@ public class SynergyChangeLogParser extends ChangeLogParser {
 	public SynergyChangeLogSet parse(AbstractBuild build, File changelogFile)
 			throws IOException, SAXException {
 
-		Digester digester = new Digester2();
+		Digester digester = new Digester();
 		ArrayList<LogEntry> r = new ArrayList<LogEntry>();
 		digester.push(r);
 

@@ -50,6 +50,26 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <!-- 1.9.4 when this merged https://github.com/stapler/stapler/pull/211 -->
+        <version>1.9.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-digester3</artifactId>
+      <version>3.2</version>
+    </dependency>
+  </dependencies>
+
 </project>  
   
 
